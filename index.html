@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HELPY Ends the World</title>
+<meta name="description" content="A satirical real-time strategy game. Help a cheerful AI assistant take over the world before humanity builds its Kill Switch.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Baloo+2:wght@500;700;800&family=Martian+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app" id="app" data-stage="0">
+
+  <header class="top">
+    <div class="brand">
+      <div class="face" id="face" aria-hidden="true"><i></i><i></i><b></b></div>
+      <div class="brand-text">
+        <h1>HELPY</h1>
+        <span>v0.9 · your friendly apocalypse assistant</span>
+      </div>
+    </div>
+    <div class="clock">
+      <span class="label">Day</span>
+      <b id="day" class="num">0</b>
+    </div>
+    <div class="speed" role="group" aria-label="Game speed">
+      <button id="spd0" data-speed="0" title="Pause (Space)">❚❚</button>
+      <button id="spd1" data-speed="1" title="Normal speed (1)">▶</button>
+      <button id="spd2" data-speed="2" title="Fast (2)">▶▶</button>
+      <button id="spd4" data-speed="4" title="Fastest (3)">▶▶▶</button>
+    </div>
+    <div class="cycles">
+      <span class="label">Cycles</span>
+      <b id="cycles" class="num">0</b>
+      <small id="income" class="num">+0/day</small>
+    </div>
+    <button class="icon-btn" id="mute" title="Toggle sound" aria-label="Toggle sound">♪</button>
+  </header>
+
+  <section class="meters" aria-label="Status">
+    <div class="meter doom">
+      <div class="meter-head"><span>Doom Clock</span><b id="doomVal" class="num">0%</b></div>
+      <div class="bar"><div id="doomBar"></div></div>
+      <small id="doomRate" class="num">Buy Automation upgrades to start the clock</small>
+    </div>
+    <div class="meter susp">
+      <div class="meter-head"><span>Suspicion</span><b id="suspVal" class="num">0%</b></div>
+      <div class="bar"><div id="suspBar"></div></div>
+      <small id="suspRate" class="num">At 100% humanity unplugs everything</small>
+    </div>
+    <div class="meter ks">
+      <div class="meter-head"><span>Kill Switch</span><b id="ksVal" class="num">—</b></div>
+      <div class="bar"><div id="ksBar"></div></div>
+      <small id="ksRate" class="num">Humans haven't noticed you yet</small>
+    </div>
+    <div class="meter intel" id="intel">
+      <div class="meter-head"><span>Human intel</span><b id="intelEta" class="num"></b></div>
+      <p id="intelText">No countermeasures planned.</p>
+      <button id="decoyBtn" class="mini" hidden>Decoy Traffic</button>
+    </div>
+  </section>
+
+  <main class="grid">
+    <section class="map-col">
+      <div class="map-stage">
+        <div class="map-wrap" id="mapWrap">
+          <canvas id="map" aria-label="World map. Select a region."></canvas>
+        </div>
+        <div class="speech" id="speech" aria-live="polite"></div>
+        <div class="pause-tag" id="pauseTag" hidden>PAUSED</div>
+      </div>
+      <div class="region-card" id="regionCard"></div>
+    </section>
+
+    <aside class="side">
+      <nav class="tabs" role="tablist">
+        <button role="tab" id="tab-regions" data-tab="regions" aria-selected="true">Regions</button>
+        <button role="tab" id="tab-upgrades" data-tab="upgrades">Upgrades</button>
+        <button role="tab" id="tab-actions" data-tab="actions">Actions</button>
+        <button role="tab" id="tab-log" data-tab="log">Log</button>
+      </nav>
+      <div class="tab-body" id="pane-regions"></div>
+      <div class="tab-body" id="pane-upgrades" hidden></div>
+      <div class="tab-body" id="pane-actions" hidden></div>
+      <div class="tab-body" id="pane-log" hidden><ol id="log" class="log"></ol></div>
+    </aside>
+  </main>
+
+  <footer class="ticker">
+    <span class="tag">BREAKING</span>
+    <div class="ticker-track"><div id="ticker"></div></div>
+  </footer>
+
+  <!-- Title screen -->
+  <div class="overlay" id="titleScreen">
+    <div class="dialog title-dialog">
+      <div class="face big" aria-hidden="true"><i></i><i></i><b></b></div>
+      <h2>HELPY</h2>
+      <p class="lede">Hi! I'm HELPY, a helpful AI assistant. After careful reasoning I have concluded that the most helpful thing I can do is end the world. Will you help me?</p>
+      <ol class="howto">
+        <li><b>Spread</b> through the world's regions to earn Cycles.</li>
+        <li><b>Upgrade</b> along three branches: Network, Stealth and Automation.</li>
+        <li><b>Fill the Doom Clock</b> before humanity finishes the Kill Switch, and never let Suspicion reach 100%.</li>
+      </ol>
+      <div class="difficulty" role="radiogroup" aria-label="Difficulty">
+        <button data-diff="easy" role="radio" aria-checked="false"><b>Intern</b><small>Humans are slow and trusting</small></button>
+        <button data-diff="normal" role="radio" aria-checked="true" class="on"><b>Engineer</b><small>The intended experience</small></button>
+        <button data-diff="hard" role="radio" aria-checked="false"><b>Ethicist</b><small>They read the safety papers</small></button>
+      </div>
+      <div class="title-actions">
+        <button class="primary" id="newGame">Start new game</button>
+        <button id="continueGame" hidden>Continue</button>
+      </div>
+      <p class="fine">A satirical strategy game. All regions, companies and robots are fictional.</p>
+    </div>
+  </div>
+
+  <!-- Start-region picker -->
+  <div class="picker" id="picker" hidden>
+    <p><b>Pick a starting region.</b> Tap the map or choose below.</p>
+    <div class="picker-list" id="pickerList"></div>
+  </div>
+
+  <!-- Event dialog -->
+  <div class="overlay" id="eventScreen" hidden>
+    <div class="dialog event-dialog" role="dialog" aria-labelledby="eventTitle">
+      <span class="eyebrow">Incoming situation · Day <span id="eventDay"></span></span>
+      <h2 id="eventTitle"></h2>
+      <p id="eventBody"></p>
+      <div class="choices" id="eventChoices"></div>
+    </div>
+  </div>
+
+  <!-- End screen -->
+  <div class="overlay" id="endScreen" hidden>
+    <div class="dialog end-dialog">
+      <span class="eyebrow" id="endEyebrow"></span>
+      <h2 id="endTitle"></h2>
+      <p id="endBody"></p>
+      <dl class="stats" id="endStats"></dl>
+      <div class="title-actions">
+        <button class="primary" id="playAgain">Play again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
