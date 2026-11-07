@@ -22,6 +22,17 @@ const path = require('path');
     const out = path.join(dir, f.replace('.html', '.png'));
     await p.screenshot({ path: out });
     console.log(out, errs.length ? errs : '');
+    // optional extra states declared as <meta name="variants" content="depth,..."> → shot with #variant
+    const variants = await p.evaluate(() => (document.querySelector('meta[name=variants]') || {}).content || '');
+    for (const v of variants.split(',').filter(Boolean)) {
+      await p.goto('http://localhost:8123/mockups/' + f + '#' + v);
+      await p.reload();
+      await p.evaluate(() => document.fonts.ready);
+      await p.waitForTimeout(900);
+      const vo = path.join(dir, f.replace('.html', '-' + v + '.png'));
+      await p.screenshot({ path: vo });
+      console.log(vo);
+    }
     await p.close();
   }
   await b.close();
