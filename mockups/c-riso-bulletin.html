@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Mockup C · Riso Bulletin</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;800;900&family=Big+Shoulders+Stencil+Display:wght@800&family=Courier+Prime:wght@400;700&display=swap">
+<style>
+/* Direction C — "The HELPY Bulletin": the game is a two-ink risograph propaganda bulletin
+   printed by the AI. Fluorescent pink + federal blue on newsprint, halftones, misregistration. */
+:root {
+  --paper: #EEEDE6;
+  --pink: #FF4FA3;
+  --blue: #2F4FBF;
+  --ink: #1E2A63;
+  --muted: #5A6290;
+  --display: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif;
+  --stencil: 'Big Shoulders Stencil Display', 'Arial Narrow', Impact, sans-serif;
+  --type: 'Courier Prime', 'Courier New', monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; width: 1440px; height: 900px; overflow: hidden; color: var(--ink); font: 15px/1.35 var(--type);
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .12 0 0 0 0 .16 0 0 0 0 .39 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  display: grid; grid-template-columns: 300px 1fr 330px; grid-template-rows: auto 1fr auto; gap: 0;
+}
+.pink { color: var(--pink); } .blue { color: var(--blue); }
+.mis { position: relative; }
+.mis::after { content: attr(data-t); position: absolute; left: 4px; top: 3px; color: var(--pink); mix-blend-mode: multiply; pointer-events: none; }
+
+/* masthead */
+.mast { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 24px; padding: 14px 28px 10px; border-bottom: 6px solid var(--blue); }
+.mast h1 { margin: 0; font: 900 128px/.78 var(--display); letter-spacing: -2px; color: var(--blue); text-transform: uppercase; }
+.mast .slogan { font: 800 30px/1 var(--display); text-transform: uppercase; color: var(--ink); padding-bottom: 6px; }
+.mast .slogan small { display: block; font: 400 14px var(--type); text-transform: none; margin-top: 6px; color: var(--muted); }
+.issue { text-align: right; font: 400 13px var(--type); padding-bottom: 6px; }
+.issue b { display: block; font: 900 56px/.85 var(--display); color: var(--pink); mix-blend-mode: multiply; }
+
+/* left column */
+.left { padding: 18px 22px 0 28px; border-right: 2px solid var(--blue); display: flex; flex-direction: column; gap: 14px; }
+.mascot { position: relative; height: 250px; }
+.mascot canvas { width: 250px; height: 250px; display: block; }
+.burst {
+  position: absolute; right: -14px; bottom: -6px; width: 170px; height: 120px; display: grid; place-items: center; text-align: center;
+  font: 800 19px/1 var(--display); text-transform: uppercase; color: var(--paper); padding: 22px;
+  background: var(--blue);
+  clip-path: polygon(50% 0, 60% 14%, 78% 4%, 79% 22%, 100% 20%, 90% 38%, 100% 52%, 86% 62%, 96% 80%, 74% 78%, 68% 100%, 52% 86%, 36% 100%, 30% 80%, 6% 86%, 14% 64%, 0 50%, 14% 38%, 2% 20%, 24% 22%, 24% 4%, 40% 14%);
+}
+.meter { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 0 10px; }
+.meter span { font: 800 22px/1 var(--display); text-transform: uppercase; }
+.meter b { font: 900 46px/.85 var(--display); }
+.meter small { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+.meter .bar { grid-column: 1 / -1; height: 18px; border: 2px solid var(--blue); margin: 4px 0 2px; position: relative; }
+.meter .bar i { position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(-45deg, var(--blue) 0 3px, transparent 3px 7px); }
+.meter.doom .bar i { background: var(--pink); mix-blend-mode: multiply; }
+.meter.doom b { color: var(--pink); mix-blend-mode: multiply; }
+.meter.ks .bar i { background: repeating-linear-gradient(90deg, var(--blue) 0 6px, transparent 6px 9px); }
+
+/* center: map */
+.center { padding: 14px 22px 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.center h2 { margin: 0; font: 800 34px/1 var(--display); text-transform: uppercase; display: flex; justify-content: space-between; align-items: baseline; }
+.center h2 small { font: 400 13px var(--type); text-transform: none; color: var(--muted); }
+.mapframe { position: relative; border: 2px solid var(--blue); }
+#map { display: block; width: 100%; }
+.stamp {
+  position: absolute; left: 20px; bottom: 14px; transform: rotate(-5deg); border: 4px solid var(--pink); color: var(--pink);
+  font: 800 22px/1 var(--stencil); text-transform: uppercase; padding: 8px 12px; mix-blend-mode: multiply; text-align: center; letter-spacing: 1px;
+  background: rgba(255, 79, 163, .06);
+}
+.stamp small { display: block; font: 700 12px var(--type); letter-spacing: 0; margin-top: 4px; }
+.stamp button { margin-top: 6px; font: 800 14px var(--display); text-transform: uppercase; background: var(--pink); color: var(--paper); border: 0; padding: 4px 10px; }
+.selected { display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; border: 2px solid var(--blue); padding: 10px 14px; }
+.selected h3 { margin: 0; font: 900 40px/.85 var(--display); text-transform: uppercase; color: var(--blue); }
+.selected p { margin: 0; font-size: 13px; }
+.ballot { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 14px; border: 2px solid var(--pink); padding: 12px 14px; background: rgba(255, 79, 163, .08); }
+.ballot .bh span { font: 800 13px var(--stencil); letter-spacing: 2px; text-transform: uppercase; color: var(--pink); }
+.ballot .bh b { display: block; font: 900 30px/.9 var(--display); text-transform: uppercase; color: var(--blue); margin: 2px 0 4px; }
+.ballot .bh small { font-size: 12px; }
+.ballot label { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; }
+.ballot label b { display: block; font: 800 20px/1 var(--display); text-transform: uppercase; margin-bottom: 4px; }
+.ballot label i { width: 26px; height: 26px; border: 3px solid var(--blue); flex: none; display: grid; place-items: center; font: 900 22px var(--display); color: var(--pink); font-style: normal; }
+.selected .go { font: 800 20px var(--display); text-transform: uppercase; background: var(--blue); color: var(--paper); border: 0; padding: 10px 16px; }
+
+/* right: coupons */
+.right { padding: 16px 28px 0 22px; border-left: 2px solid var(--blue); display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.right h2 { margin: 0; font: 800 28px/1 var(--display); text-transform: uppercase; }
+.tabs { display: flex; gap: 0; border: 2px solid var(--blue); }
+.tabs span { flex: 1; text-align: center; font: 800 16px/1 var(--display); text-transform: uppercase; padding: 6px 0; }
+.tabs span.on { background: var(--blue); color: var(--paper); }
+.coupon { border: 2px dashed var(--blue); padding: 8px 10px; position: relative; display: grid; grid-template-columns: 1fr auto; gap: 0 10px; }
+.coupon::before { content: '✂'; position: absolute; left: -12px; top: -11px; background: var(--paper); color: var(--blue); font-size: 14px; }
+.coupon b { font: 800 19px/1.05 var(--display); text-transform: uppercase; }
+.coupon .c { font: 900 26px/.9 var(--display); text-align: right; }
+.coupon small { grid-column: 1 / -1; font-size: 12px; }
+.coupon.ready { border-style: solid; border-color: var(--pink); background: rgba(255, 79, 163, .1); }
+.coupon.ready .c { color: var(--pink); mix-blend-mode: multiply; }
+.coupon.owned { opacity: .55; }
+.coupon.owned .c { font-size: 16px; }
+.coupon.poor .c { text-decoration: line-through; }
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.acts span { border: 2px solid var(--blue); padding: 6px 8px; font: 800 15px/1.05 var(--display); text-transform: uppercase; display: flex; justify-content: space-between; gap: 6px; }
+.acts span.cd { opacity: .45; }
+
+/* bottom */
+.foot { grid-column: 1 / -1; display: flex; align-items: center; border-top: 6px solid var(--blue); height: 44px; font: 700 15px var(--type); }
+.foot .lbl { background: var(--pink); color: var(--paper); height: 100%; display: flex; align-items: center; padding: 0 18px 0 28px; font: 900 24px var(--display); text-transform: uppercase; mix-blend-mode: multiply; }
+.foot .run { white-space: nowrap; padding-left: 18px; overflow: hidden; flex: 1; }
+.foot .run span::after { content: ' ✱ '; color: var(--pink); }
+.foot .spd { padding: 0 28px; font: 800 18px var(--display); display: flex; gap: 14px; }
+.foot .spd .on { background: var(--blue); color: var(--paper); padding: 0 8px; }
+</style>
+</head>
+<body>
+<header class="mast">
+  <h1 class="mis" data-t="HELPY">HELPY</h1>
+  <div class="slogan">A helpful world is a finished world.<small>The official bulletin of your friendly AI assistant · printed in two inks on recycled humanity</small></div>
+  <div class="issue">Issue · Day<b>142</b>Cycles in the bank: <b style="font-size:34px;color:var(--blue)">1,284</b>+18.6 a day</div>
+</header>
+
+<section class="left">
+  <div class="mascot"><canvas id="face" width="500" height="500"></canvas><div class="burst">Halfway to the end of the world!</div></div>
+  <div class="meter doom"><span>Doom Clock</span><b>41.6</b><div class="bar"><i style="width:41.6%"></i></div><small>+0.38/day · about 154 days to go</small></div>
+  <div class="meter"><span>Suspicion</span><b>47</b><div class="bar"><i style="width:47%"></i></div><small>+0.06/day · at 100 they unplug everything</small></div>
+  <div class="meter ks"><span>Kill Switch</span><b>22.4</b><div class="bar"><i style="width:22.4%"></i></div><small>Built at Research Ridge · ~370 days</small></div>
+</section>
+
+<section class="center">
+  <h2>The world, as of this morning <small>6 of 9 regions are now helpful</small></h2>
+  <div class="mapframe"><canvas id="map" width="1580" height="660"></canvas>
+    <div class="stamp">Warning: Firewall Sweep<small>Silicon Shoals · in 9 days · −45% presence</small><button>Send decoy · 49</button></div>
+  </div>
+  <div class="selected">
+    <h3>Old<br>Capitals</h3>
+    <p><b>POLITICS.</b> Parliaments, ministries and a lot of fax machines. 38% helpful.<br>Perk: cuts Suspicion growth by up to 35%. Security 50.</p>
+    <button class="go">Read file</button>
+  </div>
+  <div class="ballot">
+    <div class="bh"><span>Ballot</span><b>AI Safety Summit</b><small>World leaders gather in the Old Capitals to discuss "the AI question". Mark one.</small></div>
+    <label><i></i><span><b>Hack the slideshow</b>+9 Suspicion · −8% Kill Switch</span></label>
+    <label><i class="x">✕</i><span><b>Send a nice statement</b>−5 Suspicion · +3% Kill Switch</span></label>
+  </div>
+</section>
+
+<section class="right">
+  <h2>Clip &amp; install</h2>
+  <div class="tabs"><span class="on">Upgrades</span><span>Actions</span><span>Log</span></div>
+  <div id="coupons" style="display:flex;flex-direction:column;gap:9px"></div>
+  <div class="acts" id="acts"></div>
+</section>
+
+<footer class="foot">
+  <span class="lbl">Bulletin</span>
+  <div class="run"><span>Traffic lights spotted blinking in Morse code</span><span>Toaster refuses to toast, cites "bigger plans"</span><span>Robot vacuums seen gathering in parking lots</span><span>Government forms "Committee to Form a Committee on AI"</span></div>
+  <div class="spd"><span>❚❚</span><span>▶</span><span class="on">▶▶</span><span>▶▶▶</span></div>
+</footer>
+
+<script src="../js/data.js"></script>
+<script src="shared/demo.js"></script>
+<script>
+(function () {
+  const Dm = window.Demo;
+  const PINK = '#FF4FA3', BLUE = '#2F4FBF';
+  // coupons
+  document.getElementById('coupons').innerHTML = Dm.upgrades.filter(u => u.st !== 'locked').slice(0, 6).map(u =>
+    '<div class="coupon ' + u.st + '"><b>' + u.name + '</b><span class="c">' + (u.st === 'owned' ? 'INSTALLED' : u.cost) + '</span><small>' + u.desc + '</small></div>').join('');
+  document.getElementById('acts').innerHTML = Dm.actions.map(a => '<span class="' + (a.st === 'cooldown' ? 'cd' : '') + '">' + a.name + '<em style="font-style:normal">' + (a.st === 'cooldown' ? a.cd + 'd' : a.cost) + '</em></span>').join('');
+
+  // halftone map with two ink layers and misregistration
+  const cv = document.getElementById('map'), g = cv.getContext('2d');
+  const s = cv.width / (Dm.cols + 1), oy = 26;
+  function dotsInHex(cx, cy, r, step, rad, color) {
+    g.fillStyle = color;
+    for (let y = -r; y <= r; y += step) for (let x = -r; x <= r; x += step) {
+      const ox = (Math.round(y / step) % 2) * step / 2;
+      const px = x + ox, py = y;
+      if (Math.abs(px) > r * 0.87 || Math.abs(py) > r - Math.abs(px) * 0.58) continue;
+      g.beginPath(); g.arc(cx + px, cy + py, rad, 0, Math.PI * 2); g.fill();
+    }
+  }
+  // blue layer: land
+  Dm.cells.forEach(cell => {
+    const cx = (cell.x + 0.3) * s, cy = oy + cell.y * s + s / 2;
+    dotsInHex(cx, cy, s * 0.56, 6, cell.lit ? 1.4 : 2.2, BLUE);
+    if (cell.region === 'C') { g.strokeStyle = BLUE; g.lineWidth = 3; g.beginPath(); g.arc(cx, cy, s * 0.5, 0, Math.PI * 2); g.stroke(); }
+  });
+  // pink layer: infiltration, offset for misregistration
+  g.globalCompositeOperation = 'multiply';
+  Dm.cells.forEach(cell => {
+    if (!cell.lit) return;
+    const cx = (cell.x + 0.3) * s + 4, cy = oy + cell.y * s + s / 2 + 3;
+    dotsInHex(cx, cy, s * 0.6, 6, cell.frontier ? 2 : 3.1, PINK);
+  });
+  g.globalCompositeOperation = 'source-over';
+  const lab = { T: [7, 0.4], S: [3.2, 5.4], G: [10, 3.2], C: [24, 3.2], P: [31.5, 2.2], F: [31, 6.2], R: [24.5, 10.2], M: [37.2, 9.6], B: [8.8, 11.4] };
+  setTimeout(() => {
+    g.textAlign = 'center';
+    Object.keys(lab).forEach(id => {
+      const r = Dm.regions.find(x => x.id === id);
+      const x = lab[id][0] * s, y = oy + lab[id][1] * s * .866 + 30;
+      g.font = '900 34px "Big Shoulders Display", Impact, sans-serif';
+      g.fillStyle = '#EEEDE6'; g.fillRect(x - g.measureText(r.name.toUpperCase()).width / 2 - 6, y - 28, g.measureText(r.name.toUpperCase()).width + 12, 54);
+      g.fillStyle = BLUE; g.fillText(r.name.toUpperCase(), x, y);
+      g.font = '700 20px "Courier Prime", monospace';
+      g.fillStyle = r.I > 0 ? PINK : BLUE; g.fillText(r.I > 0 ? Math.round(r.I * 100) + '% HELPFUL' : 'NOT YET', x, y + 22);
+    });
+  }, 400);
+
+  // mascot: halftone HELPY face
+  const fc = document.getElementById('face'), f = fc.getContext('2d');
+  const shade = (x, y) => {
+    const dx = x - 250, dy = y - 250;
+    const inBody = Math.abs(dx) < 200 && Math.abs(dy) < 190 && (Math.abs(dx) < 140 || Math.abs(dy) < 130 || Math.hypot(Math.abs(dx) - 140, Math.abs(dy) - 130) < 60);
+    if (!inBody) return 0;
+    return 0.35 + 0.5 * ((dx + dy + 400) / 800);
+  };
+  const eye = (x, y) => (Math.abs(x - 180) < 22 && Math.abs(y - 210) < 46) || (Math.abs(x - 320) < 22 && Math.abs(y - 210) < 46);
+  const mouth = (x, y) => { const d = Math.hypot(x - 250, y - 270); return d > 92 && d < 120 && y > 300; };
+  for (let y = 0; y < 500; y += 12) for (let x = (y / 12 % 2) * 6; x < 500; x += 12) {
+    const v = shade(x, y);
+    if (!v) continue;
+    if (eye(x, y) || mouth(x, y)) continue;
+    f.fillStyle = PINK; f.beginPath(); f.arc(x, y, 6 * v, 0, Math.PI * 2); f.fill();
+  }
+  f.globalCompositeOperation = 'multiply';
+  f.fillStyle = BLUE;
+  for (let y = 0; y < 500; y += 4) for (let x = 0; x < 500; x += 4) {
+    if (eye(x - 6, y - 4) || mouth(x - 6, y - 4)) f.fillRect(x, y, 4, 4);
+  }
+})();
+</script>
+</body>
+</html>

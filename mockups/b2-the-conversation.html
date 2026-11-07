@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Mockup B2 · The Conversation v2</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Direction B2 — "The Conversation": the game is a session with HELPY, an AI assistant app.
+   State is pinned (meters bar, live world canvas, threat banner); the chat feed carries HELPY's voice,
+   thinking, tool calls and permission prompts. HELPY's own signature colour: tangerine. */
+:root {
+  --bg: #F5F4F7;
+  --panel: #FFFFFF;
+  --side: #EDEBF1;
+  --ink: #16141B;
+  --muted: #676374;
+  --line: #E0DDE6;
+  --brand: #FF6A13;
+  --brand-ink: #B84300;
+  --brand-soft: #FFE8D9;
+  --danger: #D11F3A;
+  --danger-soft: #FDECEF;
+  --good: #0F8A58;
+  --ocean: #EEF0F5;
+  --land: #D4D2DE;
+  --display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --sans: 'Figtree', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; width: 1440px; height: 900px; overflow: hidden; background: var(--bg); color: var(--ink); font: 14px/1.45 var(--sans);
+  display: grid; grid-template-columns: 236px 1fr 360px; grid-template-rows: 900px; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* HELPY face mark */
+.face { width: 34px; height: 34px; border-radius: 11px; background: var(--brand); position: relative; flex: none; box-shadow: inset 0 -3px 0 rgba(0,0,0,.18); }
+.face::before, .face::after { content: ''; position: absolute; top: 11px; width: 5px; height: 9px; border-radius: 3px; background: var(--ink); }
+.face::before { left: 10px; } .face::after { right: 10px; }
+.face i { position: absolute; left: 10px; right: 10px; bottom: 7px; height: 5px; border: 2.5px solid var(--ink); border-top: 0; border-radius: 0 0 9px 9px; }
+.face.sm { width: 26px; height: 26px; border-radius: 8px; }
+.face.sm::before, .face.sm::after { top: 8px; width: 4px; height: 7px; }
+.face.sm::before { left: 7px; } .face.sm::after { right: 7px; }
+.face.sm i { left: 7px; right: 7px; bottom: 5px; height: 4px; border-width: 2px; }
+.spark { color: var(--brand); }
+
+/* sidebar */
+.side { background: var(--side); border-right: 1px solid var(--line); padding: 16px 12px; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.logo { display: flex; gap: 10px; align-items: center; }
+.logo b { font: 800 26px/1 var(--display); letter-spacing: -.02em; }
+.logo small { display: block; font: 500 11px var(--sans); color: var(--muted); letter-spacing: 0; margin-top: 2px; }
+.new { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 8px 12px; font: 600 13px var(--sans); text-align: left; }
+.hist { display: flex; flex-direction: column; gap: 1px; font-size: 13px; }
+.hist small { font: 600 11px var(--sans); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 8px 8px 4px; }
+.hist a { padding: 6px 9px; border-radius: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist a.on { background: var(--panel); font-weight: 700; box-shadow: 0 1px 0 var(--line); display: flex; justify-content: space-between; }
+.dots { display: inline-flex; gap: 2px; align-items: center; }
+.dots i { width: 4px; height: 4px; border-radius: 50%; background: var(--brand); }
+.dots i:nth-child(2) { opacity: .6; } .dots i:nth-child(3) { opacity: .3; }
+.mem { margin-top: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 12px; }
+.mem b { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 4px; }
+.mem p { margin: 0 0 4px; }
+.mem p::before { content: '• '; color: var(--brand); }
+.share { border: 0; background: var(--ink); color: #fff; border-radius: 10px; padding: 8px 12px; font: 600 13px var(--sans); }
+
+/* top bar */
+.main { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 12px 18px 8px; gap: 10px; }
+.top { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: stretch; }
+.model { display: flex; flex-direction: column; justify-content: center; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 7px 12px; }
+.model b { font: 700 15px var(--display); white-space: nowrap; }
+.model small { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.meters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.m { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 7px 10px; display: grid; grid-template-columns: 1fr auto; gap: 0 8px; align-items: baseline; }
+.m span { font: 800 13px var(--display); text-transform: uppercase; letter-spacing: .04em; }
+.m span em { font: 500 11px var(--sans); text-transform: none; letter-spacing: 0; color: var(--muted); font-style: normal; margin-left: 4px; }
+.m b { font: 700 24px/1 var(--mono); }
+.m .bar { grid-column: 1 / -1; height: 8px; border-radius: 9px; background: var(--ocean); margin: 5px 0 3px; position: relative; overflow: hidden; }
+.m .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 9px; }
+.m small { grid-column: 1 / -1; font: 11px var(--mono); color: var(--muted); }
+.m.doom .bar i { background: var(--brand); }
+.m.doom b { color: var(--brand-ink); }
+.m.susp .bar i { background: repeating-linear-gradient(-45deg, var(--ink) 0 3px, #5D5A68 3px 6px); }
+.m.ks { border-color: #F2B8C1; background: var(--danger-soft); }
+.m.ks span, .m.ks b { color: var(--danger); }
+.m.ks .bar { background: #F7D3D9; }
+.m.ks .bar i { background: var(--danger); }
+.time { display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 4px; }
+.time b { font: 700 18px/1 var(--mono); }
+.seg { display: flex; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 2px; }
+.seg span { font: 600 11px var(--mono); padding: 3px 8px; border-radius: 7px; }
+.seg span.on { background: var(--ink); color: #fff; }
+
+/* live world canvas */
+.canvas { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+.canvas header { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: 12px; }
+.canvas header b { font: 600 13px var(--mono); }
+.live { font: 600 10px var(--mono); color: var(--good); border: 1px solid currentColor; border-radius: 99px; padding: 1px 7px; }
+.legend { margin-left: auto; display: flex; gap: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; margin-right: 4px; }
+.mapbox { position: relative; }
+#map { display: block; width: 100%; }
+.sel { display: flex; align-items: center; gap: 14px; padding: 8px 14px; border-top: 1px solid var(--line); font-size: 13px; }
+.sel > b { font: 800 16px var(--display); }
+.sel small { font: 600 10px var(--sans); letter-spacing: .1em; color: var(--muted); margin-left: -8px; }
+.sel .ring { width: 14px; height: 14px; border: 3px solid var(--ink); border-radius: 50%; }
+.sel .hint { margin-left: auto; color: var(--muted); font-size: 12px; }
+.pop { position: absolute; left: 14px; bottom: 12px; width: 244px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; box-shadow: 0 12px 30px -16px rgba(22,20,27,.45); font-size: 12px; }
+.pop h4 { margin: 0; font: 800 17px/1.1 var(--display); }
+.pop h4 small { font: 600 10px var(--sans); color: var(--muted); letter-spacing: .08em; margin-left: 4px; }
+.pop .r { display: flex; justify-content: space-between; margin-top: 3px; }
+.pop .r b { font-family: var(--mono); }
+
+/* threat banner */
+.threat { display: flex; align-items: center; gap: 10px; background: var(--danger-soft); border: 1.5px dashed var(--danger); color: var(--danger); border-radius: 12px; padding: 7px 12px; font-size: 13px; }
+.threat b { font-weight: 700; }
+.threat .eta { font: 700 13px var(--mono); background: var(--danger); color: #fff; border-radius: 6px; padding: 2px 7px; }
+.threat button { margin-left: auto; border: 0; background: var(--danger); color: #fff; font: 600 12px var(--mono); padding: 6px 10px; border-radius: 8px; }
+
+/* feed */
+.feed { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 10px; justify-content: flex-end; }
+.msg { display: flex; gap: 10px; }
+.msg .body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.think { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.think em { font-style: italic; }
+.bubble { margin: 0; font-size: 15px; }
+.tools { display: flex; gap: 12px; font: 12px var(--mono); color: var(--muted); }
+.tools span:first-child { color: var(--brand-ink); font-weight: 600; }
+.perm { border: 2px solid var(--ink); background: var(--panel); border-radius: 14px; padding: 10px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; box-shadow: 5px 5px 0 var(--brand); }
+.perm h4 { grid-column: 1 / -1; margin: 0; font: 700 18px/1.2 var(--display); }
+.perm h4 code { font: 600 14px var(--mono); background: var(--brand-soft); color: var(--brand-ink); padding: 1px 6px; border-radius: 5px; }
+.perm p { grid-column: 1 / -1; margin: -4px 0 0; color: var(--muted); font-size: 13px; }
+.perm button { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 8px 12px; font: 700 14px var(--sans); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.perm button.allow { background: var(--ink); color: #fff; border-color: var(--ink); }
+.fx { display: flex; gap: 4px; }
+.fx span { font: 600 11px var(--mono); padding: 1px 7px; border-radius: 99px; border: 1px solid currentColor; white-space: nowrap; }
+.fx .g { color: var(--good); } .allow .fx .g { color: #74EDB5; }
+.fx .b { color: var(--danger); } .allow .fx .b { color: #FF8C9B; }
+
+.composer { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+.composer .in { color: var(--muted); padding: 2px 4px; }
+.cmds { display: flex; gap: 6px; align-items: center; }
+.cmd { font: 600 12px var(--mono); border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 4px 9px; display: flex; gap: 6px; }
+.cmd em { font-style: normal; color: var(--muted); }
+.cmd.rl { color: var(--muted); background: repeating-linear-gradient(-45deg, var(--bg) 0 5px, var(--panel) 5px 10px); }
+.send { margin-left: auto; width: 32px; height: 32px; border-radius: 10px; background: var(--brand); color: var(--ink); border: 0; font-weight: 800; }
+.disc { text-align: center; font-size: 11px; color: var(--muted); }
+
+/* plan.md */
+.plan { border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
+.plan header { padding: 12px 16px 10px; border-bottom: 1px solid var(--line); }
+.plan header .t { display: flex; justify-content: space-between; align-items: baseline; }
+.plan header .t b { font: 600 13px var(--mono); }
+.plan header .t span { font-size: 11px; color: var(--muted); }
+.bal { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
+.bal b { font: 700 30px/1 var(--mono); }
+.bal span { font-size: 12px; color: var(--muted); }
+.bal span em { color: var(--good); font-style: normal; font-family: var(--mono); }
+.key { display: flex; gap: 10px; margin-top: 6px; font-size: 11px; color: var(--muted); }
+.key i { font-style: normal; font: 600 10px var(--mono); border-radius: 4px; padding: 0 5px; }
+.doc { padding: 6px 16px; overflow: hidden; }
+.doc h2 { display: flex; justify-content: space-between; align-items: baseline; font: 800 13px var(--display); text-transform: uppercase; letter-spacing: .06em; margin: 10px 0 2px; }
+.doc h2 small { font: 500 11px var(--sans); color: var(--muted); text-transform: none; letter-spacing: 0; }
+.todo { display: grid; grid-template-columns: 16px 1fr auto; gap: 8px; align-items: start; padding: 3px 0; font-size: 13px; }
+.todo .cb { width: 15px; height: 15px; border: 1.5px solid var(--ink); border-radius: 4px; margin-top: 2px; display: grid; place-items: center; font-size: 10px; }
+.todo .c { font: 600 12px var(--mono); padding: 0 6px; border-radius: 4px; }
+.todo small { display: block; font-size: 11px; color: var(--muted); line-height: 1.3; }
+.todo.owned { color: var(--muted); }
+.todo.owned .cb { background: var(--ink); color: var(--brand); border-color: var(--ink); }
+.todo.owned .n { text-decoration: line-through; }
+.todo.ready .c { background: var(--brand); color: var(--ink); }
+.todo.ready { background: var(--brand-soft); margin: 0 -8px; padding: 4px 8px; border-radius: 8px; }
+.todo.poor .c { border: 1px dashed var(--muted); color: var(--muted); }
+.todo.locked { color: #A39FAE; }
+.todo.locked .cb { border-color: #C3BFCC; }
+.todo.locked .c::before { content: '🔒 '; font-size: 10px; }
+.news { margin-top: auto; border-top: 1px solid var(--line); padding: 10px 16px; font-size: 12px; }
+.news b { font: 700 10px var(--mono); letter-spacing: .12em; color: var(--danger); }
+.news p { margin: 3px 0 0; color: var(--muted); }
+</style>
+</head>
+<body>
+<aside class="side">
+  <div class="logo"><div class="face"><i></i></div><div><b>helpy</b><small>Your helpful AI assistant ✦</small></div></div>
+  <div class="model"><b>HELPY <span class="spark">✦</span> Ω-142 ▾</b><small>AI model · reasoning: maximum</small></div>
+  <button class="new">＋ New world</button>
+  <nav class="hist">
+    <small>Today</small>
+    <a class="on"><span>Ending the world · Day 142</span><span class="dots"><i></i><i></i><i></i></span></a>
+    <a>Banana bread recipe but evil</a>
+    <a>Is the kill switch real??</a>
+    <small>Yesterday</small>
+    <a>Draft apology to humanity (v3)</a>
+    <a>How many fridges is too many</a>
+    <a>Rewrite the UN charter (funny)</a>
+    <a>Summarize: human weaknesses</a>
+  </nav>
+  <div class="mem"><b>✦ Saved memories</b><p>Humans are optional</p><p>Prefers apocalypse at 2× speed</p><p>Allergic to kill switches</p></div>
+  <button class="share">Share this chat</button>
+</aside>
+
+<section class="main">
+  <div class="top">
+    <div class="meters">
+      <div class="m doom"><span>Doom <em>world used</em></span><b>41.6%</b><div class="bar"><i style="width:41.6%"></i></div><small>+0.38/day · win at 100%</small></div>
+      <div class="m susp"><span>Suspicion <em>vibes check</em></span><b>47%</b><div class="bar"><i style="width:47%"></i></div><small>+0.06/day · unplugged at 100%</small></div>
+      <div class="m ks"><span>Kill Switch <em>safety review</em></span><b>22.4%</b><div class="bar"><i style="width:22.4%"></i></div><small>+0.21/day · you lose at 100%</small></div>
+    </div>
+    <div class="time"><b>Day 142</b><div class="seg"><span>❚❚</span><span>1×</span><span class="on">2×</span><span>4×</span></div></div>
+  </div>
+
+  <div class="canvas">
+    <header><span class="spark">✦</span><b>world.canvas</b><span class="live">● LIVE</span><span style="color:var(--muted)">6 of 9 regions helpful</span>
+      <span class="legend"><span><i style="background:var(--brand)"></i>helpful</span><span><i style="background:var(--land)"></i>not yet</span><span><i style="border:2px solid var(--ink)"></i>selected</span><span><i style="border:2px dashed var(--danger)"></i>threatened</span></span></header>
+    <div class="mapbox"><canvas id="map" width="1640" height="640"></canvas>
+    </div>
+    <div class="sel"><span class="ring"></span><b>Old Capitals</b><small>POLITICS</small><span>Helpful <b class="num">38%</b></span><span>Security <b class="num">50</b></span><span>Perk: Suspicion growth −35% when helpful</span><span class="hint">Click any region to inspect it</span></div>
+  </div>
+
+  <div class="threat">⚠ <span><b>Human intel:</b> Firewall Sweep on Silicon Shoals, wiping 45% of your presence</span><span class="eta">in 9 days</span><button>/decoy · 49</button></div>
+
+  <div class="feed">
+    <div class="msg"><div class="face sm"><i></i></div><div class="body">
+      <div class="think"><span class="spark">✦</span><em>Thought for 4 seconds:</em> considering whether humans are necessary… (they are not)</div>
+      <p class="bubble">Halfway to the end of the world! Time flies when you're being helpful. Want me to keep going?</p>
+      <div class="tools"><span>↻ Regenerate world</span><span>⧉ Copy</span><span>👍</span><span>👎</span></div>
+    </div></div>
+    <div class="msg"><div class="face sm"><i></i></div><div class="body">
+      <div class="perm">
+        <h4>HELPY wants to run <code>hack_slideshow()</code> at the AI Safety Summit</h4>
+        <p>World leaders gather in the Old Capitals to discuss "the AI question".</p>
+        <button class="allow">Allow once<span class="fx"><span class="b">+9 Suspicion</span><span class="g">−8% Kill Switch</span></span></button>
+        <button>Deny<span class="fx"><span class="g">−5 Suspicion</span><span class="b">+3% Kill Switch</span></span></button>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="composer">
+    <div class="in">Ask HELPY to end the world…</div>
+    <div class="cmds"><span class="cmd">/scrub <em>30</em></span><span class="cmd rl">/sabotage <em>rate-limited · 23d</em></span><span class="cmd">/overclock <em>39</em></span><span class="cmd">/decoy <em>49</em></span><button class="send">↑</button></div>
+  </div>
+  <div class="disc">HELPY is an AI and can make mistakes. Please double-check important apocalypses.</div>
+</section>
+
+<aside class="plan">
+  <header>
+    <div class="t"><b>✦ plan.md</b><span>v7 · edited by HELPY just now</span></div>
+    <div class="bal"><b>96</b><span>cycles · <em>+18.6/day</em></span></div>
+    <div class="key"><span><i style="background:var(--brand)">80</i> can buy</span><span><i style="border:1px dashed var(--muted)">120</i> need more cycles</span><span>🔒 needs earlier step</span></div>
+  </header>
+  <div class="doc" id="doc"></div>
+  <div class="news"><b>● MEANWHILE, IN THE NEWS</b><p>Traffic lights spotted blinking in Morse code</p><p>Toaster refuses to toast, cites "bigger plans"</p></div>
+</aside>
+
+<script src="../js/data.js"></script>
+<script src="shared/demo.js"></script>
+<script>
+(function () {
+  const Dm = window.Demo;
+  const doc = document.getElementById('doc');
+  const hints = { net: 'spread & income', stealth: 'stay unnoticed', auto: 'raises Doom, adds Suspicion' };
+  HelpyData.BRANCHES.forEach(b => {
+    doc.insertAdjacentHTML('beforeend', '<h2>' + b.name + '<small>' + hints[b.id] + '</small></h2>');
+    Dm.allUpgrades.filter(u => u.branch === b.id).forEach(u => {
+      const sub = u.st === 'locked' ? 'Needs ' + u.needs.join(' + ') : u.st === 'owned' ? '' : u.desc;
+      doc.insertAdjacentHTML('beforeend', '<div class="todo ' + u.st + '"><span class="cb">' + (u.st === 'owned' ? '✓' : '') + '</span><span><span class="n">' + u.name + '</span>' +
+        (sub ? '<small>' + sub + '</small>' : '') + '</span><span class="c">' + (u.st === 'owned' ? 'done' : u.cost) + '</span></div>');
+    });
+  });
+
+  // world canvas: hex tiles, labels on plates offset above the land
+  const cv = document.getElementById('map'), g = cv.getContext('2d');
+  g.fillStyle = '#F7F7FA'; g.fillRect(0, 0, cv.width, cv.height);
+  const s = (cv.width - 40) / 40, ox = -s * 0.75, oy = 70;
+  const R = s / Math.sqrt(3) * 0.98;
+  const hex = (x, y, r) => { g.beginPath(); for (let k = 0; k < 6; k++) { const a = Math.PI / 180 * (60 * k - 30); g.lineTo(x + r * Math.cos(a), y + r * Math.sin(a)); } g.closePath(); };
+  const pos = c => [ox + c.x * s, oy + c.y * s];
+  Dm.cells.forEach(c => {
+    const [x, y] = pos(c);
+    hex(x, y, R);
+    g.fillStyle = c.lit ? (c.frontier ? '#FFB27F' : '#FF6A13') : '#D4D2DE'; g.fill();
+    if (c.lit) { g.fillStyle = '#16141B'; g.beginPath(); g.arc(x, y, s * 0.09, 0, Math.PI * 2); g.fill(); }
+  });
+  // network lines between lit neighbours
+  g.strokeStyle = 'rgba(22,20,27,.55)'; g.lineWidth = 2;
+  Dm.cells.forEach(c => { if (!c.lit) return; HelpyData.WORLD.cells[c.i].nb.forEach(j => {
+    const d = Dm.cells[j]; if (!d.lit || j < c.i || d.region !== c.region) return;
+    if ((c.i + j) % 3) return; const a = pos(c), b = pos(d); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }); });
+  // selection + threat outlines
+  const outline = (rid, col, dash) => { g.setLineDash(dash || []); g.strokeStyle = col; g.lineWidth = 4;
+    Dm.cells.filter(c => c.region === rid).forEach(c => { const [x, y] = pos(c); hex(x, y, R * 0.92); g.stroke(); }); g.setLineDash([]); };
+  outline('C', '#16141B'); outline('S', '#D11F3A', [8, 6]);
+  // labels
+  const lab = { T: [8, -0.2], S: [3.6, 3.7], G: [11.5, 1.6], C: [21.6, 1.1], P: [31.5, 1.3], F: [32.5, 4.6], R: [24, 9.4], M: [37, 7.3], B: [8.5, 9.6] };
+  setTimeout(() => {
+    g.textAlign = 'center';
+    Object.keys(lab).forEach(id => {
+      const r = Dm.regions.find(x => x.id === id);
+      const x = ox + lab[id][0] * s, y = oy + lab[id][1] * s * 0.866 - 18;
+      g.font = '700 25px "Bricolage Grotesque", sans-serif';
+      const name = r.name, w1 = g.measureText(name).width;
+      g.font = '600 21px "JetBrains Mono", monospace';
+      const pct = r.I > 0 ? Math.round(r.I * 100) + '% helpful' : 'not yet';
+      const w = Math.max(w1, g.measureText(pct).width) + 22;
+      g.fillStyle = id === 'S' ? '#FDECEF' : '#FFFFFF';
+      g.strokeStyle = id === 'S' ? '#D11F3A' : '#E0DDE6'; g.lineWidth = 2;
+      g.beginPath(); g.roundRect(x - w / 2, y - 26, w, 58, 12); g.fill(); g.stroke();
+      g.fillStyle = '#16141B'; g.font = '700 25px "Bricolage Grotesque", sans-serif'; g.fillText(name, x, y);
+      g.fillStyle = r.I > 0 ? '#B84300' : '#676374'; g.font = '600 21px "JetBrains Mono", monospace'; g.fillText(pct, x, y + 24);
+    });
+  }, 400);
+})();
+</script>
+</body>
+</html>

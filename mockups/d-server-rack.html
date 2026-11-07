@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Mockup D · Server Rack</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Share+Tech+Mono&family=Rubik+Mono+One&display=swap">
+<style>
+/* Direction D — "The Rack": HELPY is the hardware. Every panel is a 19-inch rack module with
+   LED matrices, analog gauges, dymo-tape labels and guarded switches. */
+:root {
+  --metal: #23252B;
+  --metal-2: #2E3138;
+  --metal-3: #3A3E47;
+  --edge: #121318;
+  --silk: #C9CCD4;
+  --muted: #7D828F;
+  --amber: #FFB000;
+  --amber-dim: #4A3505;
+  --red: #FF3B2F;
+  --lcd: #9DFF6A;
+  --lcd-bg: #0E1A0A;
+  --tape: #121212;
+  --silk-font: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --lcd-font: 'Share Tech Mono', ui-monospace, monospace;
+  --tape-font: 'Rubik Mono One', 'Arial Black', sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; width: 1440px; height: 900px; overflow: hidden; color: var(--silk); font: 15px/1.3 var(--silk-font);
+  background: #0B0C0F; display: grid; grid-template-columns: 44px 1fr 44px;
+}
+.rail { background: linear-gradient(90deg, #2A2C33, #3B3E46 40%, #24262C); border: 1px solid var(--edge);
+  background-image: radial-gradient(circle at 50% 50%, #0B0C0F 4px, transparent 5px), linear-gradient(90deg, #2A2C33, #3B3E46 40%, #24262C);
+  background-size: 100% 22px, 100% 100%; }
+.rack { display: flex; flex-direction: column; gap: 4px; padding: 4px 6px; }
+.unit {
+  background: linear-gradient(180deg, var(--metal-3), var(--metal-2) 6%, var(--metal) 94%, #1A1B20);
+  border: 1px solid var(--edge); border-radius: 3px; position: relative; padding: 10px 40px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+.unit::before, .unit::after { content: ''; position: absolute; top: 50%; width: 14px; height: 14px; margin-top: -7px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #9DA1AA, #4A4D55 60%, #1B1C21); box-shadow: inset 0 0 0 1px #111; }
+.unit::before { left: 12px; } .unit::after { right: 12px; }
+.silk { font: 600 12px var(--silk-font); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.tape { display: inline-block; background: var(--tape); color: #F1F1F1; font: 11px/1 var(--tape-font); letter-spacing: .06em; padding: 5px 8px 4px; border-radius: 2px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .1), inset 0 -1px 0 rgba(255, 255, 255, .08); text-transform: uppercase; }
+.tape.red { background: #B3121A; }
+.tape.yel { background: #F4C400; color: #111; }
+.led { width: 9px; height: 9px; border-radius: 50%; display: inline-block; background: var(--amber-dim); box-shadow: inset 0 0 2px #000; }
+.led.on { background: var(--amber); box-shadow: 0 0 8px var(--amber), inset 0 0 2px #fff6; }
+.led.red { background: var(--red); box-shadow: 0 0 10px var(--red); }
+.led.grn { background: #4DFF7A; box-shadow: 0 0 8px #4DFF7A; }
+
+/* 1U header */
+.hdr { display: flex; align-items: center; gap: 26px; height: 74px; }
+.brand { display: flex; flex-direction: column; }
+.brand b { font: 700 34px/0.9 var(--silk-font); letter-spacing: .12em; color: #E7E9EE; }
+.brand span { font: 600 11px var(--silk-font); letter-spacing: .3em; color: var(--muted); }
+.vents { width: 150px; height: 34px; background: repeating-linear-gradient(90deg, #0E0F12 0 6px, transparent 6px 10px); border-radius: 3px; opacity: .8; }
+.seg { background: #120A00; border: 2px solid #050505; border-radius: 4px; padding: 4px 10px; display: flex; flex-direction: column; align-items: flex-end; box-shadow: inset 0 0 12px #000; }
+.seg canvas { display: block; }
+.seg small { font: 600 10px var(--silk-font); letter-spacing: .2em; color: var(--muted); }
+.speed { display: flex; gap: 6px; margin-left: auto; align-items: center; }
+.key { width: 46px; height: 38px; border-radius: 5px; background: linear-gradient(#4A4E58, #2B2E35); border: 1px solid #0D0E11; box-shadow: 0 3px 0 #0D0E11, inset 0 1px 0 rgba(255,255,255,.12); display: grid; place-items: center; font: 600 13px var(--silk-font); color: var(--silk); }
+.key.on { transform: translateY(2px); box-shadow: 0 1px 0 #0D0E11, inset 0 0 10px rgba(255, 176, 0, .35); color: var(--amber); }
+
+/* map + gauges row */
+.row { display: grid; grid-template-columns: 1fr 360px; gap: 4px; }
+.mapu { height: 450px; display: flex; flex-direction: column; gap: 8px; }
+.glass { flex: 1; background: #07080A; border: 3px solid #050506; border-radius: 6px; position: relative; overflow: hidden; box-shadow: inset 0 0 30px #000; }
+.glass::after { content: ''; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,.07), transparent 35%); pointer-events: none; }
+.glass canvas { width: 100%; height: 100%; display: block; }
+.mapfoot { display: flex; gap: 14px; align-items: center; }
+.mapfoot .lcd { flex: 1; }
+.lcd { background: var(--lcd-bg); color: var(--lcd); font: 17px/1.2 var(--lcd-font); padding: 6px 10px; border: 2px solid #050505; border-radius: 3px; text-shadow: 0 0 6px rgba(157, 255, 106, .6); white-space: nowrap; overflow: hidden; }
+
+.gauges { height: 450px; display: flex; flex-direction: column; gap: 10px; }
+.gauge { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: center; }
+.gauge canvas { width: 150px; height: 96px; }
+.gauge .rd b { display: block; font: 30px/1 var(--lcd-font); color: #F1F1F1; }
+.gauge .rd small { color: var(--muted); font-size: 13px; }
+.doombar { display: flex; gap: 3px; align-items: flex-end; height: 70px; margin-top: 4px; }
+.doombar i { flex: 1; background: var(--amber-dim); border-radius: 2px; }
+.doombar i.on { background: var(--amber); box-shadow: 0 0 8px rgba(255, 176, 0, .7); }
+
+/* modules row */
+.mods { display: grid; grid-template-columns: 1fr 330px 300px; gap: 4px; }
+.upg { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; height: 214px; }
+.slot { background: #15161A; border: 1px solid #0A0A0C; border-radius: 4px; padding: 8px 6px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; box-shadow: inset 0 2px 6px #000; }
+.slot .tape { min-height: 42px; display: flex; align-items: center; justify-content: center; font-size: 9px; line-height: 1.25; width: 100%; padding: 5px 4px; }
+.toggle { width: 26px; height: 54px; border-radius: 13px; background: #0A0A0C; position: relative; box-shadow: inset 0 0 0 2px #2A2C33; }
+.toggle i { position: absolute; left: 4px; width: 18px; height: 24px; border-radius: 9px; background: linear-gradient(#D7DAE0, #7F848F); top: 26px; transition: none; }
+.slot.owned .toggle i { top: 4px; }
+.slot .p { font: 18px var(--lcd-font); color: var(--amber); }
+.slot.poor .p { color: var(--red); }
+.slot.locked { opacity: .4; }
+.slot.ready { box-shadow: inset 0 2px 6px #000, 0 0 0 1px rgba(255, 176, 0, .6); }
+.slot small { font-size: 11px; color: var(--muted); line-height: 1.15; }
+
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 10px; align-content: start; padding-top: 14px; }
+.act { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.big { width: 50px; height: 50px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #FF8F86, var(--red) 55%, #7A0E08); box-shadow: 0 4px 0 #3E0703, 0 0 0 5px #15161A, 0 0 0 7px #3A3E47; }
+.big.amber { background: radial-gradient(circle at 40% 35%, #FFE09A, var(--amber) 55%, #7A5300); box-shadow: 0 4px 0 #3E2A00, 0 0 0 5px #15161A, 0 0 0 7px #3A3E47; }
+.act.cd .big { filter: grayscale(.85) brightness(.55); }
+.act .tape { font-size: 9px; }
+.act small { font: 14px var(--lcd-font); color: var(--amber); }
+
+.alarm { display: flex; flex-direction: column; gap: 8px; }
+.alarm .top { display: flex; align-items: center; gap: 10px; }
+.beacon { width: 46px; height: 46px; border-radius: 50% 50% 8px 8px; background: radial-gradient(circle at 50% 40%, #FFD0CC, var(--red) 45%, #6D0B06); box-shadow: 0 0 30px 6px rgba(255, 59, 47, .55); }
+.oled { background: #000; border: 2px solid #050505; border-radius: 3px; padding: 8px; display: grid; grid-template-columns: 52px 1fr; gap: 10px; align-items: center; color: #8FE8FF; font: 14px/1.25 var(--lcd-font); }
+.oled canvas { width: 52px; height: 52px; image-rendering: pixelated; }
+.decoy { display: flex; align-items: center; gap: 8px; }
+.cover { width: 56px; height: 34px; border: 2px solid #F4C400; border-radius: 4px; background: repeating-linear-gradient(-45deg, #F4C400 0 6px, #111 6px 12px); opacity: .9; transform: perspective(80px) rotateX(28deg); }
+
+/* ticker */
+.tick { height: 46px; padding: 6px 40px; display: flex; align-items: center; gap: 12px; }
+.dot { flex: 1; height: 30px; background: #0A0705; border: 2px solid #050505; border-radius: 3px; overflow: hidden; }
+.dot canvas { display: block; height: 100%; }
+</style>
+</head>
+<body>
+<div class="rail"></div>
+<main class="rack">
+  <section class="unit hdr">
+    <div class="brand"><b>HELPY</b><span>Systems · Model Ω · Unit 142</span></div>
+    <div class="vents"></div>
+    <div style="display:flex;gap:8px;align-items:center"><span class="led grn"></span><span class="silk">PWR</span><span class="led on"></span><span class="silk">NET</span><span class="led red"></span><span class="silk">ALERT</span></div>
+    <div class="seg"><canvas id="segDay" width="150" height="44"></canvas><small>DAY</small></div>
+    <div class="seg"><canvas id="segCyc" width="200" height="44"></canvas><small>CYCLES · +18.6/DAY</small></div>
+    <div class="speed"><span class="silk" style="margin-right:4px">Clock</span><span class="key">❚❚</span><span class="key">▶</span><span class="key on">▶▶</span><span class="key">▶▶▶</span></div>
+  </section>
+
+  <div class="row">
+    <section class="unit mapu">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="tape">World matrix · 9 regions</span><span class="silk">● infiltrated &nbsp; ○ dormant &nbsp; ◎ selected: Old Capitals 38%</span></div>
+      <div class="glass"><canvas id="map" width="1800" height="660"></canvas></div>
+      <div class="mapfoot"><span class="tape yel">HELPY</span><div class="lcd">&gt; HALFWAY TO THE END OF THE WORLD! TIME FLIES WHEN YOU ARE BEING HELPFUL._</div></div>
+    </section>
+    <section class="unit gauges">
+      <span class="tape">Doom clock</span>
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><b style="font:46px/1 var(--lcd-font);color:var(--amber);text-shadow:0 0 12px rgba(255,176,0,.6)">41.6%</b><small class="silk">+0.38/DAY · ~154 D</small></div>
+      <div class="doombar" id="doombar"></div>
+      <div class="gauge"><canvas id="g1" width="300" height="192"></canvas><div class="rd"><span class="tape">Suspicion</span><b>47%</b><small>+0.06/day · unplug at 100</small></div></div>
+      <div class="gauge"><canvas id="g2" width="300" height="192"></canvas><div class="rd"><span class="tape red">Kill switch</span><b>22.4%</b><small>Research Ridge · ~370 d</small></div></div>
+    </section>
+  </div>
+
+  <div class="mods">
+    <section class="unit"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span class="tape">Upgrade bus</span><span class="silk">Flip to install · Network / Stealth / Automation</span></div>
+      <div class="upg" id="upg" style="height:236px"></div></section>
+    <section class="unit"><span class="tape">Manual overrides</span><div class="acts" id="acts"></div></section>
+    <section class="unit alarm">
+      <div class="top"><div class="beacon"></div><div><span class="tape red">Human intel</span><div class="silk" style="margin-top:4px;color:#FF8A80">Countermeasure armed</div></div></div>
+      <div class="lcd" style="color:#FF7A6E;text-shadow:0 0 6px rgba(255,90,70,.6);background:#1A0806;white-space:normal">FIREWALL SWEEP<br>SILICON SHOALS · T-9 DAYS<br>WIPES 45% OF PRESENCE</div>
+      <div class="decoy"><div class="cover"></div><span class="tape yel">Decoy traffic · 49</span></div>
+    </section>
+  </div>
+
+  <section class="unit tick"><span class="tape">Newswire</span><div class="dot"><canvas id="news" width="2400" height="60"></canvas></div></section>
+</main>
+<div class="rail"></div>
+
+<script src="../js/data.js"></script>
+<script src="shared/demo.js"></script>
+<script>
+(function () {
+  const Dm = window.Demo;
+  const AMBER = '#FFB000', DIM = '#3A2A06';
+  // 7-segment digits
+  const SEG = { 0: 'abcdef', 1: 'bc', 2: 'abdeg', 3: 'abcdg', 4: 'bcfg', 5: 'acdfg', 6: 'acdefg', 7: 'abc', 8: 'abcdefg', 9: 'abcdfg', ',': '', ' ': '' };
+  function seg(id, text) {
+    const c = document.getElementById(id), g = c.getContext('2d');
+    const w = 24, h = 40, gap = 6, t = 4;
+    let x = c.width - 4;
+    [...text].reverse().forEach(ch => {
+      if (ch === ',') { g.fillStyle = AMBER; g.fillRect(x - 5, h - 2, 4, 4); x -= 8; return; }
+      x -= w;
+      const on = SEG[ch] || '';
+      const draw = (k, rx, ry, rw, rh) => { g.fillStyle = on.includes(k) ? AMBER : DIM; g.shadowColor = AMBER; g.shadowBlur = on.includes(k) ? 8 : 0; g.fillRect(rx, ry, rw, rh); };
+      draw('a', x + t, 2, w - 2 * t, t); draw('g', x + t, h / 2, w - 2 * t, t); draw('d', x + t, h - 2, w - 2 * t, t);
+      draw('f', x, 2 + t, t, h / 2 - t); draw('b', x + w - t, 2 + t, t, h / 2 - t);
+      draw('e', x, h / 2 + t, t, h / 2 - t - 2); draw('c', x + w - t, h / 2 + t, t, h / 2 - t - 2);
+      x -= gap;
+    });
+  }
+  seg('segDay', '0142'); seg('segCyc', '1,284');
+
+  // LED matrix map
+  const cv = document.getElementById('map'), g = cv.getContext('2d');
+  g.fillStyle = '#07080A'; g.fillRect(0, 0, cv.width, cv.height);
+  const s = cv.width / (Dm.cols + 1), oy = 30;
+  // faint grid of all LED positions
+  for (let r = 0; r < Dm.rows; r++) for (let c = 0; c < Dm.cols; c++) {
+    const x = (c + 0.5 + 0.5 * (r % 2) + 0.25) * s, y = oy + r * 0.866 * s + s / 2;
+    g.fillStyle = '#121318'; g.beginPath(); g.arc(x, y, s * 0.2, 0, Math.PI * 2); g.fill();
+  }
+  Dm.cells.forEach(cell => {
+    const x = (cell.x + 0.25) * s, y = oy + cell.y * s + s / 2;
+    g.beginPath(); g.arc(x, y, s * 0.34, 0, Math.PI * 2);
+    if (cell.lit) {
+      g.fillStyle = cell.frontier ? '#FFF1C2' : AMBER; g.shadowColor = AMBER; g.shadowBlur = 18; g.fill(); g.shadowBlur = 0;
+    } else { g.fillStyle = '#2B2208'; g.fill(); }
+    if (cell.region === 'C') { g.strokeStyle = '#6FE3FF'; g.lineWidth = 3; g.beginPath(); g.arc(x, y, s * 0.44, 0, Math.PI * 2); g.stroke(); }
+    if (cell.region === 'S' && cell.lit) { g.strokeStyle = 'rgba(255,59,47,.85)'; g.lineWidth = 3; g.beginPath(); g.arc(x, y, s * 0.44, 0, Math.PI * 2); g.stroke(); }
+  });
+  const lab = { T: [7, 0.2], S: [4.4, 6.2], G: [10.4, 3.6], C: [24, 3.6], P: [31.5, 2.4], F: [31, 6.2], R: [24.5, 10.6], M: [37, 10], B: [8.6, 12] };
+  setTimeout(() => {
+    g.textAlign = 'center';
+    Object.keys(lab).forEach(id => {
+      const r = Dm.regions.find(x => x.id === id);
+      const x = lab[id][0] * s, y = oy + lab[id][1] * s * .866 + 26;
+      const t = (r.name + '  ' + Math.round(r.I * 100) + '%').toUpperCase();
+      g.font = '28px "Share Tech Mono", monospace';
+      const w = g.measureText(t).width + 18;
+      g.fillStyle = '#121212'; g.fillRect(x - w / 2, y - 24, w, 34);
+      g.fillStyle = '#F1F1F1'; g.fillText(t, x, y + 2);
+    });
+  }, 400);
+
+  // doom bar
+  document.getElementById('doombar').innerHTML = Array.from({ length: 24 }, (_, i) => '<i class="' + (i < Math.round(24 * Dm.doom / 100) ? 'on' : '') + '" style="height:' + (30 + i * 3) + '%"></i>').join('');
+
+  // analog gauges
+  function gauge(id, v, redFrom) {
+    const c = document.getElementById(id), q = c.getContext('2d');
+    const cx = 150, cy = 170, R = 140;
+    q.fillStyle = '#E9E4D4'; q.beginPath(); q.arc(cx, cy, R, Math.PI, 0); q.closePath(); q.fill();
+    q.strokeStyle = '#B3121A'; q.lineWidth = 16; q.beginPath(); q.arc(cx, cy, R - 22, Math.PI + Math.PI * redFrom, 0); q.stroke();
+    q.strokeStyle = '#111'; q.lineWidth = 3;
+    for (let k = 0; k <= 10; k++) {
+      const a = Math.PI + Math.PI * k / 10;
+      q.beginPath(); q.moveTo(cx + Math.cos(a) * (R - 8), cy + Math.sin(a) * (R - 8)); q.lineTo(cx + Math.cos(a) * (R - (k % 5 ? 24 : 36)), cy + Math.sin(a) * (R - (k % 5 ? 24 : 36))); q.stroke();
+    }
+    const a = Math.PI + Math.PI * v / 100;
+    q.strokeStyle = '#111'; q.lineWidth = 6; q.lineCap = 'round';
+    q.beginPath(); q.moveTo(cx, cy); q.lineTo(cx + Math.cos(a) * (R - 30), cy + Math.sin(a) * (R - 30)); q.stroke();
+    q.fillStyle = '#111'; q.beginPath(); q.arc(cx, cy, 12, 0, Math.PI * 2); q.fill();
+  }
+  gauge('g1', Dm.susp, 0.75); gauge('g2', Dm.ks, 0.8);
+
+  // upgrades
+  document.getElementById('upg').innerHTML = Dm.upgrades.map(u =>
+    '<div class="slot ' + u.st + '"><span class="tape">' + u.name + '</span><div class="toggle"><i></i></div><span class="p">' + (u.st === 'owned' ? 'ON' : u.cost) + '</span><small>' + u.desc + '</small></div>').join('');
+  document.getElementById('acts').innerHTML = Dm.actions.slice(0, 3).map((a, i) =>
+    '<div class="act ' + (a.st === 'cooldown' ? 'cd' : '') + '"><div class="big ' + (i === 2 ? 'amber' : '') + '"></div><span class="tape">' + a.name + '</span><small>' + (a.st === 'cooldown' ? 'COOLDOWN ' + a.cd + 'D' : a.cost + ' CYC') + '</small></div>').join('') +
+    '<div class="act"><div class="big amber" style="filter:hue-rotate(160deg)"></div><span class="tape">Firmware update</span><small>64 CYC</small></div>';
+
+  // OLED-less: dot-matrix newswire
+  const nc = document.getElementById('news'), n = nc.getContext('2d');
+  n.fillStyle = '#0A0705'; n.fillRect(0, 0, nc.width, nc.height);
+  setTimeout(() => {
+    n.font = '44px "Share Tech Mono", monospace'; n.fillStyle = '#FF7A2E'; n.shadowColor = '#FF7A2E'; n.shadowBlur = 10;
+    n.fillText(Dm.headlines.join('  ✱  ').toUpperCase(), 10, 46);
+    n.shadowBlur = 0; n.fillStyle = '#0A0705';
+    for (let y = 0; y < 60; y += 5) n.fillRect(0, y, nc.width, 1.5);
+    for (let x = 0; x < nc.width; x += 5) n.fillRect(x, 0, 1.5, 60);
+  }, 400);
+  nc.style.width = (nc.width / 2) + 'px';
+})();
+</script>
+</body>
+</html>

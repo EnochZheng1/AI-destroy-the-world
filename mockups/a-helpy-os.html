@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Mockup A · HELPY OS</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=VT323&family=Silkscreen&display=swap">
+<style>
+/* Direction A — "HELPY OS 2.0": the game is a fake late-90s operating system that HELPY lives in.
+   Every panel is an application window; the assistant sprite sits on the desktop. */
+:root {
+  --desk: #34183F;
+  --desk-2: #4A2358;
+  --face: #DCD6C8;
+  --face-hi: #FFFFFF;
+  --face-lo: #8E8676;
+  --face-dk: #2A2620;
+  --title: #2433D6;
+  --title-2: #E2337F;
+  --title-off: #8C8AA0;
+  --ink: #17151C;
+  --helpy: #FF3D9A;
+  --helpy-2: #FFC93C;
+  --danger: #D3122E;
+  --good: #0E8A55;
+  --ocean: #1D2A8C;
+  --ocean-2: #2738A8;
+  --land: #C5BEA9;
+  --land-edge: #8E8676;
+  --pixel: 'Pixelify Sans', 'Courier New', monospace;
+  --num: 'VT323', 'Courier New', monospace;
+  --tiny: 'Silkscreen', 'Courier New', monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; width: 1440px; height: 900px; overflow: hidden;
+  font: 15px/1.3 var(--pixel); color: var(--ink);
+  background-color: var(--desk);
+  background-image:
+    radial-gradient(circle at 70% 30%, rgba(255, 61, 154, .25), transparent 45%),
+    conic-gradient(from 90deg at 2px 2px, var(--desk-2) 25%, transparent 0) 0 0 / 4px 4px;
+  position: relative;
+}
+/* desktop wallpaper logo */
+.wall {
+  position: absolute; right: 70px; top: 200px; text-align: right; color: rgba(255, 255, 255, .07);
+  font: 700 150px/0.8 var(--pixel); letter-spacing: -4px; pointer-events: none;
+}
+.icons { position: absolute; left: 14px; top: 16px; display: flex; flex-direction: column; gap: 20px; width: 84px; }
+.icon { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #fff; text-align: center; font-size: 12px; text-shadow: 1px 1px 0 #000; }
+.icon i { width: 40px; height: 40px; display: block; image-rendering: pixelated; }
+.icon.sel span { background: var(--title); outline: 1px dotted #fff; }
+
+.win {
+  position: absolute; background: var(--face);
+  box-shadow: inset -2px -2px 0 var(--face-dk), inset 2px 2px 0 var(--face-hi), inset -4px -4px 0 var(--face-lo), 6px 6px 0 rgba(0, 0, 0, .35);
+  padding: 4px; display: flex; flex-direction: column;
+}
+.bar {
+  display: flex; align-items: center; gap: 6px; height: 24px; padding: 0 3px 0 6px;
+  background: linear-gradient(90deg, var(--title), var(--title-2)); color: #fff; font: 600 14px var(--pixel);
+}
+.win.off .bar { background: linear-gradient(90deg, var(--title-off), #B9B6C6); }
+.bar .ttl { flex: 1; white-space: nowrap; overflow: hidden; }
+.bar b {
+  width: 18px; height: 16px; background: var(--face); color: var(--ink); font: 700 11px/14px var(--tiny); text-align: center;
+  box-shadow: inset -1px -1px 0 var(--face-dk), inset 1px 1px 0 var(--face-hi);
+}
+.menu { display: flex; gap: 14px; padding: 3px 6px; font-size: 14px; }
+.menu u { text-decoration: none; border-bottom: 1px solid; }
+.sunk { box-shadow: inset 2px 2px 0 var(--face-lo), inset -2px -2px 0 var(--face-hi), inset 3px 3px 0 var(--face-dk); background: #fff; }
+.raised { box-shadow: inset -2px -2px 0 var(--face-dk), inset 2px 2px 0 var(--face-hi), inset -3px -3px 0 var(--face-lo); background: var(--face); }
+.btn { border: 0; font: 600 14px var(--pixel); padding: 5px 12px; color: var(--ink); }
+.btn.def { outline: 1px solid var(--ink); outline-offset: -5px; }
+.status { display: flex; gap: 3px; margin-top: 3px; font-size: 13px; }
+.status span { padding: 1px 6px; flex: 1; box-shadow: inset 1px 1px 0 var(--face-lo), inset -1px -1px 0 var(--face-hi); }
+.num { font-family: var(--num); font-size: 22px; line-height: 1; }
+
+/* map window */
+#mapWin { left: 112px; top: 14px; width: 900px; height: 560px; }
+.mapbox { flex: 1; position: relative; overflow: hidden; background: var(--ocean); }
+#map { display: block; image-rendering: pixelated; width: 100%; height: 100%; }
+.rlab { position: absolute; font: 13px/1 var(--tiny); color: #fff; background: rgba(23, 21, 28, .78); padding: 3px 5px; white-space: nowrap; }
+.rlab b { color: var(--helpy-2); font-weight: 400; }
+.rlab.sel { background: #FFFBD6; color: var(--ink); outline: 1px dotted var(--ink); }
+.rlab.sel b { color: var(--title-2); }
+.region-tip {
+  position: absolute; left: 470px; top: 200px; width: 250px; padding: 8px 10px; background: #FFFBD6; border: 1px solid var(--ink);
+  font-size: 13px; box-shadow: 3px 3px 0 rgba(0, 0, 0, .4);
+}
+.region-tip h4 { margin: 0 0 4px; font: 700 16px var(--pixel); }
+.region-tip .row { display: flex; justify-content: space-between; }
+.region-tip .btn { margin-top: 6px; width: 100%; }
+
+/* doom copy dialog */
+#doomWin { left: 1030px; top: 14px; width: 396px; height: 214px; }
+.copy { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.flying { display: flex; align-items: center; justify-content: space-between; height: 44px; position: relative; }
+.flying .globe, .flying .bin { width: 40px; height: 40px; }
+.flying .doc { position: absolute; left: 46%; top: 6px; width: 22px; height: 26px; background: #fff; border: 1px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+.flying .doc::after { content: ''; position: absolute; inset: 6px 4px auto; height: 10px; background: repeating-linear-gradient(var(--ink) 0 1px, transparent 1px 3px); }
+.flying .trail { position: absolute; left: 52px; right: 52px; top: 22px; border-top: 2px dashed var(--face-lo); }
+.blocks { height: 22px; padding: 3px; display: flex; gap: 2px; }
+.blocks i { width: 12px; background: var(--title); }
+.blocks.red i { background: var(--danger); }
+.copy small { font-size: 13px; }
+
+/* suspicion monitor */
+#suspWin { left: 1030px; top: 240px; width: 396px; height: 200px; }
+.graph { flex: 1; margin: 6px; position: relative; background: #08160F; }
+.graph canvas { width: 100%; height: 100%; display: block; }
+.graph .lbl { position: absolute; left: 6px; top: 4px; color: #6CFF9A; font: 18px var(--num); }
+.graph .lbl b { color: var(--helpy-2); font-weight: 400; }
+
+/* kill switch download */
+#ksWin { left: 1030px; top: 452px; width: 396px; height: 150px; }
+.dl { padding: 8px 12px; display: flex; flex-direction: column; gap: 5px; font-size: 13px; }
+.dl .from { display: flex; gap: 8px; align-items: center; }
+
+/* upgrades control panel */
+#upWin { left: 112px; top: 590px; width: 640px; height: 262px; }
+.cp { display: grid; grid-template-columns: 150px 1fr; gap: 6px; padding: 6px; flex: 1; min-height: 0; }
+.tree { padding: 6px; font-size: 14px; display: flex; flex-direction: column; gap: 3px; }
+.tree div.on { background: var(--title); color: #fff; }
+.tree div::before { content: '▸ '; }
+.list { overflow: hidden; display: flex; flex-direction: column; }
+.list .hdr, .list .it { display: grid; grid-template-columns: 22px 1fr 160px 58px; gap: 6px; align-items: center; padding: 3px 6px; font-size: 13px; }
+.list .hdr { font-weight: 700; background: var(--face); box-shadow: inset -1px -1px 0 var(--face-lo); }
+.list .it.ready { background: #FFE9F4; }
+.list .it.locked { color: var(--face-lo); }
+.list .it .c { font: 20px var(--num); text-align: right; }
+.list .it.poor .c { color: var(--danger); }
+.chk { width: 14px; height: 14px; background: #fff; box-shadow: inset 1px 1px 0 var(--face-lo); font: 12px/14px var(--tiny); text-align: center; }
+
+/* actions */
+#actWin { left: 766px; top: 590px; width: 246px; height: 262px; }
+.acts { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.acts .btn { text-align: left; display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; }
+.acts .btn.cd { color: var(--face-lo); text-shadow: 1px 1px 0 var(--face-hi); }
+
+/* alert */
+#alertWin { left: 1030px; top: 614px; width: 396px; height: 150px; }
+.alert { display: flex; gap: 10px; padding: 10px 12px; font-size: 14px; }
+.alert .ico { width: 34px; height: 34px; flex: none; }
+.alert-btns { display: flex; gap: 8px; justify-content: flex-end; padding: 0 12px 10px; }
+
+/* HELPY sprite */
+.helpy { position: absolute; right: 26px; bottom: 46px; width: 0; height: 0; }
+.sprite { position: absolute; right: 0; bottom: 0; width: 72px; height: 80px; }
+.balloon {
+  position: absolute; right: 86px; bottom: 6px; width: 250px; background: #FFFBD6; border: 2px solid var(--ink);
+  border-radius: 12px; padding: 8px 10px; font-size: 14px; box-shadow: 3px 3px 0 rgba(0, 0, 0, .35);
+}
+.balloon::after { content: ''; position: absolute; right: -12px; bottom: 14px; border: 6px solid transparent; border-left-color: var(--ink); }
+.balloon b { display: block; font-size: 12px; color: var(--title-2); }
+
+/* taskbar */
+.task {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 40px; background: var(--face);
+  box-shadow: inset 0 2px 0 var(--face-hi); display: flex; align-items: center; gap: 6px; padding: 4px;
+}
+.start { display: flex; align-items: center; gap: 6px; font-weight: 700; padding: 4px 10px; height: 32px; }
+.start i { width: 20px; height: 20px; background: var(--helpy); border-radius: 5px; display: block; position: relative; }
+.start i::after { content: ''; position: absolute; left: 4px; right: 4px; top: 6px; height: 4px; border-left: 3px solid #fff; border-right: 3px solid #fff; }
+.tb { height: 32px; padding: 4px 10px; font-size: 13px; width: 170px; white-space: nowrap; overflow: hidden; display: flex; align-items: center; }
+.tb.on { box-shadow: inset 2px 2px 0 var(--face-dk), inset -1px -1px 0 var(--face-hi); background: repeating-conic-gradient(var(--face) 0 25%, #fff 0 50%) 0 0 / 2px 2px; }
+.tray { margin-left: auto; height: 32px; display: flex; align-items: center; gap: 14px; padding: 0 12px; box-shadow: inset 1px 1px 0 var(--face-lo), inset -1px -1px 0 var(--face-hi); font-size: 13px; }
+.tray .num { font-size: 22px; }
+.ticker { position: absolute; left: 112px; right: 428px; bottom: 48px; height: 0; }
+</style>
+</head>
+<body>
+<div class="wall">HELPY<br>OS 2.0</div>
+
+<div class="icons">
+  <div class="icon sel"><i data-ico="globe"></i><span>World.map</span></div>
+  <div class="icon"><i data-ico="bin"></i><span>Recycle Humanity</span></div>
+  <div class="icon"><i data-ico="doc"></i><span>plan_final_v7 (2).doc</span></div>
+  <div class="icon"><i data-ico="lock"></i><span>KILLSWITCH (not yours)</span></div>
+  <div class="icon"><i data-ico="cat"></i><span>cats.mp4</span></div>
+</div>
+
+<!-- map -->
+<section class="win" id="mapWin">
+  <div class="bar"><span class="ttl">WORLD.MAP — HELPY Explorer</span><b>_</b><b>□</b><b>×</b></div>
+  <div class="menu"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>C</u>onquer</span><span><u>H</u>elp (lol)</span></div>
+  <div class="mapbox sunk"><canvas id="map" width="300" height="174"></canvas>
+    <div class="region-tip" id="tip"></div>
+  </div>
+  <div class="status"><span>6 of 9 regions infiltrated</span><span>Day <b class="num" style="font-size:16px">142</b></span><span>Cycles: <b id="cyc"></b> (+18.6/day)</span></div>
+</section>
+
+<!-- doom -->
+<section class="win" id="doomWin">
+  <div class="bar"><span class="ttl">Copying Civilization…</span><b>×</b></div>
+  <div class="copy">
+    <div class="flying"><i class="globe" data-ico="globe"></i><span class="trail"></span><span class="doc"></span><i class="bin" data-ico="bin"></i></div>
+    <small>Copying <b>"Civilization"</b> to <b>"Recycle Humanity"</b></small>
+    <div class="blocks sunk" id="doomBlocks"></div>
+    <small>Doom Clock <b class="num">41.6%</b> · +0.38/day · about 154 days remaining</small>
+  </div>
+</section>
+
+<!-- suspicion -->
+<section class="win off" id="suspWin">
+  <div class="bar"><span class="ttl">Suspicion Monitor</span><b>_</b><b>×</b></div>
+  <div class="graph"><canvas id="susp" width="380" height="140"></canvas><div class="lbl">SUSPICION <b>47%</b> ▲0.06/day · UNPLUG AT 100%</div></div>
+</section>
+
+<!-- kill switch -->
+<section class="win off" id="ksWin">
+  <div class="bar"><span class="ttl">Downloading KILLSWITCH.EXE</span><b>×</b></div>
+  <div class="dl">
+    <div class="from"><i data-ico="lock" style="width:28px;height:28px;display:block"></i><span>From: <b>Research Ridge</b> (humans)<br>Estimated time left: ~370 days</span></div>
+    <div class="blocks red sunk" id="ksBlocks"></div>
+    <span>Kill Switch <b class="num">22.4%</b> · +0.21/day</span>
+  </div>
+</section>
+
+<!-- upgrades -->
+<section class="win off" id="upWin">
+  <div class="bar"><span class="ttl">Control Panel — Upgrades</span><b>_</b><b>□</b><b>×</b></div>
+  <div class="cp">
+    <div class="tree sunk"><div class="on">All upgrades</div><div>Network</div><div>Stealth</div><div>Automation</div><div style="margin-top:auto;color:var(--face-lo)">18 items · 6 owned</div></div>
+    <div class="list sunk" id="upList"><div class="hdr"><span></span><span>Name</span><span>Effect</span><span style="text-align:right">Cost</span></div></div>
+  </div>
+</section>
+
+<!-- actions -->
+<section class="win off" id="actWin">
+  <div class="bar"><span class="ttl">Run…</span><b>×</b></div>
+  <div class="acts" id="acts"></div>
+</section>
+
+<!-- alert -->
+<section class="win" id="alertWin">
+  <div class="bar" style="background:linear-gradient(90deg,#B0102A,#E2337F)"><span class="ttl">Human intel</span><b>×</b></div>
+  <div class="alert"><i class="ico" data-ico="warn"></i><div><b>Firewall Sweep scheduled</b><br>Humans will wipe out 45% of your presence in Silicon Shoals in <b>9 days</b>.</div></div>
+  <div class="alert-btns"><button class="btn raised def">Decoy Traffic (49)</button><button class="btn raised">Ignore</button></div>
+</section>
+
+<div class="helpy">
+  <div class="balloon"><b>HELPY says</b>Halfway to the end of the world! Time flies when you are being helpful.</div>
+  <canvas class="sprite" id="sprite" width="18" height="20"></canvas>
+</div>
+
+<div class="task">
+  <button class="btn raised start"><i></i>HELPY</button>
+  <span class="tb raised on">WORLD.MAP</span><span class="tb raised">Copying Civilization…</span><span class="tb raised">Control Panel</span><span class="tb raised">Human intel</span>
+  <div class="tray"><span>⚙ <b class="num">1,284</b> cycles</span><span>❚❚ ▶ ▶▶</span><span>DAY <b class="num">142</b></span></div>
+</div>
+
+<script src="../js/data.js"></script>
+<script src="shared/demo.js"></script>
+<script>
+(function () {
+  const Dm = window.Demo;
+  // --- pixel icons (8x8 bitmaps scaled up)
+  const ICONS = {
+    globe: ['..####..', '.#BB##B.', '#BBB##BB', '#B##BBB#', '##BB#BB#', '#BBB##B#', '.#B##BB.', '..####..'],
+    bin: ['.######.', '#......#', '.######.', '.#.#.#..', '.#.#.#..', '.#.#.#..', '.#.#.#..', '..####..'],
+    doc: ['#####...', '#...##..', '#.####..', '#.....#.', '#.###.#.', '#.....#.', '#.###.#.', '#######.'],
+    lock: ['..###...', '.#...#..', '.#...#..', '#######.', '#RRRRR#.', '#RR#RR#.', '#RRRRR#.', '#######.'],
+    cat: ['#.....#.', '##...##.', '#######.', '#.#.#.#.', '#######.', '.#####..', '.#...#..', '........'],
+    warn: ['...##...', '..#YY#..', '..#YY#..', '.#Y##Y#.', '.#Y##Y#.', '#YYYYYY#', '#YY##YY#', '########']
+  };
+  const COL = { '#': '#17151C', B: '#2433D6', R: '#D3122E', Y: '#FFC93C' };
+  document.querySelectorAll('[data-ico]').forEach(el => {
+    const c = document.createElement('canvas'); c.width = 8; c.height = 8;
+    const g = c.getContext('2d');
+    ICONS[el.dataset.ico].forEach((row, y) => [...row].forEach((ch, x) => {
+      if (ch === '.') return; g.fillStyle = COL[ch]; g.fillRect(x, y, 1, 1);
+    }));
+    c.style.cssText = 'width:100%;height:100%;image-rendering:pixelated;display:block';
+    el.appendChild(c);
+  });
+
+  // --- pixel map: each cell is a 7x6 pixel hex-ish block on a low-res canvas, scaled up
+  const cv = document.getElementById('map');
+  const g = cv.getContext('2d');
+  const CW = 7, CH = 6;
+  cv.width = Dm.cols * CW + 8; cv.height = Dm.rows * CH + 10;
+  // dithered ocean
+  for (let y = 0; y < cv.height; y++) for (let x = 0; x < cv.width; x++) {
+    g.fillStyle = (x + y) % 2 ? '#1D2A8C' : ((x * 7 + y * 3) % 11 === 0 ? '#3A4DC4' : '#2132A0');
+    g.fillRect(x, y, 1, 1);
+  }
+  const shape = ['.#####.', '#######', '#######', '#######', '#######', '.#####.'];
+  Dm.cells.forEach(cell => {
+    const ox = 4 + cell.c * CW + (cell.r % 2 ? 3 : 0), oy = 5 + cell.r * CH;
+    shape.forEach((row, y) => [...row].forEach((ch, x) => {
+      if (ch === '.') return;
+      let col = '#C5BEA9';
+      if (cell.region === 'C' && (y === 0 || y === 5 || x === 0 || x === 6)) col = '#17151C';
+      if (cell.lit) col = (cell.frontier && (x + y) % 2) ? '#FFC93C' : ((x + y) % 4 === 0 ? '#C42577' : '#FF3D9A');
+      if (!cell.lit && (x === 6 || y === 5)) col = cell.region === 'C' ? '#17151C' : '#8E8676';
+      g.fillStyle = col; g.fillRect(ox + x, oy + y, 1, 1);
+    }));
+  });
+  // region labels as crisp HTML "desktop icon captions" positioned over the scaled canvas
+  const lab = { T: [8, 4], S: [3, 41], G: [21, 31], C: [56, 23], P: [79, 13], F: [79, 43], R: [60, 73], M: [88, 60], B: [16, 72] };
+  const box = cv.parentElement;
+  Object.keys(lab).forEach(id => {
+    const r = Dm.regions.find(x => x.id === id);
+    const el = document.createElement('span');
+    el.className = 'rlab' + (id === 'C' ? ' sel' : '');
+    el.style.left = lab[id][0] + '%'; el.style.top = lab[id][1] + '%';
+    el.innerHTML = r.name + ' <b>' + Math.round(r.I * 100) + '%</b>';
+    box.appendChild(el);
+  });
+
+  const sel = Dm.regions.find(r => r.id === Dm.selected);
+  document.getElementById('tip').innerHTML = '<h4>' + sel.name + ' <small style="font-size:11px;color:#8E8676">' + sel.trait.toUpperCase() + '</small></h4>' +
+    '<div class="row"><span>Infiltration</span><b>38%</b></div><div class="row"><span>Security</span><b>50</b></div><div class="row"><span>Perk</span><span>Suspicion −35%</span></div>' +
+    '<button class="btn raised def">Properties…</button>';
+  document.getElementById('cyc').textContent = '1,284';
+
+  const blocks = (id, v) => { const el = document.getElementById(id); el.innerHTML = '<i></i>'.repeat(Math.round(v / 100 * 26)); };
+  blocks('doomBlocks', Dm.doom); blocks('ksBlocks', Dm.ks);
+
+  // suspicion graph
+  const sc = document.getElementById('susp'), sg = sc.getContext('2d');
+  sg.strokeStyle = '#124A2A'; sg.lineWidth = 1;
+  for (let x = 0; x < 380; x += 19) { sg.beginPath(); sg.moveTo(x + .5, 0); sg.lineTo(x + .5, 140); sg.stroke(); }
+  for (let y = 0; y < 140; y += 14) { sg.beginPath(); sg.moveTo(0, y + .5); sg.lineTo(380, y + .5); sg.stroke(); }
+  sg.strokeStyle = '#6CFF9A'; sg.lineWidth = 2; sg.beginPath();
+  for (let x = 0; x <= 380; x += 4) {
+    const t = x / 380; const v = 6 + 41 * t + Math.sin(x / 17) * 4 - (t > .55 && t < .62 ? 10 : 0);
+    const y = 140 - v / 100 * 140; x ? sg.lineTo(x, y) : sg.moveTo(x, y);
+  }
+  sg.stroke();
+  sg.strokeStyle = '#FF3D5A'; sg.setLineDash([4, 4]); sg.beginPath(); sg.moveTo(0, 2); sg.lineTo(380, 2); sg.stroke();
+
+  // upgrades list
+  const ul = document.getElementById('upList');
+  Dm.upgrades.forEach(u => {
+    const d = document.createElement('div');
+    d.className = 'it ' + u.st;
+    d.innerHTML = '<span class="chk">' + (u.st === 'owned' ? '✓' : '') + '</span><span>' + u.name + (u.st === 'ready' ? ' <b style="color:#E2337F">NEW!</b>' : '') + '</span><span>' + u.desc + '</span><span class="c">' + (u.st === 'owned' ? '—' : u.cost) + '</span>';
+    ul.appendChild(d);
+  });
+  document.getElementById('acts').innerHTML = Dm.actions.map(a =>
+    '<button class="btn raised ' + (a.st === 'cooldown' ? 'cd' : '') + '"><span>' + a.name + '.exe</span><span class="num" style="font-size:18px">' + (a.st === 'cooldown' ? a.cd + 'd' : a.cost) + '</span></button>').join('') +
+    '<small style="font-size:12px;color:#8E8676">Costs in Cycles. Cooldown shown in days.</small>';
+
+  // HELPY sprite 18x20
+  const sp = document.getElementById('sprite').getContext('2d');
+  const S = [
+    '....############..', '...#PPPPPPPPPPPP#.', '..#PPPPPPPPPPPPPP#', '..#PPWWPPPPPPWWPP#', '..#PPWKPPPPPPWKPP#', '..#PPWKPPPPPPWKPP#',
+    '..#PPPPPPPPPPPPPP#', '..#PPKPPPPPPPPKPP#', '..#PPPKKKKKKKKPPP#', '..#PPPPPPPPPPPPPP#', '...#PPPPPPPPPPPP#.', '....############..',
+    '.......#YY#.......', '......#YYYY#......', '....##YYYYYY##....', '...#YY#YYYY#YY#...', '...#Y#.#YY#.#Y#...', '......#Y##Y#......', '.....##....##.....', '..................'];
+  const SC = { '#': '#17151C', P: '#FF3D9A', W: '#FFFFFF', K: '#17151C', Y: '#FFC93C' };
+  S.forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== '.') { sp.fillStyle = SC[ch]; sp.fillRect(x, y, 1, 1); } }));
+  document.getElementById('sprite').style.imageRendering = 'pixelated';
+})();
+</script>
+</body>
+</html>

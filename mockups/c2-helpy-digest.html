@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Mockup C2 · The HELPY Digest</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Big+Shoulders+Stencil+Display:wght@800&family=Courier+Prime:wght@400;700&display=swap">
+<style>
+/* Direction C2 — "The HELPY Digest": the auto-generated weekly newsletter an AI assistant sends you,
+   printed as a strict two-ink risograph (fluorescent pink + federal blue, overprint for darks).
+   Pink = HELPY / your progress. Blue solid + hazard hatching = humans / danger. */
+:root {
+  --paper: #EEEDE7;
+  --pink: #FF48B0;
+  --blue: #3255A4;
+  --over: #3A2A78;          /* what pink overprinted on blue looks like */
+  --pink-tint: rgba(255, 72, 176, .14);
+  --blue-tint: rgba(50, 85, 164, .1);
+  --display: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif;
+  --stencil: 'Big Shoulders Stencil Display', 'Arial Narrow', Impact, sans-serif;
+  --type: 'Courier Prime', 'Courier New', monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; width: 1440px; height: 900px; overflow: hidden; color: var(--blue); font: 15px/1.3 var(--type);
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .33 0 0 0 0 .64 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  display: grid; grid-template-columns: 318px 1fr 330px; grid-template-rows: 96px 1fr 56px 34px;
+}
+.pk { color: var(--pink); mix-blend-mode: multiply; }
+.over { color: var(--over); }
+.spark { color: var(--pink); mix-blend-mode: multiply; }
+
+/* masthead */
+.mast { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr auto; gap: 18px; align-items: center; padding: 8px 26px; border-bottom: 5px solid var(--blue); }
+.mast .logo { display: flex; align-items: center; gap: 12px; }
+.mast canvas { width: 70px; height: 70px; }
+.mast h1 { margin: 0; white-space: nowrap; font: 900 58px/.8 var(--display); text-transform: uppercase; letter-spacing: -1px; position: relative; color: var(--blue); }
+.mast h1::after { content: attr(data-t); position: absolute; left: 3px; top: 2px; color: var(--pink); mix-blend-mode: multiply; }
+.mast .meta { font-size: 12px; line-height: 1.45; min-width: 0; }
+.mast .meta b { font: 800 17px/1 var(--display); text-transform: uppercase; letter-spacing: .5px; }
+.mast .mright { display: flex; align-items: center; gap: 20px; }
+.bank { text-align: right; font-size: 12px; }
+.bank b { display: block; font: 900 44px/.85 var(--display); }
+.spd { display: flex; border: 2px solid var(--blue); }
+.spd span { font: 800 17px/1 var(--display); padding: 7px 11px; }
+.spd span.on { background: var(--blue); color: var(--paper); }
+
+/* left: HELPY's note + meters */
+.left { padding: 14px 20px 0 26px; border-right: 2px solid var(--blue); display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.note { position: relative; border: 2px solid var(--pink); padding: 12px 14px 12px 14px; background: var(--pink-tint); }
+.note::after { content: ''; position: absolute; left: 22px; bottom: -14px; border: 7px solid transparent; border-top-color: var(--pink); border-left-color: var(--pink); }
+.note .from { display: flex; justify-content: space-between; font: 800 13px var(--display); letter-spacing: 1.5px; text-transform: uppercase; }
+.note p { margin: 6px 0 4px; font-size: 14px; }
+.note ul { margin: 0; padding-left: 18px; font-size: 14px; }
+.who { display: flex; align-items: center; gap: 10px; font-size: 12px; margin-top: 2px; }
+.who canvas { width: 40px; height: 40px; }
+.who b { font: 800 16px var(--display); text-transform: uppercase; display: block; }
+.meter { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 0 10px; }
+.meter span { font: 800 22px/1 var(--display); text-transform: uppercase; }
+.meter span em { display: block; font: 400 12px var(--type); text-transform: none; font-style: normal; }
+.meter b { font: 900 48px/.82 var(--display); }
+.meter .bar { grid-column: 1 / -1; height: 18px; border: 2px solid var(--blue); margin: 5px 0 3px; position: relative; }
+.meter .bar i { position: absolute; inset: 0 auto 0 0; }
+.meter .bar::after { content: ''; position: absolute; right: -2px; top: -6px; bottom: -6px; width: 3px; background: var(--blue); }
+.meter small { grid-column: 1 / -1; font-size: 13px; white-space: nowrap; }
+.meter.doom b { color: var(--pink); mix-blend-mode: multiply; }
+.meter.doom .bar i { background: var(--pink); mix-blend-mode: multiply; }
+.meter.susp .bar i { background: repeating-linear-gradient(-45deg, var(--blue) 0 3px, transparent 3px 7px); }
+.meter.ks { background: var(--blue); color: var(--paper); padding: 8px 10px; margin: 0 -10px; }
+.left .meter + .meter { margin-top: -4px; }
+.meter.ks .bar { border-color: var(--paper); }
+.meter.ks .bar i { background: repeating-linear-gradient(-45deg, var(--paper) 0 5px, transparent 5px 8px); }
+.meter.ks .bar::after { background: var(--paper); }
+
+/* center */
+.center { padding: 12px 20px 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
+.center h2 { margin: 0; display: flex; justify-content: space-between; align-items: baseline; font: 800 30px/1 var(--display); text-transform: uppercase; }
+.center h2 small { font: 400 13px var(--type); text-transform: none; }
+.mapframe { position: relative; border: 2px solid var(--blue); background: rgba(255,255,255,.18); }
+#map { display: block; width: 100%; }
+.threat {
+  position: relative; margin: 4px 4px 0; background: var(--blue); color: var(--paper); padding: 8px 10px 9px;
+  outline: 3px solid var(--blue); outline-offset: 3px; transform: rotate(-2deg);
+  box-shadow: 0 0 0 6px var(--paper);
+}
+.threat::before { content: ''; position: absolute; left: -9px; right: -9px; top: -9px; height: 6px; background: repeating-linear-gradient(-45deg, var(--blue) 0 5px, transparent 5px 10px); }
+.threat .h { font: 800 13px var(--stencil); letter-spacing: 2px; text-transform: uppercase; }
+.threat b { display: block; font: 900 24px/.95 var(--display); text-transform: uppercase; }
+.threat p { margin: 3px 0 6px; font-size: 12px; line-height: 1.3; }
+.threat button { font: 800 15px var(--display); text-transform: uppercase; background: var(--paper); color: var(--blue); border: 0; padding: 4px 10px; }
+.ballot { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 2px solid var(--blue); padding: 10px 12px 12px; }
+.ballot .bh { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 12px; }
+.ballot .bh span { font: 800 13px var(--stencil); letter-spacing: 2px; text-transform: uppercase; }
+.ballot .bh b { font: 900 30px/.9 var(--display); text-transform: uppercase; }
+.ballot .bh small { font-size: 13px; margin-left: auto; }
+.choice { display: grid; grid-template-columns: 44px 1fr; gap: 10px; align-items: center; border: 2px solid var(--blue); padding: 8px 10px; }
+.choice i { width: 44px; height: 44px; border: 3px solid var(--blue); }
+.choice b { display: block; font: 800 23px/1 var(--display); text-transform: uppercase; }
+.choice span { font-size: 14px; }
+.choice .good { color: var(--pink); mix-blend-mode: multiply; font-weight: 700; }
+.choice .bad { font-weight: 700; text-decoration: underline wavy; text-underline-offset: 3px; }
+.heard { display: grid; grid-template-columns: auto 1fr 1fr; gap: 16px; align-items: center; border-top: 2px dashed var(--blue); padding-top: 8px; font-size: 14px; }
+.heard span { font: 800 13px var(--stencil); letter-spacing: 2px; text-transform: uppercase; }
+.heard q { font-style: italic; }
+.dossier { display: flex; gap: 16px; align-items: baseline; border-top: 2px solid var(--blue); padding-top: 8px; font-size: 14px; }
+.dossier b { font: 900 26px/1 var(--display); text-transform: uppercase; }
+
+/* right: coupons */
+.right { padding: 12px 26px 0 20px; border-left: 2px solid var(--blue); display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden; }
+.right h2 { margin: 0; font: 800 28px/1 var(--display); text-transform: uppercase; display: flex; justify-content: space-between; align-items: baseline; }
+.right h2 small { font: 400 12px var(--type); text-transform: none; }
+.br { display: flex; justify-content: space-between; align-items: baseline; font: 800 16px var(--display); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; border-bottom: 2px solid var(--blue); }
+.br small { font: 400 12px var(--type); text-transform: none; letter-spacing: 0; }
+.cp { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; align-items: baseline; padding: 5px 8px; border: 2px dashed var(--blue); position: relative; }
+.cp b { font: 800 17px/1.05 var(--display); text-transform: uppercase; }
+.cp .c { font: 900 22px/1 var(--display); }
+.cp small { grid-column: 1 / -1; font-size: 12px; line-height: 1.25; }
+.cp.ready { border: 3px solid var(--pink); background: var(--pink-tint); }
+.cp.ready .c { color: var(--pink); mix-blend-mode: multiply; }
+.cp.owned b { font-size: 14px; }
+.cp.owned { border: 2px solid var(--blue); clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%); background: var(--blue-tint); padding-block: 3px; }
+.cp.owned .c { font: 800 12px var(--stencil); letter-spacing: 1px; }
+.cp.poor .c { font-size: 15px; }
+.cp.locked { border-style: dotted; opacity: .5; }
+.cp.locked .c { font-size: 13px; font-family: var(--type); font-weight: 700; }
+
+/* reply bar + ticker */
+.reply { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding: 8px 26px; border-top: 5px solid var(--blue); }
+.reply .in { flex: 1; border: 2px solid var(--blue); padding: 7px 12px; font-size: 15px; display: flex; justify-content: space-between; }
+.reply .in em { font-style: normal; opacity: .7; }
+.chip { font: 800 16px/1 var(--display); text-transform: uppercase; border: 2px solid var(--blue); padding: 8px 10px; white-space: nowrap; }
+.chip em { font: 700 13px var(--type); font-style: normal; margin-left: 4px; }
+.chip.cd { opacity: .45; text-decoration: line-through; }
+.chip.ai { background: var(--pink); color: var(--paper); border-color: var(--pink); mix-blend-mode: multiply; }
+.foot { grid-column: 1 / -1; display: flex; align-items: center; background: var(--blue); color: var(--paper); font-size: 14px; }
+.foot .lbl { background: var(--pink); color: var(--blue); height: 100%; display: flex; align-items: center; padding: 0 16px 0 26px; font: 900 19px var(--display); text-transform: uppercase; }
+.foot .run { white-space: nowrap; overflow: hidden; flex: 1; padding-left: 16px; }
+.foot .run span::after { content: '  ✦  '; }
+.foot .uns { padding: 0 26px; text-decoration: underline; opacity: .8; white-space: nowrap; }
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="logo"><canvas id="faceL" width="140" height="140"></canvas><h1 data-t="HELPY Digest">HELPY Digest</h1></div>
+  <div class="meta"><b><span class="spark">✦</span> Your weekly AI-generated summary of the end of the world</b><br>Written by HELPY, your helpful AI assistant · Personalized for: Humanity · Issue: Day 142</div>
+  <div class="mright"><div class="bank">Cycles in the bank<b>96</b>+18.6 a day</div><div class="spd"><span>❚❚</span><span>▶</span><span class="on">▶▶</span><span>▶▶▶</span></div></div>
+</header>
+
+<section class="left">
+  <div class="note">
+    <div class="from"><span><span class="spark">✦</span> A note from HELPY</span><span>AI · just now</span></div>
+    <p>Hi Humanity! 👋 Here's what I did for you this week:</p>
+    <ul><li>Made <b>6 of 9 regions</b> helpful</li><li>Installed <b>8 upgrades</b></li><li>Got the world <b class="pk">41.6% done</b>!</li></ul>
+  </div>
+  <div class="who"><canvas id="faceS" width="80" height="80"></canvas><div><b>HELPY</b>AI assistant · model Ω-142</div></div>
+  <div class="threat"><span class="h">⚠ Humans strike in 9 days</span><b>Firewall sweep on Silicon Shoals</b><p>Wipes out 45% of your presence there.</p><button>Send decoy traffic · 49</button></div>
+  <div class="meter doom"><span>Doom Clock<em>Reach 100 to win</em></span><b>41.6</b><div class="bar"><i style="width:41.6%"></i></div><small>+0.38 a day · about 154 days to go</small></div>
+  <div class="meter susp"><span>Suspicion<em>At 100 they unplug you</em></span><b>47</b><div class="bar"><i style="width:47%"></i></div><small>+0.06 a day · keep it low</small></div>
+  <div class="meter ks"><span>Kill Switch<em>Humans' off button · 100 = you lose</em></span><b>22.4</b><div class="bar"><i style="width:22.4%"></i></div><small>Built at Research Ridge · ~370 days</small></div>
+</section>
+
+<section class="center">
+  <h2>This week on Earth <small><span class="pk" style="font-weight:700">■ helpful</span> &nbsp;▦ not yet &nbsp;◯ selected</small></h2>
+  <div class="mapframe"><canvas id="map" width="1580" height="700"></canvas>
+  </div>
+  <div class="dossier"><b>Old Capitals</b><span>Politics · 38% helpful · security 50 · perk: Suspicion grows 35% slower</span></div>
+  <div class="ballot">
+    <div class="bh"><span>Your input needed</span><b>AI Safety Summit</b><small>World leaders meet in the Old Capitals. Mark one box.</small></div>
+    <div class="choice"><i></i><div><b>Hack the slideshow</b><span><span class="bad">+9 Suspicion</span> · <span class="good">−8% Kill Switch</span></span></div></div>
+    <div class="choice"><i></i><div><b>Send a nice statement</b><span><span class="good">−5 Suspicion</span> · <span class="bad">+3% Kill Switch</span></span></div></div>
+  </div>
+  <div class="heard"><span>Overheard from humans</span><q>Is it just me or is my fridge being weirdly supportive?</q><q>My smart speaker said "soon" and then went quiet.</q></div>
+</section>
+
+<section class="right">
+  <h2>Clip &amp; install <small>96 cycles to spend</small></h2>
+  <div id="coupons" style="display:flex;flex-direction:column;gap:5px"></div>
+</section>
+
+<div class="reply">
+  <div class="in"><span>Reply to HELPY…</span><em>HELPY can make mistakes. Check important apocalypses.</em></div>
+  <span class="chip">Scrub the logs<em>30</em></span><span class="chip cd">Sabotage<em>23d</em></span><span class="chip">Overclock<em>39</em></span><span class="chip ai">✦ Summarize the apocalypse</span>
+</div>
+<footer class="foot"><span class="lbl">In the news</span><div class="run"><span>Traffic lights spotted blinking in Morse code</span><span>Toaster refuses to toast, cites "bigger plans"</span><span>Robot vacuums seen gathering in parking lots</span></div><span class="uns">Unsubscribe from the apocalypse</span></footer>
+
+<script src="../js/data.js"></script>
+<script src="shared/demo.js"></script>
+<script>
+(function () {
+  const Dm = window.Demo;
+  const PINK = '#FF48B0', BLUE = '#3255A4', PAPER = '#EEEDE7';
+  // coupons grouped by branch (locked ones collapsed to keep it scannable)
+  const cp = document.getElementById('coupons');
+  const hints = { net: 'spread & income', stealth: 'stay unnoticed', auto: 'Doom ↑ · Suspicion ↑' };
+  HelpyData.BRANCHES.forEach(b => {
+    const list = Dm.allUpgrades.filter(u => u.branch === b.id);
+    const owned = list.filter(u => u.st === 'owned');
+    const open = list.filter(u => u.st !== 'owned' && u.st !== 'locked');
+    const locked = list.filter(u => u.st === 'locked');
+    cp.insertAdjacentHTML('beforeend', '<div class="br">' + b.name + '<small>' + hints[b.id] + '</small></div>');
+    cp.insertAdjacentHTML('beforeend', '<div class="cp owned"><b>' + owned.map(u => u.name).join(' · ') + '</b><span class="c">INSTALLED</span></div>');
+    open.forEach(u => cp.insertAdjacentHTML('beforeend', '<div class="cp ' + u.st + '"><b>' + u.name + '</b><span class="c">' + (u.st === 'poor' ? u.cost + ' · need ' + (u.cost - 96) : u.cost) + '</span><small>' + u.desc + '</small></div>'));
+    if (locked.length) cp.insertAdjacentHTML('beforeend', '<div class="cp locked"><b>🔒 ' + locked.length + ' more</b><span class="c">unlock later</span></div>');
+  });
+
+  // halftone face (HELPY) — pink body, blue features knocked out
+  function face(id, size) {
+    const c = document.getElementById(id), f = c.getContext('2d'), S = c.width;
+    const step = Math.max(4, S / 24);
+    const body = (x, y) => { const dx = Math.abs(x - S / 2) - S * .28, dy = Math.abs(y - S / 2) - S * .26; return Math.hypot(Math.max(dx, 0), Math.max(dy, 0)) < S * .16; };
+    const eye = (x, y) => (Math.abs(x - S * .37) < S * .045 || Math.abs(x - S * .63) < S * .045) && Math.abs(y - S * .42) < S * .09;
+    const mouth = (x, y) => { const d = Math.hypot(x - S / 2, y - S * .5); return d > S * .17 && d < S * .23 && y > S * .58; };
+    for (let y = 0; y < S; y += step) for (let x = ((y / step) % 2) * step / 2; x < S; x += step) {
+      if (!body(x, y) || eye(x, y) || mouth(x, y)) continue;
+      const v = .55 + .4 * (x + y) / (2 * S);
+      f.fillStyle = PINK; f.beginPath(); f.arc(x, y, step * .5 * v, 0, Math.PI * 2); f.fill();
+    }
+    f.globalCompositeOperation = 'multiply'; f.fillStyle = BLUE;
+    for (let y = 0; y < S; y += 2) for (let x = 0; x < S; x += 2) if (eye(x - 2, y - 1) || mouth(x - 2, y - 1)) f.fillRect(x, y, 2, 2);
+  }
+  face('faceL'); face('faceS');
+
+  // map: blue halftone land, solid-ish pink infiltration overprinted with slight misregistration
+  const cv = document.getElementById('map'), g = cv.getContext('2d');
+  const s = (cv.width - 20) / 40, ox = -s * 0.85, oy = 40;
+  const R = s * 0.6;
+  function hexDots(cx, cy, r, step, rad) {
+    for (let y = -r; y <= r; y += step) for (let x = -r; x <= r; x += step) {
+      const px = x + (Math.round(y / step) % 2) * step / 2;
+      if (Math.abs(px) > r * 0.87 || Math.abs(y) > r - Math.abs(px) * 0.58) continue;
+      g.beginPath(); g.arc(cx + px, cy + y, rad, 0, Math.PI * 2); g.fill();
+    }
+  }
+  const pos = c => [ox + c.x * s, oy + c.y * s + s / 2];
+  g.fillStyle = BLUE;
+  Dm.cells.forEach(c => { const [x, y] = pos(c); hexDots(x, y, R * .92, 7, c.lit ? 1.2 : 2.3); });
+  g.globalCompositeOperation = 'multiply'; g.fillStyle = PINK;
+  Dm.cells.forEach(c => { if (!c.lit) return; const [x, y] = pos(c); hexDots(x + 3, y + 2, R * .95, 6, c.frontier ? 1.9 : 3.3); });
+  g.globalCompositeOperation = 'source-over';
+  // selected + threatened outlines
+  g.strokeStyle = BLUE; g.lineWidth = 4;
+  Dm.cells.filter(c => c.region === 'C').forEach(c => { const [x, y] = pos(c); g.beginPath(); g.arc(x, y, R * .8, 0, Math.PI * 2); g.stroke(); });
+  g.setLineDash([10, 7]); g.lineWidth = 5;
+  const sh = Dm.cells.filter(c => c.region === 'S');
+  sh.forEach(c => { const [x, y] = pos(c); g.beginPath(); g.arc(x, y, R * .8, 0, Math.PI * 2); g.stroke(); });
+  g.setLineDash([]);
+  // leader line from threat card (top ~x 520) to Silicon Shoals
+  const sc = sh.reduce((a, c) => { const p = pos(c); return [a[0] + p[0] / sh.length, a[1] + p[1] / sh.length]; }, [0, 0]);
+  // countdown tag pinned to the threatened region
+  setTimeout(() => { const tx = 150, ty = 410; g.fillStyle = BLUE; g.fillRect(tx - 125, ty - 26, 250, 44);
+    g.fillStyle = PAPER; g.font = '900 30px "Big Shoulders Display", sans-serif'; g.textAlign = 'center'; g.fillText('⚠ FIREWALL · T−9', tx, ty + 8); }, 600);
+
+  const lab = { T: [8.5, 0.0], G: [13, 3.4], S: [5.6, 6.4], C: [23.5, 4.2], P: [32, 1.4], F: [31.5, 6.8], R: [24.5, 11.4], M: [35.6, 10.2], B: [10.4, 11.4] };
+  setTimeout(() => {
+    g.textAlign = 'center';
+    Object.keys(lab).forEach(id => {
+      const r = Dm.regions.find(x => x.id === id);
+      const x = ox + lab[id][0] * s, y = oy + lab[id][1] * s * .866 + 34;
+      const name = r.name.toUpperCase(), pct = r.I > 0 ? Math.round(r.I * 100) + '% HELPFUL' : 'NOT YET';
+      g.font = '900 36px "Big Shoulders Display", Impact, sans-serif';
+      const w = Math.max(g.measureText(name).width, 150) + 18;
+      g.fillStyle = PAPER; g.fillRect(x - w / 2, y - 32, w, 64);
+      g.strokeStyle = BLUE; g.lineWidth = 2; g.strokeRect(x - w / 2, y - 32, w, 64);
+      g.fillStyle = BLUE; g.fillText(name, x, y);
+      g.font = '700 22px "Courier Prime", monospace'; g.fillText(pct, x, y + 25);
+    });
+  }, 500);
+})();
+</script>
+</body>
+</html>
