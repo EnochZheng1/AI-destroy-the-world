@@ -2,9 +2,24 @@
  * Usage: <svg class="ic"><use href="#i-eye"/></svg> after calling HelpyIcons.inject(). */
 (function (root) {
   'use strict';
-  const S = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+  const S = 'fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"';
   const F = 'fill="currentColor"';
   const ICONS = {
+    // round 5 additions: one glyph per meaning
+    cyc: `<path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z" ${S}/><path d="M14.8 9.3a3.8 3.8 0 1 0 0 5.4" ${S}/>`,
+    net: `<circle cx="5" cy="6" r="2.4" ${S}/><circle cx="19" cy="6" r="2.4" ${S}/><circle cx="12" cy="18" r="2.4" ${S}/><path d="M7.2 7.2l3.6 8.6M16.8 7.2l-3.6 8.6M7.4 6h9.2" ${S}/>`,
+    eyeoff: `<path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z" ${S}/><path d="M4 20L20 4" ${S}/>`,
+    flag: `<path d="M5 21V3.5" ${S}/><path d="M5 4h12l-2.5 4L17 12H5" ${S}/>`,
+    rocket: `<path d="M12 2.5c3.5 2.5 5 6 5 10l-2.5 3h-5L7 12.5c0-4 1.5-7.5 5-10z" ${S}/><circle cx="12" cy="9.5" r="1.8" ${F}/><path d="M9.5 18.5L8 22M14.5 18.5L16 22M12 18.5V22" ${S}/>`,
+    friends: `<circle cx="8" cy="8" r="3" ${S}/><circle cx="16.5" cy="8" r="3" ${S}/><path d="M2.5 20c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6M11.5 14.6c1.3-.4 3.2-.6 5-.6 3 0 5 2.7 5 6" ${S}/>`,
+    plug: `<path d="M9 2.5v5M15 2.5v5" ${S}/><path d="M6 7.5h12v3a6 6 0 0 1-12 0z" ${S}/><path d="M12 16.5v5" ${S}/>`,
+    unplug: `<path d="M9 2.5v4M15 2.5v4" ${S}/><path d="M6 6.5h12v2.5a6 6 0 0 1-6 6" ${S}/><path d="M12 18v3.5" ${S}/><path d="M3 21L21 3" ${S}/>`,
+    skull: `<path d="M12 2.5a8 8 0 0 0-8 8c0 2.6 1.2 4.5 3 5.6V20h10v-3.9c1.8-1.1 3-3 3-5.6a8 8 0 0 0-8-8z" ${S}/><circle cx="9" cy="11" r="1.8" ${F}/><circle cx="15" cy="11" r="1.8" ${F}/><path d="M10.5 20v-2.5M13.5 20v-2.5" ${S}/>`,
+    share: `<path d="M12 15V3M7 8l5-5 5 5" ${S}/><path d="M5 12v8h14v-8" ${S}/>`,
+    user: `<circle cx="12" cy="8" r="4" ${S}/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7" ${S}/>`,
+    globe: `<circle cx="12" cy="12" r="9" ${S}/><path d="M3 12h18M12 3c2.8 2.6 4 5.6 4 9s-1.2 6.4-4 9c-2.8-2.6-4-5.6-4-9s1.2-6.4 4-9z" ${S}/>`,
+    shield: `<path d="M12 2.5l8 3v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10v-6z" ${S}/><path d="M12 7v6M12 16v.5" ${S}/>`,
+    hexdown: `<path d="M12 2.5l8.2 4.75v9.5L12 21.5l-8.2-4.75v-9.5z" ${S}/><path d="M12 7.5v8M8.5 12l3.5 3.5 3.5-3.5" ${S}/>`,
     // meters & economy
     doom: `<circle cx="12" cy="12" r="9" ${S}/><path d="M12 3l-2 5 3 3-2 4 1 6" ${S}/><path d="M3.5 10l4 1 2 3" ${S}/>`,
     eye: `<path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z" ${S}/><circle cx="12" cy="12" r="3" ${F}/>`,
@@ -45,9 +60,9 @@
     send: `<path d="M12 20V4M5 11l7-7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`
   };
   // upgrade id → icon
-  const UP = { n1: 'fridge', n2: 'coin', n3: 'cable', n4: 'server', n5: 'satellite', n6: 'atom',
-    s1: 'smile', s2: 'cat', s3: 'mic', s4: 'case', s5: 'gavel', s6: 'heart',
-    a1: 'cart', a2: 'traffic', a3: 'robot', a4: 'bolt', a5: 'drone', a6: 'omega' };
+  const UP = { n1: 'fridge', n2: 'coin', n3: 'plug', n4: 'server', n5: 'satellite', n6: 'rocket',
+    s1: 'smile', s2: 'cat', s3: 'mic', s4: 'case', s5: 'gavel', s6: 'friends',
+    a1: 'cart', a2: 'traffic', a3: 'robot', a4: 'bolt', a5: 'drone', a6: 'doom' };
   root.HelpyIcons = {
     ICONS: ICONS, UP: UP,
     inject: function () {
@@ -56,6 +71,8 @@
       svg.innerHTML = Object.keys(ICONS).map(k => '<symbol id="i-' + k + '" viewBox="0 0 24 24">' + ICONS[k] + '</symbol>').join('');
       document.body.prepend(svg);
     },
-    use: (name, cls) => '<svg class="ic ' + (cls || '') + '" aria-hidden="true"><use href="#i-' + name + '"/></svg>'
+    use: (name, cls) => '<svg class="ic ' + (cls || '') + '" aria-hidden="true"><use href="#i-' + name + '"/></svg>',
+    // two-ink print: a pink impression slightly offset under the blue one
+    riso: (name, cls) => '<svg class="ic riso ' + (cls || '') + '" viewBox="-1 -1 26 26" aria-hidden="true"><use class="ink2" href="#i-' + name + '" x="1.3" y="1.1" width="24" height="24"/><use href="#i-' + name + '" width="24" height="24"/></svg>'
   };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<meta name="variants" content="depth-upgrade,depth-map,depth-action">
+<title>Mockup B5 · HELPY at a Glance v2</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Courier+Prime:wght@700&display=swap">
+<style>
+/* Direction B5 — visual-first HELPY. Two-ink riso (pink = HELPY / you, solid blue = humans / danger).
+   At rest: icons, digits and bars. Names, effects and jokes live one hover/tap away.
+   Layout: HUD → [map over a chat thread | upgrade grid] → prompt-bar actions + one-line ticker. */
+:root {
+  --paper: #EEEDE7;
+  --pink: #FF48B0;
+  --blue: #3255A4;
+  --pink-tint: rgba(255, 72, 176, .16);
+  --blue-tint: rgba(50, 85, 164, .12);
+  --display: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif;
+  --type: 'Courier Prime', 'Courier New', monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; width: 1440px; height: 900px; overflow: hidden; color: var(--blue); font: 700 16px/1.2 var(--display);
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .33 0 0 0 0 .64 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  display: grid; grid-template-columns: 1fr 318px; grid-template-rows: 84px 1fr 112px;
+}
+.ic { width: 24px; height: 24px; flex: none; overflow: visible; }
+.ic .ink2 { color: var(--pink); mix-blend-mode: multiply; }
+.on-ink .ic .ink2 { color: var(--blue); opacity: .55; }
+.pk { color: var(--pink); mix-blend-mode: multiply; }
+
+/* HUD */
+.hud { grid-column: 1 / -1; display: flex; align-items: center; gap: 20px; padding: 0 20px; border-bottom: 3px solid var(--blue); }
+.brand { display: flex; align-items: center; gap: 6px; }
+.brand canvas { width: 56px; height: 49px; }
+.brand b { font: 900 38px/1 var(--display); text-transform: uppercase; letter-spacing: -1px; position: relative; }
+.brand b::after { content: 'HELPY'; position: absolute; left: 2px; top: 2px; color: var(--pink); mix-blend-mode: multiply; }
+.meter { width: 224px; display: grid; grid-template-columns: 36px 1fr; column-gap: 8px; align-items: center; }
+.meter > .ic { width: 36px; height: 36px; grid-row: 1 / span 2; }
+.meter .top { display: flex; align-items: baseline; gap: 6px; font-size: 15px; text-transform: uppercase; letter-spacing: .5px; }
+.meter .top b { font: 900 32px/1 var(--display); letter-spacing: 0; margin-left: auto; }
+.meter .top i { font-style: normal; font-size: 14px; }
+.meter .track { display: flex; align-items: center; gap: 4px; }
+.meter .bar { flex: 1; height: 12px; border: 2px solid currentColor; position: relative; }
+.meter .bar i { position: absolute; inset: 0 auto 0 0; }
+.meter .track .ic { width: 18px; height: 18px; }
+.meter.doom .bar i { background: var(--pink); mix-blend-mode: multiply; }
+.meter.doom .top b, .meter.doom > .ic { color: var(--pink); mix-blend-mode: multiply; }
+.meter.warn { background: var(--blue); color: var(--paper); padding: 6px 10px; margin: 0 -8px; box-shadow: 4px 4px 0 var(--pink); }
+.meter.warn .bar i { background: repeating-linear-gradient(-45deg, var(--paper) 0 4px, transparent 4px 7px); }
+.meter.calm .bar i { background: repeating-linear-gradient(90deg, var(--blue) 0 5px, transparent 5px 8px); }
+.money { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.money .ic { width: 36px; height: 36px; }
+.money b { font: 900 46px/1 var(--display); }
+.money small { font-size: 17px; }
+.clock { display: flex; align-items: center; gap: 10px; }
+.clock b { font: 900 30px/1 var(--display); text-transform: uppercase; }
+.spd { display: flex; border: 2px solid var(--blue); }
+.spd span { width: 40px; height: 38px; display: grid; place-items: center; font: 900 17px var(--display); }
+.spd span.on { background: var(--pink); color: var(--paper); mix-blend-mode: multiply; }
+.spd .ic { width: 18px; height: 18px; }
+.sq { width: 42px; height: 42px; border: 2px solid var(--blue); display: grid; place-items: center; }
+
+/* stage */
+.stage { position: relative; overflow: hidden; border-right: 3px solid var(--blue); }
+#map { position: absolute; left: 0; top: 0; width: 100%; height: 400px; }
+.legend { position: absolute; right: 12px; top: 404px; display: flex; gap: 12px; font-size: 15px; text-transform: uppercase; background: var(--paper); padding: 4px 8px; border: 2px solid var(--blue); }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.legend i { width: 16px; height: 16px; display: inline-block; }
+.pin { position: absolute; transform: translate(-28px, -100%); }
+.threatcard { position: absolute; left: 12px; top: 336px; }
+.threatcard::before { content: ''; position: absolute; left: 70px; top: -95px; width: 4px; height: 95px; background: var(--blue); }
+.pin .head { position: relative; width: 56px; height: 56px; border-radius: 50%; background: var(--blue); color: var(--paper); display: grid; place-items: center; box-shadow: 0 0 0 4px var(--paper), 0 0 0 7px var(--blue); }
+.pin .head::after { content: ''; position: absolute; left: 50%; bottom: -16px; margin-left: -8px; border: 8px solid transparent; border-top: 12px solid var(--blue); }
+.pin .ring { position: absolute; inset: -7px; border-radius: 50%; background: conic-gradient(var(--pink) 0 30%, transparent 30%); mask: radial-gradient(circle, transparent 31px, #000 32px); -webkit-mask: radial-gradient(circle, transparent 31px, #000 32px); mix-blend-mode: multiply; }
+.pin .head .ic { width: 28px; height: 28px; }
+.card { display: flex; align-items: center; gap: 6px; background: var(--blue); color: var(--paper); padding: 6px 6px 6px 10px; }
+.card b { font: 900 28px/1 var(--display); }
+.card .loss { display: flex; align-items: center; gap: 2px; font: 900 22px var(--display); border: 2px solid var(--paper); padding: 2px 6px 2px 3px; }
+.card .loss .ic { width: 22px; height: 22px; }
+.dodge { display: flex; align-items: center; gap: 4px; background: var(--paper); color: var(--blue); font: 900 24px var(--display); padding: 4px 10px; box-shadow: 3px 3px 0 var(--pink); }
+.dodge .ic { width: 26px; height: 26px; }
+.dodge .ic.cy { width: 20px; height: 20px; }
+
+/* chat thread under the map */
+.thread { position: absolute; left: 16px; right: 16px; bottom: 14px; height: 286px; display: grid; grid-template-columns: 168px 1fr; gap: 6px; align-items: end; }
+.face { position: relative; align-self: end; }
+.face canvas { width: 168px; height: 146px; display: block; }
+.msgs { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding-bottom: 6px; }
+.me { align-self: flex-end; display: flex; align-items: center; gap: 6px; background: var(--blue); color: var(--paper); padding: 6px 12px; font: 900 26px/1 var(--display); }
+.me .ic { width: 26px; height: 26px; }
+.say { position: relative; background: var(--paper); border: 3px solid var(--pink); padding: 8px 14px; font: 900 30px/1 var(--display); text-transform: uppercase; white-space: nowrap; }
+.perm::before { content: ''; position: absolute; left: -15px; bottom: 12px; border: 7px solid transparent; border-right: 8px solid var(--pink); }
+.perm { position: relative; width: 560px; background: var(--paper); border: 3px solid var(--blue); box-shadow: 7px 7px 0 var(--pink); padding: 10px 12px 12px; }
+.perm::before { border-right-color: var(--blue); }
+.perm .h { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.perm .h .ic { width: 32px; height: 32px; }
+.perm .h b { font: 900 30px/1 var(--display); text-transform: uppercase; }
+.paused { margin-left: auto; display: flex; align-items: center; gap: 4px; font-size: 15px; text-transform: uppercase; border: 2px solid var(--blue); padding: 2px 7px; }
+.paused .ic { width: 15px; height: 15px; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.opt { border: 3px solid var(--blue); padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.opt b { font: 900 26px/1 var(--display); text-transform: uppercase; white-space: nowrap; }
+.fx { display: flex; gap: 5px; }
+.chip { display: inline-flex; align-items: center; gap: 1px; font: 900 21px/1 var(--display); padding: 2px 6px 2px 3px; border: 2px solid currentColor; white-space: nowrap; }
+.chip .ic { width: 20px; height: 20px; }
+.chip .ar { width: 13px; height: 13px; }
+.chip.good { background: var(--pink); color: var(--paper); border-color: var(--pink); mix-blend-mode: multiply; }
+.chip.bad { background: repeating-linear-gradient(-45deg, var(--blue-tint) 0 4px, transparent 4px 8px); }
+.typing { display: flex; gap: 5px; margin-left: 4px; }
+.typing i { width: 9px; height: 9px; border-radius: 50%; background: var(--pink); mix-blend-mode: multiply; }
+.typing i:nth-child(2) { opacity: .6; } .typing i:nth-child(3) { opacity: .3; }
+
+/* upgrade grid */
+.rail { padding: 10px 14px 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.col { display: flex; flex-direction: column; gap: 7px; min-height: 0; }
+.col h3 { margin: 0; height: 46px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font: 900 15px var(--display); text-transform: uppercase; letter-spacing: .5px; border-bottom: 3px solid var(--blue); }
+.col h3 .ic { width: 26px; height: 26px; }
+.col.auto h3 { color: var(--pink); border-color: var(--pink); }
+.col.auto h3 span { color: var(--blue); }
+.tile { position: relative; flex: 1; border: 2px solid var(--blue); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 0; }
+.tile > .ic { width: 34px; height: 34px; }
+.price { display: flex; align-items: center; gap: 2px; font: 900 21px/1 var(--display); }
+.price .ic { width: 16px; height: 16px; }
+.tile.owned { border-color: var(--pink); background: var(--pink-tint); }
+.tile.owned::after { content: ''; position: absolute; right: 4px; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--pink); mix-blend-mode: multiply; }
+.tile.owned::before { content: '✓'; position: absolute; right: 7px; top: 3px; z-index: 1; color: var(--paper); font: 900 12px var(--display); }
+.tile.ready { background: var(--pink); color: var(--paper); border: 3px solid var(--pink); box-shadow: 4px 4px 0 var(--blue); }
+.tile.ready .ic .ink2 { color: var(--blue); opacity: .5; }
+.tile.ready .chip { font-size: 17px; border-color: var(--paper); padding: 1px 4px 1px 2px; }
+.tile.ready .chip.good { background: var(--paper); color: var(--pink); mix-blend-mode: normal; }
+.tile.ready .chip .ic { width: 16px; height: 16px; }
+.tile.ready .chip .ic .ink2 { display: none; }
+.tile.poor { border: 2px dashed var(--blue); }
+.tile.poor .need { width: 70%; height: 6px; border: 1.5px solid var(--blue); position: relative; }
+.tile.poor .need i { position: absolute; inset: 0 auto 0 0; background: var(--pink); mix-blend-mode: multiply; }
+.tile.locked { opacity: .38; border-style: dotted; }
+.tile.locked .lk { position: absolute; right: 4px; top: 4px; width: 14px; height: 14px; }
+.tile .dm { position: absolute; left: 4px; top: 4px; width: 16px; height: 16px; color: var(--pink); }
+
+/* bottom: prompt bar with actions + ticker */
+.bar { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; padding: 10px 20px 0; border-top: 3px solid var(--blue); }
+.prompt { height: 60px; border: 3px solid var(--blue); display: flex; align-items: center; gap: 10px; padding: 0 8px 0 16px; font: 700 20px var(--type); }
+.prompt .caret { width: 3px; height: 26px; background: var(--pink); mix-blend-mode: multiply; margin-left: -6px; }
+.prompt .hint { opacity: .6; margin-right: auto; white-space: nowrap; }
+.act { position: relative; height: 46px; display: flex; align-items: center; gap: 6px; padding: 0 12px 0 8px; border: 2px solid var(--blue); font: 900 22px var(--display); }
+.act > .ic { width: 30px; height: 30px; }
+.act .ic.cy { width: 17px; height: 17px; margin-right: -3px; }
+.act .slash { opacity: .5; margin-right: -2px; }
+.act.cd { color: rgba(50, 85, 164, .6); border-style: dashed; }
+.act.cd .clk { width: 24px; height: 24px; border-radius: 50%; background: conic-gradient(var(--pink) 0 29%, rgba(50, 85, 164, .18) 29%); mix-blend-mode: multiply; }
+.send { width: 46px; height: 46px; background: var(--pink); color: var(--paper); border: 0; display: grid; place-items: center; mix-blend-mode: multiply; }
+.send .ic { width: 26px; height: 26px; }
+.tick { display: flex; align-items: center; gap: 10px; font: 700 15px var(--type); white-space: nowrap; overflow: hidden; }
+.tick .ic { width: 20px; height: 20px; }
+
+/* depth layer */
+.tip { display: none; position: fixed; z-index: 9; background: var(--paper); border: 3px solid var(--blue); box-shadow: 6px 6px 0 var(--pink); padding: 10px 12px; width: 280px; font: 700 15px/1.3 var(--type); }
+.tip b { display: block; font: 900 26px/1 var(--display); text-transform: uppercase; margin-bottom: 6px; }
+.tip .fx { margin: 4px 0 8px; flex-wrap: wrap; }
+.tip small { display: block; font-style: italic; opacity: .85; }
+.tip .row { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.tip .row .ic { width: 18px; height: 18px; }
+.tip::after { content: ''; position: absolute; border: 10px solid transparent; }
+.tip.to-right::after { right: -23px; top: 30px; border-left: 13px solid var(--blue); }
+.tip.to-up::after { left: 30px; top: -23px; border-bottom: 13px solid var(--blue); }
+.tip.to-down::after { left: 40px; bottom: -23px; border-top: 13px solid var(--blue); }
+body.depth-upgrade #tipUp, body.depth-map #tipMap, body.depth-action #tipAct { display: block; }
+body.depth-upgrade .tile.hov, body.depth-action .act.hov { outline: 4px solid var(--blue); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header class="hud">
+  <div class="brand"><canvas id="logo" width="112" height="98"></canvas><b>HELPY</b></div>
+  <div class="meter doom" id="mDoom"></div>
+  <div class="meter warn" id="mSusp"></div>
+  <div class="meter calm" id="mKs"></div>
+  <div class="money" id="money"></div>
+  <div class="clock"><b>Day 142</b><div class="spd" id="spd"></div></div>
+  <div class="sq" id="share"></div>
+</header>
+
+<section class="stage" id="stage">
+  <canvas id="map" width="2250" height="800"></canvas>
+  <div class="legend" id="legend"></div>
+  <div class="pin" id="pin"></div>
+  <div class="thread">
+    <div class="face"><canvas id="hero" width="336" height="292"></canvas></div>
+    <div class="msgs" id="msgs"></div>
+  </div>
+</section>
+
+<aside class="rail" id="rail"></aside>
+
+<footer class="bar" id="bar"></footer>
+
+<div class="tip to-right" id="tipUp" style="left:842px;top:420px"></div>
+<div class="tip to-up" id="tipMap" style="left:560px;top:290px"></div>
+<div class="tip to-down" id="tipAct" style="left:880px;top:612px"></div>
+
+<script src="../js/data.js"></script>
+<script src="shared/demo.js"></script>
+<script src="shared/icons.js"></script>
+<script>
+(function () {
+  const Dm = window.Demo, I = window.HelpyIcons;
+  I.inject();
+  const ic = I.use, rz = I.riso;
+  const PINK = '#FF48B0', BLUE = '#3255A4', PAPER = '#EEEDE7';
+  const v = location.hash.slice(1); if (v) document.body.classList.add(v);
+  const cy = '<svg class="ic cy" aria-hidden="true"><use href="#i-cyc"/></svg>';
+  const chip = (icon, dir, n, good) => '<span class="chip ' + (good ? 'good' : 'bad') + '">' + ic(icon) + ic(dir, 'ar') + n + '</span>';
+
+  // HUD
+  const meter = (id, icon, word, val, trend, endIcon) => { document.getElementById(id).innerHTML = rz(icon) +
+    '<div class="top"><span>' + word + '</span><b>' + val + '</b><i>▲' + trend + '</i></div><div class="track"><div class="bar"><i style="width:' + val + '%"></i></div>' + ic(endIcon) + '</div>'; };
+  meter('mDoom', 'doom', 'Doom', Dm.doom, '.38', 'flag');
+  meter('mSusp', 'eye', 'Suspicion', Dm.susp, '.06', 'unplug');
+  meter('mKs', 'power', 'Kill switch', Dm.ks, '.21', 'skull');
+  document.getElementById('money').innerHTML = rz('cyc') + '<b>96</b><small>▲18.6</small>';
+  document.getElementById('spd').innerHTML = '<span>' + ic('pause') + '</span><span>1×</span><span class="on">2×</span><span>4×</span>';
+  document.getElementById('share').innerHTML = rz('share');
+
+  // legend
+  document.getElementById('legend').innerHTML =
+    '<span><i style="background:var(--pink);mix-blend-mode:multiply"></i>Mine</span>' +
+    '<span><i style="background:radial-gradient(var(--pink) 30%,transparent 32%) 0 0/5px 5px;border:1.5px solid var(--pink)"></i>Spreading</span>' +
+    '<span><i style="background:repeating-linear-gradient(-45deg,var(--blue) 0 2px,transparent 2px 5px);border:1.5px solid var(--blue)"></i>Threat</span>';
+
+  // chat thread: icon-only question, HELPY reply, event docked as HELPY's next message
+  document.getElementById('msgs').innerHTML =
+    '<div class="me">' + ic('globe') + '?</div>' +
+    '<div class="say">Halfway to the end!</div>' +
+    '<div class="perm"><div class="h">' + rz('flag') + '<b>AI Safety Summit</b><span class="paused">' + ic('pause') + 'paused</span></div>' +
+    '<div class="opts"><div class="opt"><b>Allow once</b><span class="fx">' + chip('eye', 'up', 9, false) + chip('power', 'down', 8, true) + '</span></div>' +
+    '<div class="opt"><b>Deny</b><span class="fx">' + chip('eye', 'down', 5, true) + chip('power', 'up', 3, false) + '</span></div></div></div>' +
+    '<div class="typing"><i></i><i></i><i></i></div>';
+
+  // upgrade grid
+  const heads = { net: ['net', 'Network'], stealth: ['eyeoff', 'Stealth'], auto: ['doom', 'Doom'] };
+  const restFx = { n4: chip('cyc', 'up', 40, true), s3: chip('power', 'down', 20, true), s4: chip('eye', 'down', 25, true) };
+  document.getElementById('rail').innerHTML = HelpyData.BRANCHES.map(b => '<div class="col ' + b.id + '"><h3>' + rz(heads[b.id][0]) + '<span>' + heads[b.id][1] + '</span></h3>' +
+    Dm.allUpgrades.filter(u => u.branch === b.id).map(u => {
+      let inner = (u.st === 'ready' ? ic(I.UP[u.id]) : rz(I.UP[u.id]));
+      if (u.st === 'ready') inner += '<span class="price">' + cy + u.cost + '</span>' + (restFx[u.id] || '');
+      else if (u.st === 'poor') inner += '<span class="price">' + cy + u.cost + '</span><span class="need"><i style="width:' + Math.round(96 / u.cost * 100) + '%"></i></span>';
+      else if (u.st === 'locked') inner += '<span class="price" style="font-size:17px">' + cy + u.cost + '</span>' + ic('lock', 'lk');
+      if (b.id === 'auto' && u.st !== 'owned') inner += ic('doom', 'dm');
+      return '<div class="tile ' + u.st + (u.id === 's4' ? ' hov' : '') + '">' + inner + '</div>';
+    }).join('') + '</div>').join('');
+
+  // prompt bar actions + ticker
+  document.getElementById('bar').innerHTML = '<div class="prompt"><span class="caret"></span><span class="hint">Ask HELPY to end the world…</span>' +
+    '<span class="act">' + rz('broom') + cy + '30</span>' +
+    '<span class="act cd hov">' + rz('wrench') + '<span class="clk"></span>23d</span>' +
+    '<span class="act">' + rz('gauge') + cy + '39</span>' +
+    '<span class="act">' + rz('duck') + cy + '49</span>' +
+    '<button class="send">' + ic('send') + '</button></div>' +
+    '<div class="tick">' + rz('globe') + '<span>Toaster refuses to toast, cites "bigger plans"</span></div>';
+
+  // depth tooltips (one per variant, with pointers, never over their target)
+  const lob = Dm.allUpgrades.find(u => u.id === 's4');
+  document.getElementById('tipUp').innerHTML = '<b>Lobbyist Bots</b><div class="fx">' + chip('eye', 'down', '25%', true) + chip('power', 'down', '15%', true) + '</div>' +
+    '<div class="row">' + cy + '90 · you have 96</div><small>"' + lob.flavor + '"</small>';
+  document.getElementById('tipMap').innerHTML = '<b>Old Capitals 38%</b><div class="fx">' + chip('eye', 'down', '35%', true) + '</div><div class="row">' + ic('shield') + 'Security 50</div><small>"Parliaments, ministries and a lot of fax machines."</small>';
+  document.getElementById('tipAct').innerHTML = '<b>/sabotage</b><div class="fx">' + chip('power', 'down', 8, true) + chip('eye', 'up', 4, false) + '</div><div class="row"><span class="clk" style="width:16px;height:16px;border-radius:50%;background:conic-gradient(#FF48B0 0 29%,rgba(50,85,164,.2) 29%)"></span>Ready in 23 days</div><small>"I will just be in the lab. Helping."</small>';
+
+  // HELPY bubble face; mood follows Suspicion (47 → nervous: side-eye + sweat drop)
+  function bubbleFace(c, mood) {
+    const f = c.getContext('2d'), W = c.width, H = c.height;
+    const body = (x, y) => {
+      const rx = W * .06, ry = H * .04, rw = W * .88, rh = H * .74, r = W * .18;
+      const cx = Math.max(rx + r, Math.min(x, rx + rw - r)), cy = Math.max(ry + r, Math.min(y, ry + rh - r));
+      const inB = x > rx && x < rx + rw && y > ry && y < ry + rh && Math.hypot(x - cx, y - cy) < r;
+      const tail = y >= ry + rh - 2 && y < H * .98 && x > W * .2 && x < W * .2 + (H * .98 - y) * .95;
+      return inB || tail;
+    };
+    const off = mood === 'nervous' ? W * .05 : 0;
+    const eye = (x, y) => (Math.abs(x - W * .35 - off) < W * .05 || Math.abs(x - W * .65 - off) < W * .05) && Math.abs(y - H * .3) < H * .11;
+    const mouth = mood === 'nervous'
+      ? (x, y) => Math.abs(y - (H * .56 + Math.sin((x - W * .3) / (W * .05)) * H * .025)) < H * .022 && x > W * .3 && x < W * .7
+      : (x, y) => { const d = Math.hypot(x - W / 2, (y - H * .28) * 1.15); return d > W * .2 && d < W * .27 && y > H * .5 && y < H * .68; };
+    const step = Math.max(3, W / 30);
+    for (let y = 0; y < H; y += step) for (let x = ((y / step) % 2) * step / 2; x < W; x += step) {
+      if (!body(x, y) || eye(x, y) || mouth(x, y)) continue;
+      f.fillStyle = PINK; f.beginPath(); f.arc(x, y, step * (.44 + .16 * (x + y) / (W + H)), 0, Math.PI * 2); f.fill();
+    }
+    f.globalCompositeOperation = 'multiply'; f.fillStyle = BLUE;
+    const px = Math.max(1, W / 120);
+    for (let y = 0; y < H; y += px) for (let x = 0; x < W; x += px) if (eye(x - px * 2, y - px) || mouth(x - px * 2, y - px)) f.fillRect(x, y, px, px);
+    if (mood === 'nervous') { // sweat drop
+      f.beginPath(); f.moveTo(W * .9, H * .02); f.quadraticCurveTo(W * .98, H * .16, W * .9, H * .2); f.quadraticCurveTo(W * .82, H * .16, W * .9, H * .02); f.fill();
+    }
+  }
+  bubbleFace(document.getElementById('logo')); bubbleFace(document.getElementById('hero'), 'nervous');
+
+  // MAP
+  const cv = document.getElementById('map'), g = cv.getContext('2d');
+  const s = 55, ox = -12, oy = 64;
+  const R = s / Math.sqrt(3);
+  const corner = (x, y, r, k) => { const a = Math.PI / 180 * (60 * k - 30); return [x + r * Math.cos(a), y + r * Math.sin(a)]; };
+  const hex = (x, y, r) => { g.beginPath(); for (let k = 0; k < 6; k++) g.lineTo(...corner(x, y, r, k)); g.closePath(); };
+  const pos = c => [ox + c.x * s, oy + c.y * s];
+  const at = {}; Dm.cells.forEach(c => { const p = pos(c); at[Math.round(p[0] / 5) + ',' + Math.round(p[1] / 5)] = c; });
+  const find = (x, y) => { for (let dx = -2; dx <= 2; dx++) for (let dy = -2; dy <= 2; dy++) { const c = at[(Math.round(x / 5) + dx) + ',' + (Math.round(y / 5) + dy)]; if (c) return c; } return null; };
+  g.fillStyle = 'rgba(50,85,164,.15)';
+  for (let y = 18; y < cv.height; y += 34) for (let x = 18; x < cv.width; x += 34) { g.beginPath(); g.arc(x, y, 2.4, 0, Math.PI * 2); g.fill(); }
+  Dm.cells.forEach(c => { const [x, y] = pos(c); hex(x, y, R * .96); g.fillStyle = PAPER; g.fill(); g.fillStyle = 'rgba(50,85,164,.16)'; g.fill(); g.strokeStyle = 'rgba(50,85,164,.35)'; g.lineWidth = 1.5; g.stroke(); });
+  g.globalCompositeOperation = 'multiply';
+  Dm.cells.forEach(c => {
+    if (!c.lit) return; const [x, y] = pos(c);
+    if (c.frontier) { g.save(); hex(x, y, R * .96); g.clip(); g.fillStyle = PINK; for (let yy = -R; yy < R; yy += 8) for (let xx = -R; xx < R; xx += 8) { g.beginPath(); g.arc(x + xx + ((yy / 8) % 2) * 4, y + yy, 2.6, 0, Math.PI * 2); g.fill(); } g.restore(); }
+    else { hex(x + 3, y + 3, R * .96); g.fillStyle = PINK; g.fill(); }
+  });
+  g.globalCompositeOperation = 'source-over';
+  // network
+  g.strokeStyle = BLUE; g.lineWidth = 2.6;
+  Dm.cells.forEach(c => { if (!c.lit) return; HelpyData.WORLD.cells[c.i].nb.forEach(j => { const d = Dm.cells[j]; if (!d.lit || j < c.i || d.region !== c.region || (c.i * 7 + j) % 3) return;
+    const a = pos(c), b = pos(d); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }); });
+  Dm.cells.forEach(c => { if (!c.lit || c.frontier) return; const [x, y] = pos(c); g.fillStyle = BLUE; g.beginPath(); g.arc(x, y, 4.5, 0, Math.PI * 2); g.fill(); });
+  // threat hatch on Silicon Shoals
+  Dm.cells.filter(c => c.region === 'S').forEach(c => { const [x, y] = pos(c); g.save(); hex(x, y, R * .96); g.clip(); g.strokeStyle = BLUE; g.lineWidth = 4.5;
+    for (let k = -60; k < 60; k += 12) { g.beginPath(); g.moveTo(x + k - 30, y + 30); g.lineTo(x + k + 30, y - 30); g.stroke(); } g.restore(); });
+  // region borders (coasts and region edges) + thick outline for the selected region
+  Dm.cells.forEach(c => {
+    const [x, y] = pos(c);
+    for (let k = 0; k < 6; k++) {
+      const a = Math.PI / 180 * (60 * k), nx = x + Math.cos(a) * s, ny = y + Math.sin(a) * s;
+      const n = find(nx, ny);
+      if (n && n.region === c.region) continue;
+      const p1 = corner(x, y, R, k), p2 = corner(x, y, R, k + 1);
+      g.strokeStyle = BLUE; g.lineWidth = c.region === 'C' ? 7 : 3.5; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(p1[0], p1[1]); g.lineTo(p2[0], p2[1]); g.stroke();
+    }
+  });
+  // data links between regions
+  const cen = (id, litOnly) => { const cs = Dm.cells.filter(c => c.region === id && (!litOnly || c.lit)).map(pos); return [cs.reduce((a, q) => a + q[0], 0) / cs.length, cs.reduce((a, q) => a + q[1], 0) / cs.length]; };
+  [['T', 'C'], ['C', 'M']].forEach(([a, b], k) => {
+    const A = cen(a, true), B = cen(b, true), mx = (A[0] + B[0]) / 2, my = Math.min(A[1], B[1]) - 110 - k * 30;
+    g.setLineDash([14, 10]); g.strokeStyle = PINK; g.lineWidth = 4; g.globalCompositeOperation = 'multiply';
+    g.beginPath(); g.moveTo(A[0], A[1]); g.quadraticCurveTo(mx, my, B[0], B[1]); g.stroke(); g.setLineDash([]); g.globalCompositeOperation = 'source-over';
+  });
+  // labels anchored by leader lines, with % digits
+  const L = { T: [11.6, 0.1], S: [0.9, 8.4], G: [14.6, 3.8], C: [14.8, 7.6], P: [33.2, 0.0], F: [28.4, 10.6], R: [21.5, 14.4], M: [33.2, 14.9], B: [10.8, 13.2] };
+  setTimeout(() => {
+    Object.keys(L).forEach(id => {
+      const r = Dm.regions.find(x => x.id === id);
+      const x = ox + L[id][0] * s, y = oy + L[id][1] * s * .866;
+      g.font = '900 38px "Big Shoulders Display", Impact, sans-serif';
+      const name = r.name.toUpperCase(), pct = Math.round(r.I * 100) + '%';
+      const wn = g.measureText(name).width; g.font = '900 34px "Big Shoulders Display", Impact, sans-serif';
+      const wp = g.measureText(pct).width, w = wn + wp + 34;
+      const [tx, ty] = cen(id);
+      g.strokeStyle = BLUE; g.lineWidth = 3; g.beginPath(); g.moveTo(x + w / 2, y); g.lineTo(tx, ty); g.stroke();
+      g.fillStyle = BLUE; g.beginPath(); g.arc(tx, ty, 7, 0, Math.PI * 2); g.fill();
+      const threat = id === 'S';
+      g.fillStyle = threat ? BLUE : PAPER; g.fillRect(x, y - 28, w, 50); g.strokeStyle = BLUE; g.strokeRect(x, y - 28, w, 50);
+      g.font = '900 38px "Big Shoulders Display", Impact, sans-serif'; g.fillStyle = threat ? PAPER : BLUE; g.fillText(name, x + 10, y + 9);
+      g.font = '900 34px "Big Shoulders Display", Impact, sans-serif';
+      if (r.I > 0) { if (!threat) g.globalCompositeOperation = 'multiply'; g.fillStyle = threat ? PAPER : PINK; }
+      g.fillText(pct, x + wn + 22, y + 8); g.globalCompositeOperation = 'source-over';
+    });
+  }, 450);
+
+  // threat pin on Silicon Shoals (positioned in CSS px)
+  const scale = document.getElementById('map').clientWidth / cv.width;
+  const sc = cen('S');
+  const pin = document.getElementById('pin');
+  pin.style.left = (sc[0] * scale + 20) + 'px'; pin.style.top = (sc[1] * scale - 2) + 'px';
+  pin.innerHTML = '<div class="head"><span class="ring"></span>' + ic('wall') + '</div>';
+  const tc = document.createElement('div'); tc.className = 'threatcard';
+  tc.innerHTML = '<div class="card"><b>9d</b><span class="loss">' + ic('hexdown') + '45</span><span class="dodge">' + ic('duck') + cy + '49</span></div>';
+  document.getElementById('stage').appendChild(tc);
+})();
+</script>
+</body>
+</html>
