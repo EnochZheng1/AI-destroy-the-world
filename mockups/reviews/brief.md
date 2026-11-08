@@ -34,8 +34,33 @@ The game owner's feedback on round 3: *"The interface has way too many words. It
 
 A mockup passes only if every critic scores **OVERALL ≥ 8.5, ai_obvious ≥ 8.5, glance ≥ 8.5 and depth ≥ 8**, and the word count is ≤ 60.
 
+
+## Non-negotiable #3: an AI destroying humanity, playing out in 3D (added round 6)
+The game owner rejected B5's styling: *"Not a big fan of the interface styling and theme. It doesn't quite give the player an AI-destroying-humanity type of feeling. I'd prefer some action going on in 3D. Still a strategy game, but the player can see it play out in the interface: players can see the actions playing out."*
+
+From round 6 the mockups are **live 3D prototypes driven by the real game simulation**, played by an autoplay bot. You will see **filmstrips**: frames captured from the same live game at day 60, day 220 and day 300. Between those frames the scene animates continuously. Judge the frames as stills, and use this description of what moves between them:
+
+- **Spread.** Infected tiles extrude as HELPY spreads cell by cell. Red network cables connect them, and data arcs with travelling pulses link regions.
+- **Humanity dying.** Amber city lights or warm-windowed buildings, which stand for humanity, go dark or turn into red machine towers as each region falls.
+- **Automation.** Drones (and on the war table, robots) multiply as Automation upgrades are bought.
+- **Human resistance (cyan).**
+  - A firewall dome or wall rises over the threatened region as its countdown runs out.
+  - The Kill Switch beam or tower at Research Ridge grows with its progress.
+- **Events.**
+  - The camera swings to each event, and shockwaves flash on infiltrations, upgrades and countermeasures.
+  - A permission card appears when HELPY asks to do something.
+- **Doom.** The atmosphere or room light shifts from blue to red as Doom rises.
+
+**New criteria:**
+- **`menace`**: does it *feel* like an AI destroying humanity, ominous and cinematic, rather than cute? Dark comedy is welcome as seasoning, but the look must carry dread.
+- **`spectacle`**: do the player's strategic actions visibly play out in 3D with readable cause and effect? Can you see what HELPY just did and what the humans are doing about it?
+
+**Still required:** it remains a strategy game (glance, depth, readability) with at most 60 words at rest.
+
+**Pass bar from round 6:** every critic must score OVERALL ≥ 8.5, ai_obvious ≥ 8.5, glance ≥ 8.5, menace ≥ 8.5, spectacle ≥ 8.5 and depth ≥ 8, with words ≤ 60.
+
 ## How to score
-Score each mockup on each criterion from 1 to 10, using one decimal place. The criteria are originality, craft, readability, theme, ai_obvious, glance and depth.
+Score each mockup on each criterion from 1 to 10, using one decimal place. The criteria are originality, craft, readability, theme, ai_obvious, glance, depth, menace and spectacle.
 - **10**: best-in-class. A frame you would put on a storefront or in a "best UI of the year" piece.
 - **8.5**: excellent and distinctive. You would recommend it without reservation.
 - **7**: good but forgettable, or flawed.
@@ -47,7 +72,7 @@ Write the review to the output file named in your prompt as Markdown with this s
 
 ```
 ## <mockup file name>
-scores: originality=X  craft=X  readability=X  theme=X  ai_obvious=X  glance=X  depth=X  OVERALL=X
+scores: originality=X  craft=X  readability=X  theme=X  ai_obvious=X  glance=X  depth=X  menace=X  spectacle=X  OVERALL=X
 verdict: one sentence
 strengths: up to 3 bullets
 must-fix to reach 9: 3–6 concrete, specific bullets (what to change, where, how)

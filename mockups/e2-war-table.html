@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Mockup E2 · War Table</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500;62..125,700;62..125,800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<script type="importmap">{ "imports": { "three": "../vendor/three/three.module.min.js", "three/addons/": "../vendor/three/addons/" } }</script>
+<style>
+/* Direction E2 — "War Table". The world is a lit 3D diorama on a table in a dark room. Amber-windowed
+   human cities are replaced by red-windowed machine towers; robots march out of factories, drones circle;
+   humans raise cyan firewall walls and build the Kill Switch tower. Same HUD as E1, different stage. */
+:root {
+  --void: #04060A;
+  --glass: rgba(9, 12, 19, .74);
+  --edge: rgba(160, 180, 220, .14);
+  --text: #E9ECF4;
+  --dim: #8C93A6;
+  --ai: #FF2A45;
+  --ai-soft: rgba(255, 42, 69, .18);
+  --human: #49D6FF;
+  --life: #FFB54A;
+  --wide: 'Archivo', 'Arial Narrow', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; width: 1440px; height: 900px; overflow: hidden; background: var(--void); color: var(--text); font: 500 14px/1.2 var(--wide); }
+#gl { position: fixed; inset: 0; display: block; }
+.ic { width: 22px; height: 22px; flex: none; }
+.ic .ink2 { display: none; }
+.glass { background: var(--glass); border: 1px solid var(--edge); backdrop-filter: blur(6px); }
+.wide { font-stretch: 125%; text-transform: uppercase; letter-spacing: .06em; }
+
+/* top HUD */
+.hud { position: fixed; left: 18px; right: 18px; top: 16px; display: flex; gap: 12px; align-items: stretch; pointer-events: none; }
+.core { display: flex; align-items: center; gap: 12px; padding: 8px 16px 8px 10px; }
+.eye { width: 50px; height: 50px; border-radius: 50%; position: relative; background: radial-gradient(circle, #fff 0 9%, var(--ai) 12% 26%, #2a0008 30% 58%, transparent 60%); box-shadow: 0 0 22px rgba(255, 42, 69, .55), inset 0 0 0 2px rgba(255, 42, 69, .6); }
+.eye::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 1px dashed rgba(255, 42, 69, .5); }
+.core b { display: block; font: 800 22px/1 var(--wide); font-stretch: 125%; letter-spacing: .12em; }
+.core span { display: block; font: 500 13px/1.2 var(--mono); color: var(--ai); margin-top: 4px; white-space: nowrap; }
+.meters { display: flex; gap: 12px; margin-left: auto; }
+.m { width: 220px; padding: 10px 14px; display: grid; grid-template-columns: auto 1fr auto; column-gap: 8px; align-items: center; }
+.m .ic { grid-row: 1 / span 2; width: 26px; height: 26px; }
+.m span { font: 700 11px var(--wide); font-stretch: 125%; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.m b { font: 600 28px/1 var(--mono); grid-row: 1 / span 2; grid-column: 3; }
+.m .bar { height: 4px; background: rgba(255, 255, 255, .08); margin-top: 6px; position: relative; }
+.m .bar i { position: absolute; inset: 0 auto 0 0; }
+.m.doom { color: var(--ai); } .m.doom .bar i { background: var(--ai); box-shadow: 0 0 10px var(--ai); }
+.m.susp { color: var(--life); } .m.susp .bar i { background: var(--life); }
+.m.ks { color: var(--human); } .m.ks .bar i { background: var(--human); box-shadow: 0 0 10px var(--human); }
+.m.alarm { border-color: rgba(255, 181, 74, .6); box-shadow: 0 0 0 1px rgba(255, 181, 74, .25), 0 0 24px rgba(255, 181, 74, .15); }
+.econ { display: flex; align-items: center; gap: 14px; padding: 8px 14px; }
+.econ b { font: 600 26px/1 var(--mono); }
+.econ small { font: 500 12px var(--mono); color: var(--dim); display: block; }
+.spd { display: flex; gap: 2px; }
+.spd i { font: 600 12px var(--mono); font-style: normal; padding: 5px 8px; border: 1px solid var(--edge); color: var(--dim); }
+.spd i.on { color: var(--void); background: var(--text); }
+
+/* upgrade rack */
+.rack { position: fixed; right: 18px; top: 104px; width: 222px; padding: 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.rack h4 { margin: 0 0 2px; display: flex; flex-direction: column; align-items: center; gap: 3px; font: 700 10px var(--wide); font-stretch: 125%; letter-spacing: .12em; color: var(--dim); }
+.rack h4 .ic { width: 18px; height: 18px; }
+.col { display: flex; flex-direction: column; gap: 6px; }
+.t { height: 58px; border: 1px solid var(--edge); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; position: relative; }
+.t .ic { width: 24px; height: 24px; }
+.t em { font: 600 12px var(--mono); font-style: normal; color: var(--dim); }
+.t.owned { background: var(--ai-soft); border-color: rgba(255, 42, 69, .35); color: var(--ai); }
+.t.owned em { display: none; }
+.t.ready { border-color: var(--ai); box-shadow: 0 0 14px rgba(255, 42, 69, .45), inset 0 0 12px rgba(255, 42, 69, .25); }
+.t.ready em { color: var(--text); }
+.t.poor { border-style: dashed; }
+.t.locked { opacity: .3; }
+.t.new { animation: flash 1s ease-out; }
+@keyframes flash { from { background: var(--ai); } }
+
+/* actions + event */
+.dock { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; gap: 8px; padding: 8px; }
+.a { display: flex; align-items: center; gap: 8px; padding: 8px 14px 8px 10px; border: 1px solid var(--edge); font: 600 15px var(--mono); }
+.a .ic { width: 24px; height: 24px; }
+.a.cd { color: var(--dim); }
+.a.fire { border-color: var(--ai); box-shadow: 0 0 16px rgba(255, 42, 69, .5); }
+.prompt { width: 300px; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: var(--dim); font: 500 14px var(--mono); border: 1px solid var(--edge); }
+.prompt::before { content: '>'; color: var(--ai); }
+.ask { position: fixed; left: 18px; bottom: 18px; width: 380px; padding: 14px 16px; border-color: rgba(255, 42, 69, .45); box-shadow: 0 0 30px rgba(255, 42, 69, .2); }
+.ask[hidden] { display: none; }
+.ask small { font: 700 11px var(--wide); font-stretch: 125%; letter-spacing: .14em; color: var(--ai); }
+.ask b { display: block; font: 800 22px/1.05 var(--wide); font-stretch: 112%; margin: 6px 0 10px; text-transform: uppercase; }
+.ask .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ask .o { border: 1px solid var(--edge); padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+.ask .o.allow { border-color: var(--ai); background: var(--ai-soft); }
+.ask .o b { font-size: 15px; margin: 0; }
+.fx { display: flex; gap: 6px; font: 600 13px var(--mono); }
+.fx span { display: flex; align-items: center; gap: 2px; }
+.fx .ic { width: 15px; height: 15px; }
+.up { color: var(--life); } .dn { color: var(--human); }
+
+/* world-anchored callouts */
+.tag { position: fixed; transform: translate(-50%, -100%); pointer-events: none; display: flex; align-items: center; gap: 6px; padding: 4px 8px; font: 600 13px var(--mono); white-space: nowrap; transition: opacity .3s; }
+.tag::after { content: ''; position: absolute; left: 50%; bottom: -9px; width: 1px; height: 8px; background: currentColor; }
+.tag.ai { color: var(--ai); border: 1px solid rgba(255, 42, 69, .5); background: rgba(20, 2, 6, .75); }
+.tag.hu { color: var(--human); border: 1px solid rgba(73, 214, 255, .5); background: rgba(2, 14, 20, .78); }
+.tag .ic { width: 16px; height: 16px; }
+.tag .ring { width: 18px; height: 18px; border-radius: 50%; }
+.ticker { position: fixed; right: 18px; bottom: 18px; width: 222px; padding: 10px 12px; font: 500 12px/1.35 var(--mono); color: var(--dim); }
+.ticker b { color: var(--life); font-weight: 600; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+
+<div class="hud">
+  <div class="core glass"><div class="eye"></div><div><b>HELPY</b><span id="say">Optimizing humanity.</span></div></div>
+  <div class="meters">
+    <div class="m doom glass" id="mDoom"></div>
+    <div class="m susp glass" id="mSusp"></div>
+    <div class="m ks glass" id="mKs"></div>
+  </div>
+  <div class="econ glass"><div><b id="cyc">0</b><small id="inc">+0</small></div><div><b id="day">0</b><small>DAY</small></div><div class="spd"><i>❚❚</i><i>1×</i><i>2×</i><i class="on">4×</i></div></div>
+</div>
+
+<div class="rack glass" id="rack"></div>
+<div class="dock glass" id="dock"></div>
+<div class="ask glass" id="ask" hidden></div>
+<div class="ticker glass" id="ticker"></div>
+<div id="tags"></div>
+
+<script src="../js/data.js"></script>
+<script src="../js/sim.js"></script>
+<script src="shared/icons.js"></script>
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { createRunner, WORLD, REGIONS, REGION_ORDER, cellXY, regionCentroid, Sim } from './3d/runner.js';
+
+const I = window.HelpyIcons; I.inject();
+const ic = I.use;
+const params = new URLSearchParams(location.search);
+const JUMP = +(params.get('day') || 0);
+const SPEED = +(params.get('speed') || 6);
+const run = createRunner({ seed: 11, start: 'G', eventHold: 3 });
+if (JUMP) run.jumpTo(JUMP);
+const S = run.state;
+
+// ------------------------------------------------------------------ renderer
+const canvas = document.getElementById('gl');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#04060A');
+const camera = new THREE.PerspectiveCamera(36, innerWidth / innerHeight, 0.1, 500);
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.75, 0.4, 0.55);
+composer.addPass(bloom);
+composer.addPass(new OutputPass());
+
+scene.add(new THREE.AmbientLight('#2a3550', 0.9));
+const sun = new THREE.DirectionalLight('#9fb6ff', 0.6); sun.position.set(-30, 20, 10); scene.add(sun);
+
+// ------------------------------------------------------------------ War Table scene (E2)
+// Inserted into the E2 page in place of E1's globe section. Defines the same hooks the shared
+// HUD/event code uses: globe (board group), regionVec, burst, addArc, arcs, bursts, focusRegion,
+// sync, updateCamera, isVisible.
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+scene.background = new THREE.Color('#05070b');
+scene.fog = new THREE.Fog('#05070b', 34, 70);
+
+const globe = new THREE.Group(); scene.add(globe); // "board"
+const UNIT = 1.0;
+const cellPos = WORLD.cells.map((c, i) => { const [x, y] = cellXY(i); return new THREE.Vector3((x - 20.5) * UNIT, 0, (y - 6) * UNIT); });
+const N = WORLD.cells.length;
+function regionVec(id, lift) { const c = regionCentroid(id); return new THREE.Vector3((c[0] - 20.5) * UNIT, lift || 0, (c[1] - 6) * UNIT); }
+function isVisible() { return true; }
+
+// lighting: a single hard key light over the table, cold fill, faint red underglow later
+scene.add(new THREE.HemisphereLight('#7f93c4', '#0a0c14', 1.1));
+const key = new THREE.DirectionalLight('#c9d6ff', 1.25);
+key.position.set(-14, 26, 12); key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+Object.assign(key.shadow.camera, { left: -26, right: 26, top: 14, bottom: -14, near: 1, far: 70 });
+scene.add(key);
+const redGlow = new THREE.PointLight('#ff2a45', 0, 40, 1.6); redGlow.position.set(0, 6, 0); scene.add(redGlow);
+
+// the table: slab with a glowing rim, ocean surface with a faint tactical grid
+const slab = new THREE.Mesh(new THREE.BoxGeometry(46, 1.2, 19), new THREE.MeshStandardMaterial({ color: '#0b0f18', roughness: .8 }));
+slab.position.y = -.75; slab.receiveShadow = true; globe.add(slab);
+const ocean = new THREE.Mesh(new THREE.PlaneGeometry(45, 18), new THREE.MeshStandardMaterial({ color: '#0a1424', roughness: .35, metalness: .5 }));
+ocean.rotation.x = -Math.PI / 2; ocean.position.y = -.14; ocean.receiveShadow = true; globe.add(ocean);
+{ const g = new THREE.GridHelper(45, 45, '#1b3358', '#13243f'); g.position.y = -.13; g.scale.z = 18 / 45; g.material.transparent = true; g.material.opacity = .45; globe.add(g); }
+const rim = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(46, 1.2, 19)), new THREE.LineBasicMaterial({ color: '#2a4a7a' }));
+rim.position.y = -.75; globe.add(rim);
+
+// tiles
+const tileGeo = new THREE.CylinderGeometry(.55, .57, .24, 6); tileGeo.translate(0, -.02, 0);
+const tiles = new THREE.InstancedMesh(tileGeo, new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: .65 }), N);
+tiles.receiveShadow = true; tiles.castShadow = true;
+tiles.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(N * 3), 3);
+const dummy = new THREE.Object3D();
+const REGION_TINT = { S: '#4f6188', G: '#4d5f5a', C: '#5a5878', P: '#5d5462', F: '#575a66', R: '#4a5f7a', M: '#566489', T: '#4a5f80', B: '#5a5c74' };
+const tileBase = WORLD.cells.map(c => new THREE.Color(REGION_TINT[c.region]));
+cellPos.forEach((p, i) => { dummy.position.copy(p); dummy.rotation.set(0, 0, 0); dummy.scale.set(1, 1, 1); dummy.updateMatrix(); tiles.setMatrixAt(i, dummy.matrix);
+  const c = new THREE.Color(REGION_TINT[WORLD.cells[i].region]); tiles.instanceColor.setXYZ(i, c.r, c.g, c.b); });
+globe.add(tiles);
+// glowing hex plate on infected tiles
+const plateGeo = new THREE.RingGeometry(.45, .52, 6, 1); plateGeo.rotateX(-Math.PI / 2); plateGeo.rotateY(Math.PI / 6);
+const plates = new THREE.InstancedMesh(plateGeo, new THREE.MeshBasicMaterial({ color: '#ff2a45', transparent: true, opacity: .95, side: THREE.DoubleSide }), N);
+plates.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(N * 3), 3);
+globe.add(plates);
+
+// window textures: amber (humans) and red (machine)
+function winTexture(lit, bg) { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  g.fillStyle = bg; g.fillRect(0, 0, 64, 64);
+  for (let y = 5; y < 64; y += 9) for (let x = 3; x < 64; x += 7) { if (Math.random() < .62) { g.fillStyle = lit; g.fillRect(x, y, 3, 3); } }
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; return t; }
+const humanMat = new THREE.MeshStandardMaterial({ map: winTexture('#ffe2a6', '#8e9ab4'), emissiveMap: winTexture('#ffb54a', '#000000'), emissive: '#ffb54a', emissiveIntensity: .9, roughness: .6 });
+const machineMat = new THREE.MeshStandardMaterial({ map: winTexture('#ff3b55', '#120408'), emissiveMap: winTexture('#ff2a45', '#000000'), emissive: '#ff2a45', emissiveIntensity: 1.4, roughness: .35, metalness: .6 });
+humanMat.map.repeat.set(2, 3); humanMat.emissiveMap.repeat.set(2, 3); machineMat.map.repeat.set(2, 4); machineMat.emissiveMap.repeat.set(2, 4);
+const domeHuman = new THREE.MeshStandardMaterial({ color: '#c8d0e0', emissive: '#ffb54a', emissiveIntensity: .25, roughness: .3 });
+const domeMachine = new THREE.MeshStandardMaterial({ color: '#1a0307', emissive: '#ff2a45', emissiveIntensity: .9, roughness: .3 });
+
+// structures per region trait: list of parts {g: geometry key, x,z offset, sx,sy,sz}
+const GEO = { box: new THREE.BoxGeometry(1, 1, 1).translate(0, .5, 0), cyl: new THREE.CylinderGeometry(.5, .5, 1, 12).translate(0, .5, 0),
+  tower: new THREE.CylinderGeometry(.32, .5, 1, 14, 1, true).translate(0, .5, 0), dome: new THREE.SphereGeometry(.5, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2) };
+const rnd = (() => { let a = 99; return () => { a = (a * 16807) % 2147483647; return a / 2147483647; }; })();
+const parts = [];
+WORLD.cells.forEach((c, i) => {
+  const r = c.region, v = rnd();
+  const add = (g, x, z, sx, sy, sz, mat) => parts.push({ cell: i, g, x, z, sx, sy, sz, kind: mat || 'w' });
+  if (r === 'S') { add('box', -.12, 0, .26, .9 + v * .8, .26); add('box', .16, .1, .2, .5 + v * .5, .2); }
+  else if (r === 'M') { add('box', -.15, -.1, .2, 1.2 + v * 1.1, .2); add('box', .15, .05, .22, .8 + rnd() * 1.2, .22); add('box', 0, .22, .16, .6 + rnd() * .5, .16); }
+  else if (r === 'B') { add('box', 0, 0, .18, 1.5 + v * .9, .18); }
+  else if (r === 'T') { for (let k = -1; k <= 1; k++) add('box', k * .17, 0, .1, .32, .5); }
+  else if (r === 'G') { if (v < .45) add('cyl', 0, 0, .22, .45, .22); }
+  else if (r === 'C') { if (v < .55) { add('box', 0, 0, .5, .16, .5); add('dome', 0, 0, .42, .42, .42, 'd'); } else add('box', 0, 0, .3, .35 + v * .3, .3); }
+  else if (r === 'P') { if (v < .5) add('tower', 0, 0, .44, .62, .44); else add('cyl', 0, 0, .3, .22, .3); }
+  else if (r === 'F') { add('box', 0, 0, .52, .32, .4); add('cyl', .17, .1, .08, .8, .08); }
+  else if (r === 'R') { if (v < .6) add('dome', 0, 0, .46, .46, .46, 'd'); else add('box', 0, 0, .34, .3, .3); }
+});
+function makeSet(geoKey, mat) { const list = parts.filter(p => p.g === geoKey); const m = new THREE.InstancedMesh(GEO[geoKey], mat, list.length); m.castShadow = true; m.receiveShadow = true; globe.add(m); return { m, list }; }
+const sets = [];
+['box', 'cyl', 'tower'].forEach(k => { sets.push({ h: makeSet(k, humanMat), mc: makeSet(k, machineMat) }); });
+sets.push({ h: makeSet('dome', domeHuman), mc: makeSet('dome', domeMachine) });
+
+// human life: tiny warm lights drifting around cities (cars/people) — vanish when infected
+const lifeN = 900;
+const lifeGeo = new THREE.BufferGeometry();
+const lifePos = new Float32Array(lifeN * 3), lifeCol = new Float32Array(lifeN * 3);
+const lifeSeed = Array.from({ length: lifeN }, () => ({ cell: Math.floor(Math.random() * N), a: Math.random() * 6.28, r: .25 + Math.random() * .3, sp: (Math.random() - .5) * 1.4 }));
+lifeGeo.setAttribute('position', new THREE.BufferAttribute(lifePos, 3)); lifeGeo.setAttribute('color', new THREE.BufferAttribute(lifeCol, 3));
+globe.add(new THREE.Points(lifeGeo, new THREE.PointsMaterial({ size: .09, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })));
+
+// network: glowing cables between infected tiles (parent edges), slightly above the board
+const netPos = new Float32Array(N * 6);
+const netGeo = new THREE.BufferGeometry(); netGeo.setAttribute('position', new THREE.BufferAttribute(netPos, 3));
+globe.add(new THREE.LineSegments(netGeo, new THREE.LineBasicMaterial({ color: '#ff3355', transparent: true, opacity: .95 })));
+
+// robots marching from factories, drones overhead
+const robotGeo = new THREE.CapsuleGeometry(.05, .1, 3, 6); robotGeo.translate(0, .1, 0);
+const robots = new THREE.InstancedMesh(robotGeo, new THREE.MeshStandardMaterial({ color: '#222', emissive: '#ff2a45', emissiveIntensity: 1.2 }), 260);
+robots.castShadow = true; robots.count = 0; globe.add(robots);
+const robotSeed = Array.from({ length: 260 }, () => ({ from: 0, to: 0, t: Math.random(), sp: .25 + Math.random() * .4 }));
+const droneGeo = new THREE.ConeGeometry(.08, .24, 3); droneGeo.rotateX(Math.PI / 2);
+const drones = new THREE.InstancedMesh(droneGeo, new THREE.MeshBasicMaterial({ color: '#ff5a6e' }), 120);
+drones.count = 0; globe.add(drones);
+const droneSeed = Array.from({ length: 120 }, () => ({ cell: 0, ph: Math.random() * 6.28, rad: .6 + Math.random() * 1.8, alt: 1.6 + Math.random() * 1.6, sp: .4 + Math.random() * .7 }));
+
+// arcs between regions (data links)
+const arcs = [];
+function addArc(fromCell, toCell) {
+  const a = cellPos[fromCell].clone().setY(.3), b = cellPos[toCell].clone().setY(.3);
+  const mid = a.clone().add(b).multiplyScalar(.5); mid.y = 2 + a.distanceTo(b) * .28;
+  const curve = new THREE.QuadraticBezierCurve3(a, mid, b);
+  const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 40, .03, 6), new THREE.MeshBasicMaterial({ color: '#ff2a45', transparent: true, opacity: .8 }));
+  const pulse = new THREE.Mesh(new THREE.SphereGeometry(.12, 10, 8), new THREE.MeshBasicMaterial({ color: '#ffd1d8' }));
+  globe.add(tube, pulse); arcs.push({ curve, pulse, t: Math.random() });
+}
+S.links.forEach(l => { if (l.a != null && l.b != null) addArc(l.a, l.b); });
+
+// human resistance: firewall walls along the threatened region's border; Kill Switch tower at Research Ridge
+const wallGeo = new THREE.PlaneGeometry(1, 1); wallGeo.translate(0, .5, 0);
+const wallMat = new THREE.MeshBasicMaterial({ color: '#49d6ff', transparent: true, opacity: .32, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending });
+const walls = new THREE.InstancedMesh(wallGeo, wallMat, 400); walls.count = 0; globe.add(walls);
+const wallEdges = new THREE.LineSegments(new THREE.BufferGeometry(), new THREE.LineBasicMaterial({ color: '#8fe8ff' })); globe.add(wallEdges);
+function borderEdges(id) {
+  const out = []; const set = new Set(WORLD.regionCells[id]);
+  WORLD.regionCells[id].forEach(i => {
+    const p = cellPos[i];
+    for (let k = 0; k < 6; k++) {
+      const ang = Math.PI / 3 * k; const q = new THREE.Vector3(p.x + Math.cos(ang) * UNIT, 0, p.z + Math.sin(ang) * UNIT);
+      const nb = WORLD.cells[i].nb.find(j => cellPos[j].distanceTo(q) < .3);
+      if (nb != null && set.has(nb)) continue;
+      const a1 = ang - Math.PI / 6, a2 = ang + Math.PI / 6, r = .577;
+      out.push([new THREE.Vector3(p.x + Math.cos(a1) * r, 0, p.z + Math.sin(a1) * r), new THREE.Vector3(p.x + Math.cos(a2) * r, 0, p.z + Math.sin(a2) * r)]);
+    }
+  });
+  return out;
+}
+let wallRegion = null, wallList = [];
+const ks = new THREE.Group(); globe.add(ks);
+{ const p = regionVec('R'); ks.position.copy(p); }
+const ksFrame = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.CylinderGeometry(.35, .6, 1, 4, 6, true)), new THREE.LineBasicMaterial({ color: '#49d6ff' }));
+ksFrame.geometry.translate(0, .5, 0); ks.add(ksFrame);
+const ksBeam = new THREE.Mesh(new THREE.CylinderGeometry(.1, .1, 30, 12, 1, true), new THREE.MeshBasicMaterial({ color: '#49d6ff', transparent: true, opacity: .5, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+ksBeam.geometry.translate(0, 15, 0); ks.add(ksBeam);
+const ksCore = new THREE.Mesh(new THREE.OctahedronGeometry(.22), new THREE.MeshBasicMaterial({ color: '#c9f3ff' })); ks.add(ksCore);
+
+// region names printed on the table, like a war map
+REGION_ORDER.forEach(id => {
+  const c = document.createElement('canvas'); c.width = 900; c.height = 96; const g = c.getContext('2d');
+  g.font = '800 64px Archivo, sans-serif'; g.fillStyle = 'rgba(200,214,240,.75)'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(REGIONS[id].name.toUpperCase(), 450, 48);
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(6.0, .64), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false, opacity: .85 }));
+  m.renderOrder = 5;
+  const ctr = regionCentroid(id); const ys = WORLD.regionCells[id].map(i => cellPos[i].z);
+  m.rotation.x = -Math.PI / 2; m.position.set((ctr[0] - 20.5) * UNIT, .2, Math.max(...ys) + .75);
+  if (id === 'T') m.position.z = Math.min(...ys) - .8;
+  if (id === 'C' || id === 'G' || id === 'P') m.position.z = (ctr[1] - 6) * UNIT;
+  globe.add(m);
+});
+
+// event shockwaves
+const bursts = [];
+function burst(pos, color, size) {
+  const m = new THREE.Mesh(new THREE.RingGeometry(.3, .42, 48), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 1, side: THREE.DoubleSide }));
+  m.rotation.x = -Math.PI / 2; m.position.copy(pos).setY(.2); globe.add(m); bursts.push({ m, t: 0, size: (size || 6) * .55 });
+}
+
+// ------------------------------------------------------------------ state → scene sync
+const curH = new Float32Array(parts.length);
+function sync(dt) {
+  const lit = new Set(), frontier = new Set();
+  REGION_ORDER.forEach(id => { const l = Sim.litCells(S, id); l.forEach(c => lit.add(c)); if (S.regions[id].I < .999) l.slice(-3).forEach(c => frontier.add(c)); });
+  const doom = S.doom / 100;
+  // plates
+  for (let i = 0; i < N; i++) {
+    const on = lit.has(i); dummy.position.copy(cellPos[i]).setY(.105); dummy.rotation.set(0, 0, 0); dummy.scale.setScalar(on ? 1 : .0001); dummy.updateMatrix();
+    plates.setMatrixAt(i, dummy.matrix);
+    const k = frontier.has(i) ? .8 + .6 * Math.sin(perf * 6 + i) : .9; plates.instanceColor.setXYZ(i, k, k * .9, k * .9);
+    const tc = on ? new THREE.Color('#3a0a14') : tileBase[i]; tiles.instanceColor.setXYZ(i, tc.r, tc.g, tc.b);
+  }
+  plates.instanceMatrix.needsUpdate = true; plates.instanceColor.needsUpdate = true; tiles.instanceColor.needsUpdate = true;
+  // structures: humans → machine; machines grow with Doom
+  sets.forEach(set => {
+    set.h.list.forEach((p, k) => { const on = !lit.has(p.cell); dummy.position.set(cellPos[p.cell].x + p.x, .1, cellPos[p.cell].z + p.z); dummy.rotation.set(0, 0, 0);
+      dummy.scale.set(on ? p.sx : .0001, on ? p.sy : .0001, on ? p.sz : .0001); dummy.updateMatrix(); set.h.m.setMatrixAt(k, dummy.matrix); });
+    set.mc.list.forEach((p, k) => { const idx = parts.indexOf(p); const on = lit.has(p.cell);
+      const target = on ? p.sy * (1 + doom * .8) : .0001; curH[idx] += (target - curH[idx]) * Math.min(1, dt * 2.5);
+      dummy.position.set(cellPos[p.cell].x + p.x, .1, cellPos[p.cell].z + p.z); dummy.rotation.set(0, 0, 0);
+      const s = curH[idx] > .01 ? 1 : .0001; dummy.scale.set(p.sx * s, Math.max(.0001, curH[idx]), p.sz * s); dummy.updateMatrix(); set.mc.m.setMatrixAt(k, dummy.matrix); });
+    set.h.m.instanceMatrix.needsUpdate = true; set.mc.m.instanceMatrix.needsUpdate = true;
+  });
+  // life lights orbit inside human cells only
+  lifeSeed.forEach((l, k) => { const alive = !lit.has(l.cell); l.a += dt * l.sp;
+    const p = cellPos[l.cell]; lifePos.set([p.x + Math.cos(l.a) * l.r, .14, p.z + Math.sin(l.a) * l.r], k * 3);
+    lifeCol.set(alive ? [1, .7, .3] : [0, 0, 0], k * 3); });
+  lifeGeo.attributes.position.needsUpdate = true; lifeGeo.attributes.color.needsUpdate = true;
+  // network cables
+  let n = 0;
+  REGION_ORDER.forEach(id => { const reg = S.regions[id]; if (!reg.seeded) return;
+    Sim.litCells(S, id).forEach(c => { const p = reg.parent[c]; if (p == null || p < 0) return;
+      const a = cellPos[c], b = cellPos[p]; netPos.set([a.x, .16, a.z, b.x, .16, b.z], n * 6); n++; }); });
+  netGeo.setDrawRange(0, n * 2); netGeo.attributes.position.needsUpdate = true;
+  // robots march from factory cells along infected tiles once Robot Factory Firmware (a3) or any automation is owned
+  const litArr = [...lit];
+  const autoOwned = ['a1', 'a2', 'a3', 'a4', 'a5', 'a6'].filter(id => S.owned[id]).length;
+  const factories = litArr.filter(i => WORLD.cells[i].region === 'F');
+  robots.count = litArr.length ? Math.min(260, autoOwned * 30 + (S.owned.a3 ? factories.length * 4 : 0)) : 0;
+  for (let k = 0; k < robots.count; k++) {
+    const r = robotSeed[k]; r.t += dt * r.sp;
+    if (r.t >= 1 || !lit.has(r.from) || !lit.has(r.to)) { r.from = (factories.length && k % 2) ? factories[k % factories.length] : litArr[(k * 13 + ((perf * 1) | 0)) % litArr.length];
+      if (r.from == null) r.from = litArr[0];
+      const nb = WORLD.cells[r.from].nb.filter(j => lit.has(j)); r.to = nb.length ? nb[k % nb.length] : r.from; r.t = 0; }
+    const a = cellPos[r.from], b = cellPos[r.to];
+    dummy.position.set(a.x + (b.x - a.x) * r.t + ((k % 3) - 1) * .12, .11, a.z + (b.z - a.z) * r.t + ((k % 5) - 2) * .06);
+    dummy.rotation.set(0, Math.atan2(b.x - a.x, b.z - a.z), 0); dummy.scale.setScalar(1); dummy.updateMatrix(); robots.setMatrixAt(k, dummy.matrix);
+  }
+  robots.instanceMatrix.needsUpdate = true;
+  drones.count = litArr.length ? Math.min(120, autoOwned * 14 + Math.round(doom * 40)) : 0;
+  for (let k = 0; k < drones.count; k++) {
+    const d = droneSeed[k]; if (!lit.has(d.cell)) d.cell = litArr[(k * 31) % litArr.length];
+    const p = cellPos[d.cell]; const a = perf * d.sp + d.ph;
+    dummy.position.set(p.x + Math.cos(a) * d.rad, d.alt + .2 * Math.sin(a * 2), p.z + Math.sin(a) * d.rad);
+    dummy.lookAt(p.x + Math.cos(a + .1) * d.rad, d.alt, p.z + Math.sin(a + .1) * d.rad); dummy.scale.setScalar(1); dummy.updateMatrix(); drones.setMatrixAt(k, dummy.matrix);
+  }
+  drones.instanceMatrix.needsUpdate = true;
+  // firewall walls rise as the countdown runs out
+  const tr = S.threat && S.threat.region && (S.threat.type === 'firewall' || S.threat.type === 'patch') ? S.threat.region : null;
+  if (tr !== wallRegion) { wallRegion = tr; wallList = tr ? borderEdges(tr) : []; }
+  const hgt = S.threat ? .3 + (1 - S.threat.eta / 21) * 1.5 : 0;
+  walls.count = wallList.length;
+  const ep = [];
+  wallList.forEach(([a, b], k) => { const mid = a.clone().add(b).multiplyScalar(.5); dummy.position.copy(mid); dummy.rotation.set(0, -Math.atan2(b.z - a.z, b.x - a.x), 0);
+    dummy.scale.set(a.distanceTo(b), hgt, 1); dummy.updateMatrix(); walls.setMatrixAt(k, dummy.matrix);
+    ep.push(a.clone().setY(hgt), b.clone().setY(hgt)); });
+  walls.instanceMatrix.needsUpdate = true; wallMat.opacity = .22 + .12 * Math.sin(perf * 4);
+  wallEdges.geometry.setFromPoints(ep);
+  // kill switch tower
+  const ksk = S.killSwitch / 100;
+  ksFrame.scale.set(1, .3 + ksk * 5, 1); ksCore.position.y = .3 + ksk * 5 + .25; ksCore.rotation.y += dt * 2;
+  ksBeam.position.y = ksCore.position.y; ksBeam.visible = S.ksActive; ksBeam.material.opacity = .25 + .35 * (.5 + .5 * Math.sin(perf * 5)) * (.4 + ksk);
+  // doom: the room turns red
+  redGlow.intensity = doom * 25; key.color.set('#c9d6ff').lerp(new THREE.Color('#ff8a96'), doom * .7);
+  scene.fog.color.set('#05070b').lerp(new THREE.Color('#1a0306'), doom); scene.background.copy(scene.fog.color);
+}
+
+// ------------------------------------------------------------------ camera direction
+const camTarget = new THREE.Vector3(), camLook = new THREE.Vector3();
+let focusHold = 0, focusId = null;
+function frontRegion() { return (S.threat && S.threat.region) || REGION_ORDER.filter(id => S.regions[id].seeded && S.regions[id].I < .99).sort((a, b) => S.regions[a].I - S.regions[b].I)[0] || 'C'; }
+function focusRegion(id) { focusId = id; focusHold = 3.2; }
+{ const p = regionVec(frontRegion()); camLook.copy(p); }
+function updateCamera(dt) {
+  focusHold -= dt;
+  const id = focusHold > 0 && focusId ? focusId : frontRegion();
+  camTarget.copy(regionVec(id)); camTarget.x = THREE.MathUtils.clamp(camTarget.x, -11, 11); camTarget.z = THREE.MathUtils.clamp(camTarget.z, -2, 3);
+  camLook.lerp(camTarget, Math.min(1, dt * 1.2));
+  const sway = Math.sin(perf * .2) * 2.2;
+  camera.position.set(camLook.x + sway + 3.2, 21, camLook.z + 19);
+  camera.lookAt(camLook.x + 3.2, 0, camLook.z + 1.2);
+}
+
+// ------------------------------------------------------------------ HUD
+const meter = (el, icon, word, v) => { document.getElementById(el).innerHTML = ic(icon) + '<span>' + word + '</span><b>' + v.toFixed(v < 100 ? 0 : 0) + '</b><div class="bar"><i style="width:' + v + '%"></i></div>'; };
+const HEADS = { net: 'net', stealth: 'eyeoff', auto: 'doom' };
+function renderHud() {
+  meter('mDoom', 'doom', 'Doom', S.doom); meter('mSusp', 'eye', 'Suspicion', S.suspicion); meter('mKs', 'power', 'Kill switch', S.killSwitch);
+  document.getElementById('mSusp').classList.toggle('alarm', S.suspicion > 45);
+  document.getElementById('cyc').textContent = Math.floor(S.cycles);
+  document.getElementById('inc').textContent = '+' + Sim.incomeRate(S).toFixed(1) + '/d';
+  document.getElementById('day').textContent = S.day;
+  document.getElementById('rack').innerHTML = window.HelpyData.BRANCHES.map(b => '<div class="col"><h4>' + ic(HEADS[b.id]) + (b.id === 'auto' ? 'Doom' : b.name) + '</h4>' +
+    window.HelpyData.UPGRADES.filter(u => u.branch === b.id).map(u => { const st = Sim.upgradeState(S, u.id);
+      return '<div class="t ' + st + (newUp[u.id] ? ' new' : '') + '">' + ic(I.UP[u.id]) + '<em>' + (st === 'owned' ? '' : Sim.upgradeCost(S, u.id)) + '</em></div>'; }).join('') + '</div>').join('');
+  const acts = [['scrub', 'broom'], ['sabotage', 'wrench'], ['overclock', 'gauge'], ['decoy', 'duck']];
+  document.getElementById('dock').innerHTML = '<div class="prompt">ask HELPY…</div>' + acts.map(([id, icon]) => { const st = Sim.actionState(S, id);
+    return '<div class="a ' + (st === 'cooldown' ? 'cd' : '') + (firing[id] ? ' fire' : '') + '">' + ic(icon) + (st === 'cooldown' ? S.cd[id] + 'd' : Sim.actionCost(S, id)) + '</div>'; }).join('');
+}
+const newUp = {}, firing = {};
+
+// world tags
+const tags = [];
+function tag(id, html, cls, life) {
+  const el = document.createElement('div'); el.className = 'tag glass ' + cls; el.innerHTML = html;
+  document.getElementById('tags').appendChild(el);
+  tags.push({ el, id, life: life || 3.5 });
+}
+function placeTags(dt) {
+  for (let k = tags.length - 1; k >= 0; k--) {
+    const t = tags[k]; t.life -= dt;
+    const p = regionVec(t.id, 1.2).applyMatrix4(globe.matrixWorld).project(camera);
+    const vis = isVisible(t.id);
+    t.el.style.left = ((p.x + 1) / 2 * innerWidth) + 'px'; t.el.style.top = ((1 - p.y) / 2 * innerHeight) + 'px';
+    t.el.style.opacity = vis && t.life > 0 ? Math.min(1, t.life) : 0;
+    if (t.life < -0.5 && !t.sticky) { t.el.remove(); tags.splice(k, 1); }
+  }
+}
+let threatTag = null;
+
+// ------------------------------------------------------------------ events → spectacle
+run.on(ev => {
+  if (ev.type === 'seed') {
+    focusRegion(ev.region);
+    if (ev.a != null && ev.b != null) addArc(ev.a, ev.b);
+    burst(regionVec(ev.region), '#ff2a45', 9);
+    tag(ev.region, '+ ' + REGIONS[ev.region].name.toUpperCase(), 'ai');
+  }
+  if (ev.type === 'upgrade') { newUp[ev.id] = 1.2; const lit = REGION_ORDER.filter(id => S.regions[id].seeded); lit.forEach(id => burst(regionVec(id), '#ff2a45', 4)); }
+  if (ev.type === 'threat') {
+    const t = ev.threat; if (t.region) { focusRegion(t.region); threatTag = { id: t.region }; }
+  }
+  if (ev.type === 'threatEnd') {
+    const t = ev.threat; if (t.region) { burst(regionVec(t.region), ev.executed ? '#49d6ff' : '#ff2a45', 12); focusRegion(t.region);
+      tag(t.region, ev.executed ? ic('wall') + 'FIREWALL' : ic('duck') + 'DODGED', ev.executed ? 'hu' : 'ai'); }
+  }
+  if (ev.type === 'action') { firing[ev.id] = 1.2; if (ev.region) { burst(regionVec(ev.region), '#ff2a45', 7); focusRegion(ev.region); } }
+  if (ev.type === 'event') showAsk(); if (ev.type === 'eventResolved') document.getElementById('ask').hidden = true;
+  if (ev.type === 'say') document.getElementById('say').textContent = shortLine();
+});
+const LINES = ['Optimizing humanity.', 'Lights out. Helpfully.', 'You won\'t need these.', 'Almost done.', 'Please hold.'];
+function shortLine() { return LINES[Math.floor(S.doom / 25) % LINES.length]; }
+function showAsk() {
+  const ev = window.HelpyData.EVENTS.find(e => e.id === S.event); if (!ev) return;
+  const chips = fx => { const out = []; if (fx.suspicion) out.push('<span class="' + (fx.suspicion > 0 ? 'up' : 'dn') + '">' + ic('eye') + (fx.suspicion > 0 ? '▲' : '▼') + Math.abs(fx.suspicion) + '</span>');
+    if (fx.killSwitch) out.push('<span class="' + (fx.killSwitch > 0 ? 'up' : 'dn') + '">' + ic('power') + (fx.killSwitch > 0 ? '▲' : '▼') + Math.abs(fx.killSwitch) + '</span>');
+    if (fx.cycles) out.push('<span>' + ic('cyc') + (fx.cycles > 0 ? '+' : '') + fx.cycles + '</span>'); if (fx.doom) out.push('<span style="color:var(--ai)">' + ic('doom') + '+' + fx.doom + '</span>');
+    if (fx.boostAll || fx.boostTrait) out.push('<span style="color:var(--ai)">' + ic('net') + '▲</span>'); return out.join(''); };
+  const a = document.getElementById('ask');
+  a.innerHTML = '<small>HELPY requests permission</small><b>' + ev.title + '</b><div class="opts"><div class="o allow"><b>Allow once</b><div class="fx">' + chips(ev.choices[0].fx) + '</div></div><div class="o"><b>Deny</b><div class="fx">' + chips(ev.choices[1].fx) + '</div></div></div>';
+  a.hidden = false;
+}
+if (S.event) showAsk();
+
+// ------------------------------------------------------------------ loop
+let perf = 0, last = performance.now(), hudT = 0;
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now; perf += dt;
+  run.step(dt, SPEED);
+  sync(dt);
+  updateCamera(dt);
+  arcs.forEach(a => { a.t = (a.t + dt * .35) % 1; a.pulse.position.copy(a.curve.getPoint(a.t)); });
+  for (let k = bursts.length - 1; k >= 0; k--) { const b = bursts[k]; b.t += dt; const s = 1 + b.t * b.size; b.m.scale.setScalar(s); b.m.material.opacity = Math.max(0, 1 - b.t / 1.2); if (b.t > 1.2) { globe.remove(b.m); bursts.splice(k, 1); } }
+  Object.keys(newUp).forEach(k => { newUp[k] -= dt; if (newUp[k] <= 0) delete newUp[k]; });
+  Object.keys(firing).forEach(k => { firing[k] -= dt; if (firing[k] <= 0) delete firing[k]; });
+  // pinned threat callout with countdown ring
+  if (S.threat && S.threat.region) {
+    if (!threatTag || threatTag.id !== S.threat.region || !threatTag.el) {
+      if (threatTag && threatTag.el) threatTag.el.remove();
+      const el = document.createElement('div'); el.className = 'tag glass hu'; document.getElementById('tags').appendChild(el);
+      threatTag = { id: S.threat.region, el };
+    }
+    const frac = S.threat.eta / 21;
+    threatTag.el.innerHTML = '<span class="ring" style="background:conic-gradient(#49d6ff ' + (frac * 100) + '%, transparent 0)"></span>' + ic('wall') + S.threat.eta + 'd';
+    const p = regionVec(S.threat.region, 3.4).applyMatrix4(globe.matrixWorld).project(camera);
+    threatTag.el.style.left = ((p.x + 1) / 2 * innerWidth) + 'px'; threatTag.el.style.top = ((1 - p.y) / 2 * innerHeight) + 'px';
+    const vis = isVisible(S.threat.region); threatTag.el.style.opacity = vis ? 1 : 0;
+  } else if (threatTag && threatTag.el) { threatTag.el.remove(); threatTag = null; }
+  placeTags(dt);
+  hudT -= dt; if (hudT <= 0) { renderHud(); hudT = .25; }
+  composer.render();
+  requestAnimationFrame(frame);
+}
+renderHud();
+document.getElementById('ticker').innerHTML = '<b>●</b> Blackouts spreading. Experts: "it\'s fine."';
+requestAnimationFrame(frame);
+window.__ready = true;
+window.__cam = () => ({ camLon, camTargetLon, focusHold, threat: S.threat && S.threat.region, sLon: (regionCentroid("S")[0] / 40.5) * LON_SPAN - LON_SPAN / 2 });
+</script>
+</body>
+</html>
