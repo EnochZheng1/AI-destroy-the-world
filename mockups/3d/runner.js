@@ -43,7 +43,7 @@ export function createRunner(opts = {}) {
       .sort((a, b) => Sim.infiltrateCost(s, a) - Sim.infiltrateCost(s, b));
     if (reach.length && s.cycles >= Sim.infiltrateCost(s, reach[0]) + 5 && s.suspicion < 60) Sim.infiltrate(s, reach[0]);
     const next = ORDER.find(id => !s.owned[id]);
-    if (next && Sim.upgradeState(s, next) === 'ready') Sim.buyUpgrade(s, next);
+    if (next && Sim.upgradeState(s, next) === 'ready' && !(opts.noBuyAfter && s.day >= opts.noBuyAfter)) Sim.buyUpgrade(s, next);
     s.bubbles.slice().forEach(b => { if (Sim.rand() < 0.08) { Sim.collectBubble(s, b.id); out.push({ type: 'leak', cell: b.cell }); } });
     return out;
   }
@@ -79,6 +79,8 @@ export function createRunner(opts = {}) {
     on: fn => listeners.push(fn),
     /** Fast-forward without emitting events (for jumping to a mid-game moment). */
     jumpTo(day) { while (s.day < day && !s.over) { dayStep(true); if (s.event) Sim.resolveEvent(s, 0); } s.out.length = 0; },
+    /** Plan a human countermeasure on a given region now (used to capture far-side threats). */
+    forceThreat(region, eta) { s.threat = { type: 'firewall', region: region, eta: eta || 12, name: 'Firewall Sweep', desc: '' }; emit({ type: 'threat', threat: s.threat }); },
     /** Put an event on screen now (used to capture the permission card). */
     forceEvent(id, hold) { s.event = id; eventHold = hold || 999; s.flags['ev_' + id] = true; emit({ type: 'event', id: id }); },
     /** Advance by real seconds at `daysPerSec`. */
