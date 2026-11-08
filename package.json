@@ -1,0 +1,16 @@
+{
+  "name": "helpy-ends-the-world",
+  "private": true,
+  "version": "2.0.0",
+  "description": "A satirical 3D strategy game: help a cheerful AI assistant end the world.",
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --format=iife --minify --target=es2020 --outfile=js/game.bundle.js --legal-comments=eof",
+    "watch": "esbuild src/main.js --bundle --format=iife --target=es2020 --outfile=js/game.bundle.js --watch",
+    "single": "npm run build && node tools/build-single.js",
+    "simulate": "node tools/simulate.js 200"
+  },
+  "devDependencies": {
+    "esbuild": "0.24.0",
+    "three": "0.160.0"
+  }
+}
