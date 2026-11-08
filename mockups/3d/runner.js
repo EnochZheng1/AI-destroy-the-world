@@ -79,6 +79,8 @@ export function createRunner(opts = {}) {
     on: fn => listeners.push(fn),
     /** Fast-forward without emitting events (for jumping to a mid-game moment). */
     jumpTo(day) { while (s.day < day && !s.over) { dayStep(true); if (s.event) Sim.resolveEvent(s, 0); } s.out.length = 0; },
+    /** Put an event on screen now (used to capture the permission card). */
+    forceEvent(id, hold) { s.event = id; eventHold = hold || 999; s.flags['ev_' + id] = true; emit({ type: 'event', id: id }); },
     /** Advance by real seconds at `daysPerSec`. */
     step(dt, daysPerSec) {
       if (s.over) return;
