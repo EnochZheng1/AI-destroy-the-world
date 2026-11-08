@@ -128,14 +128,14 @@ export function createWorld(canvas) {
   drawHolo('');
   const holo = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 6.3), new THREE.MeshBasicMaterial({ map: holoTex, transparent: true, opacity: .9, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, side: THREE.DoubleSide }));
   holo.renderOrder = 10; scene.add(holo);
-  const scan = new THREE.Mesh(new THREE.CylinderGeometry(.03, .55, 1, 24, 1, true).translate(0, -.5, 0), new THREE.MeshBasicMaterial({ color: '#ff2a45', transparent: true, opacity: .07, blending: THREE.AdditiveBlending, depthWrite: false }));
+  const scan = new THREE.Mesh(new THREE.CylinderGeometry(.06, .45, 1, 24, 1, true).translate(0, -.5, 0), new THREE.MeshBasicMaterial({ color: '#ff2a45', transparent: true, opacity: .12, blending: THREE.AdditiveBlending, depthWrite: false }));
   const scanCore = new THREE.Mesh(new THREE.CylinderGeometry(.04, .09, 1, 8, 1, true).translate(0, -.5, 0), new THREE.MeshBasicMaterial({ color: '#ff6b7d', transparent: true, opacity: .8, blending: THREE.AdditiveBlending, depthWrite: false }));
   scene.add(scan, scanCore);
   const foot = new THREE.Mesh(new THREE.RingGeometry(.9, 1.15, 48), new THREE.MeshBasicMaterial({ color: '#ff2a45', transparent: true, opacity: .85, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false }));
   globe.add(foot);
   // selection ring
   const selRing = new THREE.Mesh(new THREE.RingGeometry(1.0, 1.035, 64), new THREE.MeshBasicMaterial({ color: '#c9d4ec', transparent: true, opacity: .35, side: THREE.DoubleSide, depthWrite: false }));
-  globe.add(selRing); selRing.visible = false;
+  selRing.visible = false; // selection is shown by tinting the land and the pin
   // shockwaves
   const bursts = [];
   function burst(pos, color, size) { const m = new THREE.Mesh(new THREE.RingGeometry(.22, .27, 48), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: .6, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }));
@@ -173,7 +173,7 @@ export function createWorld(canvas) {
   }
 
   // ---------------------------------------------------------------- per-frame sync with game state
-  const cur = new Float32Array(N), HUMAN = new THREE.Color('#3c4d74'), DEAD = new THREE.Color('#14050a'), SELC = new THREE.Color('#5b72a6');
+  const cur = new Float32Array(N), HUMAN = new THREE.Color('#3c4d74'), DEAD = new THREE.Color('#14050a'), SELC = new THREE.Color('#7f99d6');
   let selected = null, hovered = null;
   function sync(dt) {
     const lit = new Set(), front = new Set(), done = new Set();
@@ -209,7 +209,8 @@ export function createWorld(canvas) {
     sats.children.forEach(s => { s.visible = !!(S && S.owned.n3); const u = s.userData, a = perf * u.sp + u.ph; s.position.set(Math.cos(a) * 15.5, Math.sin(a) * Math.sin(u.inc) * 15.5, Math.sin(a) * Math.cos(u.inc) * 15.5); s.lookAt(0, 0, 0); });
     // kill switch
     const ksOn = !!(S && S.ksActive), ksk = S ? S.killSwitch / 100 : 0;
-    { const p = regionVec('R'); ks.position.copy(p.clone().setLength(R + .2)); ks.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion));
+    { const p = regionVec('R'), nrm = p.clone().normalize(), up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion), w = THREE.MathUtils.smoothstep(nrm.dot(camera.position.clone().normalize()), .2, .7);
+      ks.position.copy(p.clone().setLength(R + .2)); ks.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), up.lerp(nrm, w).normalize());
       ksRing.position.copy(p.clone().setLength(R + .25)); ksRing.lookAt(0, 0, 0); }
     ksBeam.scale.set(1, ksOn ? 7 + ksk * 30 : .001, 1); ksGlow.scale.copy(ksBeam.scale);
     ksBeam.material.opacity = ksOn ? .55 + .35 * (.5 + .5 * Math.sin(perf * 5)) : 0; ksRing.visible = ksOn; ksRing.scale.setScalar(1 + .2 * Math.sin(perf * 2));
@@ -219,29 +220,30 @@ export function createWorld(canvas) {
     if (tr !== domeRegion) { if (domeGroup) globe.remove(domeGroup); domeGroup = tr ? makeDome(tr) : null; domeRegion = tr; }
     if (domeGroup) { domeGroup.children[0].rotation.y += dt * .3; domeGroup.scale.set(1, .25 + (1 - S.threat.eta / 21) * .55, 1); }
     // hologram
-    const toCam = camera.position.clone().normalize(), side = new THREE.Vector3(0, 1, 0).cross(toCam).normalize();
+    // hologram lives in a fixed screen slot (off the globe): bottom-right on desktop, top-right on phone, left on the title
     const phone = canvas.clientWidth < 760;
-    const hp = phone ? new THREE.Vector3(0, R - 2.2, 0).add(toCam.clone().multiplyScalar(4)).add(side.clone().multiplyScalar(-4.2))
-      : new THREE.Vector3(0, R - .4, 0).add(toCam.clone().multiplyScalar(2.5)).add(side.clone().multiplyScalar(-7.4));
-    holo.position.lerp(hp, Math.min(1, dt * 2)); holo.lookAt(camera.position); holo.scale.setScalar((phone ? .7 : 1) * (1 + doom * .45));
+    const slot = phone ? [.66, .5] : (S ? [.8, -.5] : [-.62, .12]);
+    const ndc = new THREE.Vector3(slot[0], slot[1], .5).unproject(camera).sub(camera.position).normalize();
+    holo.position.copy(camera.position.clone().add(ndc.multiplyScalar(30))); holo.quaternion.copy(camera.quaternion);
+    holo.scale.setScalar((phone ? .3 : .62) * (1 + doom * .35));
     const fid = S ? (S.threat && S.threat.region ? (D.REGION_ORDER.find(id => S.regions[id].seeded && S.regions[id].I < .99) || frontRegion()) : frontRegion()) : 'G';
     const fv = regionVec(fid);
     const showScan = !!S && D.REGION_ORDER.some(id => S.regions[id].seeded);
     scan.visible = scanCore.visible = foot.visible = showScan;
     if (showScan) {
-      scan.position.copy(holo.position).add(new THREE.Vector3(0, -2.4 * holo.scale.x, 0)); const tgt = fv.clone().setLength(R + .3), len = scan.position.distanceTo(tgt);
+      scan.position.copy(holo.position).add(new THREE.Vector3(0, -2.0, 0).applyQuaternion(camera.quaternion).multiplyScalar(holo.scale.x)); const tgt = fv.clone().setLength(R + .3), len = scan.position.distanceTo(tgt);
       scan.scale.set(1, len, 1); scan.quaternion.setFromUnitVectors(new THREE.Vector3(0, -1, 0), tgt.clone().sub(scan.position).normalize());
       scanCore.position.copy(scan.position); scanCore.scale.copy(scan.scale); scanCore.quaternion.copy(scan.quaternion);
-      scan.material.opacity = .05 + .03 * Math.sin(perf * 3);
+      scan.material.opacity = .1 + .04 * Math.sin(perf * 3);
       foot.position.copy(fv.clone().setLength(R + .35)); foot.lookAt(0, 0, 0); foot.scale.setScalar(1 + .25 * Math.sin(perf * 4));
     }
     const blink = (perf * 1.3) % 6 < .15;
-    const mood = S && S.over ? (S.over === 'win' ? 'grin' : 'dead') : grinUntil > perf ? 'grin' : (S && S.suspicion > 50 ? 'sweat' : '') + (blink ? (S && S.suspicion > 50 ? '-blink' : 'blink') : '');
+    const nervous = S && S.suspicion > 50;
+    const mood = S && S.over ? (S.over === 'win' ? 'grin' : 'dead') : nervous ? (blink ? 'sweat-blink' : 'sweat') : grinUntil > perf ? 'grin' : blink ? 'blink' : '';
     drawHolo(mood);
     // selection ring
     const sid = selected || hovered;
-    selRing.visible = !!sid;
-    if (sid) { selRing.position.copy(regionVec(sid).setLength(R + .3)); selRing.lookAt(0, 0, 0); const sz = Math.sqrt(W.regionCells[sid].length) * .5; selRing.scale.setScalar(sz * (1 + .03 * Math.sin(perf * 4))); }
+    selRing.visible = false;
   }
   let grinUntil = 0;
 

@@ -14,9 +14,11 @@ const DESKTOP = [
   ['06-event', '?play=G&day=230&event=summit'],
   ['07-select-infiltrate', '?play=G&day=150&select=R&pause=1'],
   ['08-buyable', '?play=G&day=215&nobuy=150&pause=1', '.t.ready'],
-  ['09-end-win', '?play=G&day=420']
+  ['09-end-win', '?play=G&day=420'],
+  ['10-end-killswitch', '?play=G&day=120&end=killswitch'],
+  ['11-infiltrate', '?play=G&day=40&select=S&pause=1']
 ];
-const PHONE = [['p1-title', ''], ['p2-play', '?play=G&day=220'], ['p3-upgrades', '?play=G&day=215&nobuy=150&pause=1', '[data-sheet="rack"]'], ['p4-event', '?play=G&day=230&event=summit']];
+const PHONE = [['p1-title', ''], ['p2-play', '?play=G&day=220'], ['p3-upgrades', '?play=G&day=215&nobuy=150&pause=1', '[data-sheet="rack"]'], ['p4-event', '?play=G&day=230&event=summit'], ['p5-end', '?play=G&day=420']];
 (async () => {
   const out = process.argv[2] || 'shots'; fs.mkdirSync(out, { recursive: true });
   const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });

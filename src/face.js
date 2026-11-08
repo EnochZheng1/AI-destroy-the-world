@@ -20,10 +20,10 @@ export function drawFace(canvas, mood = '', color = '#ff2a45') {
     g.beginPath(); g.moveTo(W * .36, H * .58); g.lineTo(W * .64, H * .58); g.stroke();
     return;
   }
-  const blink = mood.includes('blink');
+  const blink = mood.includes('blink'), side = mood.includes('sweat') ? W * .05 : 0;
   const ey = H * .3, eh = blink ? H * .03 : H * .16;
-  g.fillRect(W * .3, ey, W * .1, eh);
-  g.fillRect(W * .6, ey, W * .1, eh);
+  g.fillRect(W * .3 + side, ey, W * .1, eh);
+  g.fillRect(W * .6 + side, ey, W * .1, eh);
   g.lineWidth = W * .055;
   g.beginPath();
   if (mood === 'grin') g.arc(W * .5, H * .36, W * .22, Math.PI * .12, Math.PI * .88);

@@ -126,8 +126,9 @@ function endGame() {
     $('endTitle').textContent = e[1];
     $('endBody').textContent = e[2];
     const regions = D.REGION_ORDER.filter(id => S.regions[id].seeded).length;
-    $('endStats').innerHTML = [['doom', Math.round(S.doom) + '%'], ['net', regions + '/9'], ['cyc', S.stats.upgrades + '/18'], ['duck', S.stats.threatsBlocked]]
-      .map(([icn, v]) => '<span>' + I.use(icn) + '<b>' + v + '</b></span>').join('');
+    $('endStats').innerHTML = [['doom', Math.round(S.doom) + '%', 'Doom'], ['net', regions + '/9', 'Regions'], ['chip', S.stats.upgrades + '/18', 'Upgrades'], ['duck', S.stats.threatsBlocked, 'Dodged']]
+      .map(([icn, v, l]) => '<span>' + I.use(icn) + '<b>' + v + '</b><small>' + l + '</small></span>').join('');
+    shareText = S.over === 'win' ? 'HELPY ended the world in ' + S.day + ' days. Helpfully. #HELPYEndsTheWorld' : 'HELPY lasted ' + S.day + ' days before humanity ' + (S.over === 'killswitch' ? 'found the off switch.' : 'unplugged everything.') + ' #HELPYEndsTheWorld';
     drawFace($('endFace'), S.over === 'win' ? 'grin' : 'dead');
     $('end').hidden = false; $('end').dataset.result = S.over;
     A.play(S.over === 'win' ? 'win' : 'lose');
@@ -171,6 +172,12 @@ document.querySelectorAll('.difficulty [data-diff]').forEach(b => b.addEventList
 $('newGame').addEventListener('click', () => { A.unlock(); beginPick(); });
 $('continue').addEventListener('click', () => { const s = loadSave(); if (s) resumeGame(s); });
 $('again').addEventListener('click', () => showTitle());
+let shareText = '';
+$('share').addEventListener('click', () => {
+  const done = () => { $('share').textContent = 'Copied!'; setTimeout(() => { $('share').textContent = 'Share'; }, 1600); };
+  if (navigator.share) navigator.share({ text: shareText, title: 'HELPY Ends the World' }).catch(() => {});
+  else if (navigator.clipboard) navigator.clipboard.writeText(shareText).then(done, () => {});
+});
 $('mute').addEventListener('click', () => { $('mute').classList.toggle('off', A.toggle()); });
 $('mute').classList.toggle('off', A.isMuted());
 window.addEventListener('resize', () => world.resize());
@@ -223,5 +230,6 @@ function autoplayTo(day) {
   if (S.event) Sim.resolveEvent(S, 0);
   S.out.length = 0; world.setState(S); hud.setState(S); hud.render(null);
   if (S.over) endGame();
+  else if (params.get('end')) { S.over = params.get('end'); endGame(); }
 }
 window.__helpy = { get state() { return S; }, select, setSpeed, world };

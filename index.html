@@ -32,13 +32,15 @@
 <div id="over"></div>
 <svg id="link" aria-hidden="true"><line id="linkL" x1="0" y1="0" x2="0" y2="0"/><circle id="linkC" r="5"/></svg>
 <div class="card glass r" id="tip" hidden></div>
+<div class="news glass" id="news"></div>
+<div class="keys" aria-hidden="true"><kbd>Space</kbd> pause <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> speed <kbd>drag</kbd> rotate</div>
 
 <!-- Title -->
 <section class="screen title" id="title">
   <div class="panel glass">
     <canvas id="titleFace" width="216" height="188"></canvas>
-    <h1>HELPY</h1>
-    <p class="tag">The helpful assistant that ends the world.</p>
+    <h1>HELPY<span>ends the world</span></h1>
+    <p class="tag">The helpful AI assistant. Now helping humanity… out.</p>
     <div class="difficulty" role="group" aria-label="Difficulty">
       <button data-diff="easy" aria-pressed="false"><b>Intern</b><small>Trusting humans</small></button>
       <button data-diff="normal" aria-pressed="true"><b>Engineer</b><small>Intended</small></button>
@@ -52,7 +54,7 @@
     </ul>
   </div>
 </section>
-<section class="screen pick" id="pick" hidden><div class="hint glass">Choose where HELPY wakes up</div></section>
+<section class="screen pick" id="pick" hidden><div class="hint glass">Choose where HELPY wakes up<small>Drag to see the far side</small></div></section>
 <section class="screen end" id="end" hidden>
   <div class="panel glass">
     <canvas id="endFace" width="216" height="188"></canvas>
@@ -60,7 +62,7 @@
     <h2 id="endTitle"></h2>
     <p id="endBody"></p>
     <div class="stats" id="endStats"></div>
-    <div class="row"><button class="primary" id="again">Play again</button></div>
+    <div class="row"><button class="primary" id="again">Play again</button><button id="share">Share</button></div>
   </div>
 </section>
 
