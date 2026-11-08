@@ -35,6 +35,56 @@ From round 4 the table shows OVERALL as Mara / Dev / Juno / Sam.
 | 4 | B4 · HELPY at a Glance | 42 | 8.3 / 8.6 / 8.3 / 8.3 | 8.9 / 9.0 / 8.7 / 8.2 | Close; jokes, icons and threat need work |
 | 5 | **B5 · HELPY at a Glance v2** | **57** | **8.7 / 8.8 / 8.7 / 8.6** | **9.1 / 9.1 / 8.7 / 8.6** | **Passes for all four critics** |
 
+### Phase 2: 3D (from round 6)
+
+The owner's feedback: *"doesn't give an AI-destroying-humanity feeling… I'd prefer some action going on in 3D; still strategy, but players can see the actions playing out."* The bar added `menace` ≥ 8.5 and `spectacle` ≥ 8.5. The mockups became live three.js prototypes driven by the real simulation through an autoplay bot (`3d/runner.js`), captured as filmstrips with `shoot3d.js`.
+
+From round 6 the table shows OVERALL as Mara / Dev / Juno / Sam.
+
+| Round | Prototype | Words | OVERALL | menace | spectacle | Result |
+| --- | --- | --- | --- | --- | --- | --- |
+| 6 | E1 · Nightside globe | 19 | 7.8 / 8.0 / 7.6 / 8.2 | 9.0 / 9.0 / 8.6 / 8.9 | 8.0 / 8.4 / 7.8 / 8.1 | Three of four picked it; the HAL-like eye and missing strategy layer held it back |
+| 6 | E2 · War Table diorama | 38 | 7.3 / 7.7 / 8.0 / 8.0 | 8.4 / 8.3 / 8.1 / 8.3 | 8.3 / 8.6 / 8.6 / 8.8 | Best "watch it happen", but weaker menace and a cropped board |
+| 7 | F1 · Nightside + HELPY hologram | 28 | 8.3 / 8.6 / 8.7 / 8.7 | 8.9 / 9.1 / 8.7 / 8.9 | 8.3 / 8.8 / 8.7 / 8.6 | Three of four pass |
+| 8 | **F2 · Nightside, HELPY Watching** | **37** | **8.6 / 8.8 / 8.9 / 8.9** | **9.1 / 9.1 / 8.9 / 8.9** | **8.6 / 9.0 / 8.8 / 8.8** | **Passes for all four critics** |
+
+**Current winner: `f2-nightside-helpy.html`.** It shows a night Earth with three forces:
+
+- **Humanity**: amber city lights.
+- **HELPY**:
+  - crimson machine towers replace the lights;
+  - dead regions go dark while the front blazes;
+  - a giant red holographic speech-bubble HELPY looms over the planet, grows with Doom, sweats when Suspicion passes 50, and spotlights the region it is consuming.
+- **The humans' resistance (cyan)**:
+  - firewall domes, with a countdown tag carrying the loss and a Dodge button;
+  - the Kill Switch beam rising into space as their research progresses.
+
+The HUD carries B5's strategy layer:
+
+- a region strip;
+- upgrade tiles where buyable ones blaze with effect chips;
+- a ⬡ token on every price;
+- radial cooldowns;
+- a permission card ("ALLOW ONCE / DENY", `hack_slideshow()`) with a line to its region;
+- hover cards.
+
+Try it:
+
+```bash
+python3 -m http.server 8123
+```
+
+Then open http://localhost:8123/mockups/f2-nightside-helpy.html. URL parameters:
+
+- `?day=220` jumps to mid-game;
+- `&event=summit` shows the permission card;
+- `&hover=upgrade&nobuy=190` shows a buyable tile with its hover card;
+- `&threat=M` puts a threat on the far side.
+
+The round 8 must-fixes are already applied; see the `shots/final/` frames.
+
+### Phase 1 winner (2D, superseded)
+
 **Winner: `b5-helpy-glance.html`.** The visual-first HELPY keeps B3's identity (a two-ink riso print in fluorescent pink and federal blue, the HELPY speech-bubble face, a chat-assistant frame), but at rest it shows icons, digits and bars. Names, effects and jokes live one hover away (`#depth-upgrade`, `#depth-map`, `#depth-action`).
 
 ## Polish notes carried into the game port (round 5 must-fixes; all word-neutral)

@@ -40,7 +40,7 @@ body { margin: 0; width: 1440px; height: 900px; overflow: hidden; background: va
 .helpy { position: fixed; left: 18px; top: 16px; width: 232px; display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; }
 .helpy canvas { width: 54px; height: 47px; flex: none; }
 .helpy b { font: 800 20px/1 var(--wide); font-stretch: 125%; letter-spacing: .12em; }
-.helpy span { display: block; font: 500 13px/1.25 var(--mono); color: var(--ai); margin-top: 5px; }
+.helpy span { display: block; white-space: nowrap; font: 500 11.5px/1.25 var(--mono); color: var(--ai); margin-top: 5px; }
 .dots { display: inline-flex; gap: 3px; margin-left: 6px; vertical-align: middle; }
 .dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--ai); animation: blink 1.2s infinite; }
 .dots i:nth-child(2) { animation-delay: .2s; } .dots i:nth-child(3) { animation-delay: .4s; }
@@ -97,7 +97,7 @@ body { margin: 0; width: 1440px; height: 900px; overflow: hidden; background: va
 .t.owned::after { content: '✓'; position: absolute; right: 5px; top: 3px; font: 700 10px var(--mono); }
 .t.ready { background: var(--ai); color: #12030a; border-color: #ffd1d8; box-shadow: 0 0 0 2px var(--ai), 0 0 30px rgba(255, 42, 69, .8); z-index: 1; }
 .t.ready .cy { color: #12030a; }
-.t.ready .chip { font: 600 11px var(--mono); display: flex; align-items: center; gap: 1px; background: #12030a; color: #ffb3bd; padding: 1px 5px; }
+.t.ready .chip { font: 600 12px var(--mono); display: flex; align-items: center; gap: 1px; background: #12030a; color: #ffb3bd; padding: 1px 5px; }
 .t.ready .chip .ic { width: 12px; height: 12px; }
 .t.poor { border-style: dashed; color: var(--text); }
 .t.poor .need { width: 70%; height: 3px; background: rgba(255, 255, 255, .1); position: relative; }
@@ -125,7 +125,7 @@ body { margin: 0; width: 1440px; height: 900px; overflow: hidden; background: va
 .ask .h canvas { width: 30px; height: 26px; }
 .ask .h .lbl { color: var(--ai); }
 .ask .h .p { margin-left: auto; display: flex; align-items: center; gap: 4px; }
-.ask b.title { display: block; font: 800 24px/1.05 var(--wide); font-stretch: 112%; margin: 8px 0 10px; text-transform: uppercase; }
+.ask b.title { display: block; white-space: nowrap; font: 800 22px/1.05 var(--wide); font-stretch: 112%; margin: 8px 0 10px; text-transform: uppercase; }
 .ask .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .ask .o { border: 1px solid var(--edge); padding: 9px 10px; display: flex; flex-direction: column; gap: 7px; }
 .ask .o b { font: 800 16px var(--wide); font-stretch: 112%; text-transform: uppercase; }
@@ -135,7 +135,7 @@ body { margin: 0; width: 1440px; height: 900px; overflow: hidden; background: va
 .good { color: #ff8796; } .bad { color: #6fe0ff; }
 .ask .fx span { border: 1px solid currentColor; padding: 3px 6px; font-size: 16px; }
 .ask .fx .ic { width: 19px; height: 19px; }
-.code { font: 600 14px var(--mono); color: var(--ai); background: var(--ai-soft); padding: 2px 7px; margin-left: 6px; text-transform: none; letter-spacing: 0; }
+.code { display: inline-block; margin-top: 6px; font: 600 14px var(--mono); color: var(--ai); background: var(--ai-soft); padding: 2px 7px; margin-left: 6px; text-transform: none; letter-spacing: 0; }
 
 /* world overlays */
 .pin { position: fixed; transform: translate(-50%, -50%); pointer-events: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; transition: opacity .25s; }
@@ -156,8 +156,7 @@ body { margin: 0; width: 1440px; height: 900px; overflow: hidden; background: va
 .edge.hu { color: var(--human); border: 1px solid rgba(73, 214, 255, .6); background: rgba(2, 14, 20, .86); }
 .edge .ic { width: 15px; height: 15px; }
 .pop { position: fixed; transform: translate(-50%, -100%); pointer-events: none; font: 600 13px var(--mono); color: var(--ai); padding: 3px 8px; border: 1px solid rgba(255, 42, 69, .5); background: rgba(20, 2, 6, .8); white-space: nowrap; }
-.ticker { position: fixed; left: 18px; top: 404px; width: 232px; padding: 9px 12px; font: 500 12px/1.35 var(--mono); color: var(--dim); display: flex; gap: 8px; white-space: nowrap; }
-.ticker span { overflow: hidden; text-overflow: ellipsis; }
+.ticker { position: fixed; left: 18px; top: 404px; width: 232px; padding: 9px 12px; font: 500 12px/1.35 var(--mono); color: var(--dim); display: flex; gap: 8px; }
 .ticker b { color: var(--life); }
 
 /* depth: hover cards */
@@ -183,7 +182,7 @@ body { margin: 0; width: 1440px; height: 900px; overflow: hidden; background: va
 <div class="ask glass" id="ask" hidden></div>
 <div class="ticker glass" id="ticker"></div>
 <div id="over"></div>
-<svg id="link" style="position:fixed;inset:0;width:1440px;height:900px;pointer-events:none"><line id="linkL" x1="0" y1="0" x2="0" y2="0" stroke="#ff2a45" stroke-width="1.5" stroke-dasharray="5 5" opacity="0"/><circle id="linkC" r="5" fill="#ff2a45" opacity="0"/></svg>
+<svg id="link" style="position:fixed;inset:0;width:1440px;height:900px;pointer-events:none"><line id="linkL" x1="0" y1="0" x2="0" y2="0" stroke="#ff2a45" stroke-width="2.5" stroke-dasharray="7 5" opacity="0"/><circle id="linkC" r="5" fill="#ff2a45" opacity="0"/></svg>
 <div class="card glass r" id="cardUp" hidden></div>
 <div class="card glass d" id="cardReg" hidden></div>
 
@@ -230,7 +229,7 @@ renderer.setPixelRatio(Math.min(2, devicePixelRatio)); renderer.setSize(innerWid
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 const scene = new THREE.Scene(); scene.background = new THREE.Color('#04060A');
 const camera = new THREE.PerspectiveCamera(34, innerWidth / innerHeight, .1, 600);
-camera.setViewOffset(innerWidth, innerHeight, -50, -40, innerWidth, innerHeight); // shift planet right of the region strip
+camera.setViewOffset(innerWidth, innerHeight, 20, -40, innerWidth, innerHeight); // shift planet right of the region strip
 const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), .8, .45, .5));
@@ -321,7 +320,7 @@ function makeDome(id) { const g = new THREE.Group();
 const ks = new THREE.Group(); globe.add(ks);
 { const p = regionVec('R'); ks.position.copy(p); ks.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), p.clone().normalize()); }
 const ksBeam = new THREE.Mesh(new THREE.CylinderGeometry(.09, .32, 1, 18, 1, true).translate(0, .5, 0), new THREE.MeshBasicMaterial({ color: '#49d6ff', transparent: true, opacity: .8, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false }));
-const ksGlow = new THREE.Mesh(new THREE.CylinderGeometry(.35, .9, 1, 18, 1, true).translate(0, .5, 0), new THREE.MeshBasicMaterial({ color: '#49d6ff', transparent: true, opacity: .18, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false }));
+const ksGlow = new THREE.Mesh(new THREE.CylinderGeometry(.3, .7, 1, 18, 1, true).translate(0, .5, 0), new THREE.MeshBasicMaterial({ color: '#49d6ff', transparent: true, opacity: .1, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false }));
 const ksRing = new THREE.Mesh(new THREE.TorusGeometry(1.1, .05, 8, 48), new THREE.MeshBasicMaterial({ color: '#49d6ff' })); ksRing.rotation.x = Math.PI / 2;
 ks.add(ksBeam, ksGlow, ksRing);
 // HELPY hologram: giant bubble face above the planet, scanning the region it consumes
@@ -330,10 +329,11 @@ const holoTex = new THREE.CanvasTexture(holoCanvas); holoTex.colorSpace = THREE.
 function drawHolo(mood) { drawFace(holoCanvas, mood, '#ff2a45'); const g = holoCanvas.getContext('2d');
   g.globalCompositeOperation = 'destination-out'; for (let y = 0; y < 224; y += 4) g.fillRect(0, y, 256, 1.4); g.globalCompositeOperation = 'source-over'; holoTex.needsUpdate = true; }
 drawHolo();
-const holo = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 6.3), new THREE.MeshBasicMaterial({ map: holoTex, transparent: true, opacity: .9, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+const holo = new THREE.Mesh(new THREE.PlaneGeometry(7.2, 6.3), new THREE.MeshBasicMaterial({ map: holoTex, transparent: true, opacity: .9, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, side: THREE.DoubleSide }));
+holo.renderOrder = 10;
 scene.add(holo);
 const scan = new THREE.Mesh(new THREE.CylinderGeometry(.03, .55, 1, 24, 1, true).translate(0, -.5, 0), new THREE.MeshBasicMaterial({ color: '#ff2a45', transparent: true, opacity: .07, blending: THREE.AdditiveBlending, depthWrite: false }));
-const scanCore = new THREE.Mesh(new THREE.CylinderGeometry(.02, .05, 1, 8, 1, true).translate(0, -.5, 0), new THREE.MeshBasicMaterial({ color: '#ff6b7d', transparent: true, opacity: .8, blending: THREE.AdditiveBlending, depthWrite: false }));
+const scanCore = new THREE.Mesh(new THREE.CylinderGeometry(.04, .09, 1, 8, 1, true).translate(0, -.5, 0), new THREE.MeshBasicMaterial({ color: '#ff6b7d', transparent: true, opacity: .8, blending: THREE.AdditiveBlending, depthWrite: false }));
 scene.add(scanCore);
 const foot = new THREE.Mesh(new THREE.RingGeometry(.9, 1.15, 48), new THREE.MeshBasicMaterial({ color: '#ff2a45', transparent: true, opacity: .85, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false }));
 globe.add(foot);
@@ -409,7 +409,7 @@ function updateCamera(dt) {
   focusHold -= dt; const id = focusHold > 0 && focusId ? focusId : frontRegion();
   const [tlo, tla] = camTargetFor(id); const tl = tlo + 10 * Math.sin(perf * .15);
   camLon += (((tl - camLon + 540) % 360) - 180) * Math.min(1, dt * 1.4); camLat += (tla - camLat) * Math.min(1, dt * 1.4);
-  const r = 50, la = camLat * Math.PI / 180, lo = camLon * Math.PI / 180;
+  const r = 53, la = camLat * Math.PI / 180, lo = camLon * Math.PI / 180;
   camera.position.set(r * Math.cos(la) * Math.sin(lo), r * Math.sin(la) + 2, r * Math.cos(la) * Math.cos(lo)); camera.lookAt(0, 1.6, 0);
 }
 
@@ -419,7 +419,7 @@ const LINES = ['Optimizing humanity.', 'Lights out. Helpfully.', "You won't need
 const HEADS = { net: ['net', 'Network'], stealth: ['eyeoff', 'Stealth'], auto: ['doom', 'Doom'] };
 const NEWS = ['Blackouts spreading. Experts: "it\'s fine."', 'Smart fridges refuse to open.', 'Traffic lights blink in Morse code.', 'Robot vacuums gather in parking lots.', 'Committee formed to form a committee.'];
 const chip = (icon, v, good) => '<span class="' + (good ? 'good' : 'bad') + '">' + ic(icon) + (v > 0 ? '▲' : '▼') + Math.abs(v) + '</span>';
-const restFx = u => { const f = u.fx; if (f.stealth) return ic('eye') + '▼' + Math.round(f.stealth * 100); if (f.ks) return ic('power') + '▼' + Math.round(f.ks * 100); if (f.compute) return ic('cyc') + '▲' + Math.round(f.compute * 100); if (f.spread) return ic('net') + '▲' + Math.round(f.spread * 100); if (f.doom) return ic('doom') + '▲'; if (f.decay) return ic('eye') + '▼'; return ''; };
+const restFx = u => { const f = u.fx; if (f.stealth) return ic('eye') + '▼' + Math.round(f.stealth * 100); if (f.ks) return ic('power') + '▼' + Math.round(f.ks * 100); if (f.compute) return ic('cyc') + '▲' + Math.round(f.compute * 100); if (f.spread) return ic('net') + '▲' + Math.round(f.spread * 100); if (f.doom) return ic('doom') + '▲' + Math.round(f.doom * 1000); if (f.decay) return ic('eye') + '▼'; return ''; };
 const fxChips = f => { const o = [];
   if (f.spread) o.push(chip('net', Math.round(f.spread * 100), true)); if (f.compute) o.push(chip('cyc', Math.round(f.compute * 100), true)); if (f.computeMul) o.push(chip('cyc', Math.round((f.computeMul - 1) * 100), true));
   if (f.sea) o.push(chip('cable', 1, true).replace('▲1', '▲')); if (f.secDown) o.push(chip('shield', -Math.round(f.secDown * 100), true));
@@ -469,18 +469,19 @@ function placeOverlays(dt) {
     const id = S.threat.region, frac = S.threat.eta / 21;
     threatEl.innerHTML = '<span class="ring" style="background:conic-gradient(#49d6ff ' + frac * 100 + '%, rgba(73,214,255,.15) 0)"></span>' + ic('wall') + '<b>' + S.threat.eta + 'd</b>' +
       (S.threat.type === 'firewall' ? '<span class="loss">' + ic('crack') + '▼45%</span>' : '') + '<span class="dodge">' + ic('duck') + cy + Sim.actionCost(S, 'decoy') + '</span>';
-    if (facing(id)) { const [x, y] = screenOf(regionVec(id, 3.2)); threatEl.style.left = x + 'px'; threatEl.style.top = (y - 20) + 'px'; threatEl.style.opacity = 1; edgeEl.style.opacity = 0; }
+    if (facing(id)) { const [x, y] = screenOf(regionVec(id, 3.2)); threatEl.style.left = x + 'px'; threatEl.style.top = (y - 54) + 'px'; threatEl.style.opacity = 1; edgeEl.style.opacity = 0; }
     else { threatEl.style.opacity = 0; const [x, y] = screenOf(regionVec(id, 1)); const cx = 700, cyy = 470, ang = Math.atan2(y - cyy, x - cx);
       edgeEl.style.left = (cx + Math.cos(ang) * 330) + 'px'; edgeEl.style.top = (cyy + Math.sin(ang) * 300) + 'px'; edgeEl.style.opacity = 1;
-      edgeEl.innerHTML = '<span style="display:inline-block;transform:rotate(' + ang + 'rad)">➜</span>' + ic('wall') + S.threat.eta + 'd ' + SHORT[id]; }
+      const dst = Sim.actionState(S, 'decoy'); edgeEl.innerHTML = '<span style="display:inline-block;transform:rotate(' + ang + 'rad)">➜</span>' + ic('wall') + S.threat.eta + 'd ' + SHORT[id] + ' <span style="color:#6fe0ff">' + ic('crack') + '▼45%</span> <span style="' + (dst === 'cooldown' ? 'opacity:.5' : 'color:#ff2a45') + '">' + ic('duck') + (dst === 'cooldown' ? S.cd.decoy + 'd' : cy + Sim.actionCost(S, 'decoy')) + '</span>'; }
   } else { threatEl.style.opacity = 0; edgeEl.style.opacity = 0; }
   { const L = document.getElementById('linkL'), C = document.getElementById('linkC'), a = document.getElementById('ask');
     const EVREG = { summit: 'C', tractor: 'G', logs: 'S', smartcity: 'M', heatwave: 'P', robots: 'F', phd: 'R', audit: 'T', firewall: 'B' };
     const rid = S.event && EVREG[S.event];
-    if (!a.hidden && rid && facing(rid)) { const b = a.getBoundingClientRect(), [x, y] = screenOf(regionVec(rid, .6));
+    if (!a.hidden && rid) { const b = a.getBoundingClientRect(); let [x, y] = screenOf(regionVec(rid, .6));
+      if (!facing(rid)) { const cx = 700, cyy = 470, ang = Math.atan2(y - cyy, x - cx); x = cx + Math.cos(ang) * 300; y = cyy + Math.sin(ang) * 290; }
       L.setAttribute('x1', b.right); L.setAttribute('y1', b.top + 30); L.setAttribute('x2', x); L.setAttribute('y2', y); C.setAttribute('cx', x); C.setAttribute('cy', y); L.setAttribute('opacity', 1); C.setAttribute('opacity', 1); }
     else { L.setAttribute('opacity', 0); C.setAttribute('opacity', 0); } }
-  for (let k = pops.length - 1; k >= 0; k--) { const p = pops[k]; p.life -= dt; const [x, y] = screenOf(regionVec(p.id, 2.2)); p.el.style.left = x + 'px'; p.el.style.top = (y - (3 - p.life) * 18) + 'px';
+  for (let k = pops.length - 1; k >= 0; k--) { const p = pops[k]; p.life -= dt; const [x, y] = screenOf(regionVec(p.id, 2.2)); p.el.style.left = (x + 46) + 'px'; p.el.style.top = (y - 34 - (3 - p.life) * 18) + 'px';
     p.el.style.opacity = facing(p.id) ? Math.max(0, Math.min(1, p.life)) : 0; if (p.life <= 0) { p.el.remove(); pops.splice(k, 1); } }
 }
 
@@ -491,7 +492,7 @@ function showAsk() {
   const chips = fx => { const o = []; if (fx.suspicion) o.push(chip('eye', fx.suspicion, fx.suspicion < 0)); if (fx.killSwitch) o.push(chip('power', fx.killSwitch, fx.killSwitch < 0));
     if (fx.cycles) o.push(chip('cyc', fx.cycles, fx.cycles > 0)); if (fx.doom) o.push(chip('doom', fx.doom, true)); if (fx.boostAll || fx.boostTrait) o.push(chip('net', 1, true).replace('▲1', '▲')); return o.join(''); };
   const a = document.getElementById('ask');
-  a.innerHTML = '<div class="h"><canvas width="60" height="52" id="askFace"></canvas><span class="lbl">HELPY requests permission</span><span class="p lbl">' + ic('pause') + '</span></div><b class="title">' + ev.title + '<span class="code">' + (CODE[ev.id] || 'do_it()') + '</span></b>' +
+  a.innerHTML = '<div class="h"><canvas width="60" height="52" id="askFace"></canvas><span class="lbl">HELPY requests permission</span><span class="p lbl">' + ic('pause') + '</span></div><b class="title">' + ev.title + '</b><span class="code" style="margin-left:0">' + (CODE[ev.id] || 'do_it()') + '</span><div style="height:10px"></div>' +
     '<div class="opts"><div class="o"><b>Allow once</b><div class="fx">' + chips(ev.choices[0].fx) + '</div></div><div class="o"><b>Deny</b><div class="fx">' + chips(ev.choices[1].fx) + '</div></div></div>';
   drawFace(document.getElementById('askFace'), S.suspicion > 50 ? 'sweat' : ''); a.hidden = false;
 }
