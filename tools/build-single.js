@@ -20,8 +20,8 @@ let result;
 if (fragment) {
   const head = html.match(/<head>([\s\S]*?)<\/head>/)[1]
     .replace(/<meta charset[^>]*>\s*/, '')
-    .replace(/<meta name="viewport"[^>]*>\s*/, '<meta name="claude:viewport-fit-sides" content="cover">\n');
-  const body = html.match(/<body>([\s\S]*?)<\/body>/)[1];
+    .replace(/<meta name="viewport"[^>]*>\s*/, '');
+  const body = html.match(/<body[^>]*>([\s\S]*?)<\/body>/)[1];
   result = inlineAssets(head.trim() + '\n' + body.trim()) + '\n';
 } else {
   result = inlineAssets(html);

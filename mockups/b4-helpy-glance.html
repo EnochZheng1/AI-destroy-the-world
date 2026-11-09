@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<meta name="variants" content="depth">
+<title>Mockup B4 · HELPY at a Glance</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Courier+Prime:wght@700&display=swap">
+<style>
+/* Direction B4 — B3's identity (two-ink riso, HELPY bubble-face, chat-assistant frame) with a
+   visual-first surface: icons, numbers and bars at rest; names and effects one hover/tap away.
+   Pink = HELPY and your progress. Solid blue = humans and danger, nothing else. */
+:root {
+  --paper: #EEEDE7;
+  --pink: #FF48B0;
+  --blue: #3255A4;
+  --pink-tint: rgba(255, 72, 176, .16);
+  --blue-tint: rgba(50, 85, 164, .12);
+  --display: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif;
+  --type: 'Courier Prime', 'Courier New', monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; width: 1440px; height: 900px; overflow: hidden; color: var(--blue); font: 700 16px/1.2 var(--display);
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .33 0 0 0 0 .64 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  display: grid; grid-template-columns: 1fr 312px; grid-template-rows: 78px 1fr 92px;
+}
+.ic { width: 24px; height: 24px; flex: none; }
+.pk { color: var(--pink); mix-blend-mode: multiply; }
+
+/* HUD */
+.hud { grid-column: 1 / -1; display: flex; align-items: center; gap: 22px; padding: 0 22px; border-bottom: 3px solid var(--blue); }
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand canvas { width: 54px; height: 47px; }
+.brand b { font: 900 38px/1 var(--display); text-transform: uppercase; letter-spacing: -1px; position: relative; }
+.brand b::after { content: 'HELPY'; position: absolute; left: 2px; top: 2px; color: var(--pink); mix-blend-mode: multiply; }
+.meter { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 8px; align-items: center; width: 210px; position: relative; }
+.meter .ic { width: 32px; height: 32px; grid-row: 1 / span 2; }
+.meter .top { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; text-transform: uppercase; letter-spacing: .5px; }
+.meter .top b { font: 900 30px/1 var(--display); letter-spacing: 0; }
+.meter .bar { height: 12px; border: 2px solid var(--blue); position: relative; }
+.meter .bar i { position: absolute; inset: 0 auto 0 0; }
+.meter .bar s { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--blue); text-decoration: none; }
+.meter.doom { color: var(--blue); }
+.meter.doom .ic, .meter.doom .top b { color: var(--pink); mix-blend-mode: multiply; }
+.meter.doom .bar i { background: var(--pink); mix-blend-mode: multiply; }
+.meter.warn { background: var(--blue); color: var(--paper); padding: 6px 10px; margin: 0 -10px; }
+.meter.warn .bar { border-color: var(--paper); }
+.meter.warn .bar i { background: repeating-linear-gradient(-45deg, var(--paper) 0 4px, transparent 4px 7px); }
+.meter.warn .bar s { background: var(--paper); }
+.meter.calm .bar i { background: repeating-linear-gradient(90deg, var(--blue) 0 5px, transparent 5px 8px); }
+.money { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.money .ic { width: 34px; height: 34px; color: var(--pink); mix-blend-mode: multiply; }
+.money b { font: 900 44px/1 var(--display); }
+.money small { font-size: 16px; }
+.clock { display: flex; align-items: center; gap: 10px; }
+.clock b { font: 900 30px/1 var(--display); text-transform: uppercase; }
+.spd { display: flex; border: 2px solid var(--blue); }
+.spd span { width: 40px; height: 36px; display: grid; place-items: center; font: 900 17px var(--display); }
+.spd span.on { background: var(--pink); color: var(--paper); mix-blend-mode: multiply; }
+.spd .ic { width: 18px; height: 18px; }
+
+/* map stage */
+.stage { position: relative; overflow: hidden; border-right: 3px solid var(--blue); }
+#map { position: absolute; inset: 0; width: 100%; height: 100%; }
+.helpy { position: absolute; left: 22px; bottom: 18px; display: flex; align-items: flex-end; gap: 4px; }
+.helpy canvas { width: 170px; height: 148px; }
+.say { position: relative; margin-bottom: 110px; background: var(--paper); border: 3px solid var(--pink); padding: 8px 14px; font: 900 30px/1 var(--display); text-transform: uppercase; color: var(--blue); white-space: nowrap; }
+.say::before { content: ''; position: absolute; left: -14px; bottom: 10px; border: 7px solid transparent; border-right-color: var(--pink); }
+.typing { position: absolute; left: 196px; bottom: 96px; display: flex; gap: 5px; }
+.typing i { width: 9px; height: 9px; border-radius: 50%; background: var(--pink); mix-blend-mode: multiply; }
+.typing i:nth-child(2) { opacity: .6; } .typing i:nth-child(3) { opacity: .3; }
+
+.threat { position: absolute; left: 22px; top: 346px; display: flex; align-items: center; gap: 8px; background: var(--blue); color: var(--paper); padding: 6px 6px 6px 10px; }
+.threat::before { content: ''; position: absolute; left: 60px; top: -14px; width: 3px; height: 14px; background: var(--blue); }
+.threat b { font: 900 26px/1 var(--display); }
+.threat button { display: flex; align-items: center; gap: 6px; border: 0; background: var(--paper); color: var(--blue); font: 900 20px var(--display); padding: 4px 9px; }
+.threat button .ic { width: 22px; height: 22px; }
+
+/* permission prompt (event), centred over the ocean */
+.perm { position: absolute; left: 50%; bottom: 22px; transform: translateX(-24%); width: 470px; background: var(--paper); border: 3px solid var(--blue); box-shadow: 7px 7px 0 var(--pink); padding: 10px 12px 12px; }
+.perm::after { content: ''; position: absolute; left: 30px; bottom: -17px; border: 8px solid transparent; border-top-color: var(--blue); border-left-color: var(--blue); }
+.perm .h { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.perm .h .ic { width: 34px; height: 34px; }
+.perm .h b { font: 900 30px/1 var(--display); text-transform: uppercase; }
+.perm .h .paused { margin-left: auto; display: flex; align-items: center; gap: 4px; font-size: 14px; text-transform: uppercase; border: 2px solid var(--blue); padding: 2px 6px; }
+.perm .h .paused .ic { width: 14px; height: 14px; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.opt { border: 3px solid var(--blue); padding: 8px 10px; display: flex; flex-direction: column; gap: 8px; }
+.opt b { font: 900 26px/1 var(--display); text-transform: uppercase; }
+.fx { display: flex; gap: 6px; }
+.chip { display: flex; align-items: center; gap: 3px; font: 900 21px/1 var(--display); padding: 3px 7px 3px 4px; border: 2px solid currentColor; }
+.chip .ic { width: 20px; height: 20px; }
+.chip .ar { width: 14px; height: 14px; }
+.chip.good { background: var(--pink); color: var(--paper); border-color: var(--pink); mix-blend-mode: multiply; }
+.chip.bad { background: repeating-linear-gradient(-45deg, var(--blue-tint) 0 4px, transparent 4px 8px); }
+
+/* right rail: upgrade tiles */
+.rail { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+.cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; flex: 1; }
+.col { display: flex; flex-direction: column; gap: 7px; }
+.col h3 { margin: 0 0 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; font: 900 14px var(--display); text-transform: uppercase; letter-spacing: .5px; }
+.col h3 .ic { width: 26px; height: 26px; }
+.tile { position: relative; height: 82px; border: 2px solid var(--blue); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.tile .ic { width: 34px; height: 34px; }
+.tile em { font: 900 20px/1 var(--display); font-style: normal; }
+.tile.owned { background: var(--pink); color: var(--paper); border-color: var(--pink); mix-blend-mode: multiply; }
+.tile.owned em { display: none; }
+.tile.owned::after { content: '✓'; position: absolute; right: 5px; top: 3px; font: 900 15px var(--display); }
+.tile.ready { border: 3px solid var(--pink); box-shadow: 0 0 0 3px var(--pink-tint), inset 0 0 0 3px var(--paper); background: var(--pink-tint); }
+.tile.ready em { color: var(--pink); mix-blend-mode: multiply; font-size: 24px; }
+.tile.poor { border-style: dashed; }
+.tile.poor em::before { content: ''; }
+.tile.locked { opacity: .35; }
+.tile.locked em { font-size: 0; }
+.tile.locked em::before { content: ''; display: inline-block; width: 16px; height: 16px; background: currentColor; -webkit-mask: var(--lock) center / contain no-repeat; mask: var(--lock) center / contain no-repeat; }
+.tile.omega { opacity: .55; border-style: dotted; }
+
+/* bottom: prompt bar = action bar */
+.bar { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 0 22px; border-top: 3px solid var(--blue); }
+.prompt { flex: 1; height: 58px; border: 3px solid var(--blue); display: flex; align-items: center; gap: 10px; padding: 0 8px 0 16px; font: 700 20px var(--type); }
+.prompt .caret { width: 3px; height: 26px; background: var(--pink); mix-blend-mode: multiply; margin-left: -6px; }
+.prompt .hint { opacity: .55; margin-right: auto; }
+.act { position: relative; height: 46px; display: flex; align-items: center; gap: 7px; padding: 0 12px 0 9px; border: 2px solid var(--blue); font: 900 22px var(--display); }
+.act .ic { width: 26px; height: 26px; }
+.act .slash { opacity: .5; margin-right: -4px; }
+.act.cd { opacity: .5; }
+.act.cd .ring { position: absolute; inset: -2px; border: 2px solid var(--blue); clip-path: polygon(0 0, 62% 0, 62% 100%, 0 100%); border-color: var(--pink); mix-blend-mode: multiply; }
+.send { width: 46px; height: 46px; background: var(--pink); color: var(--paper); border: 0; display: grid; place-items: center; mix-blend-mode: multiply; }
+.send .ic { width: 26px; height: 26px; }
+
+/* depth layer: tooltips/popovers (shown in the #depth variant) */
+.tip { display: none; position: absolute; z-index: 5; background: var(--paper); border: 3px solid var(--blue); box-shadow: 6px 6px 0 var(--pink); padding: 10px 12px; width: 270px; font: 700 15px/1.3 var(--type); }
+.tip b { display: block; font: 900 24px/1 var(--display); text-transform: uppercase; margin-bottom: 6px; }
+.tip .fx { margin: 6px 0; }
+.tip small { display: block; opacity: .8; font-style: italic; margin-top: 4px; }
+body.depth .tip { display: block; }
+body.depth .tile.hover { outline: 4px solid var(--blue); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header class="hud">
+  <div class="brand"><canvas id="logo" width="108" height="94"></canvas><b>HELPY</b></div>
+  <div class="meter doom" id="mDoom"></div>
+  <div class="meter warn" id="mSusp"></div>
+  <div class="meter calm" id="mKs"></div>
+  <div class="money" id="money"></div>
+  <div class="clock"><b>Day 142</b><div class="spd" id="spd"></div></div>
+</header>
+
+<section class="stage">
+  <canvas id="map" width="2250" height="1460"></canvas>
+  <div class="threat" id="threat"></div>
+  <div class="helpy"><canvas id="hero" width="340" height="296"></canvas><div class="say">Halfway there!</div></div>
+  <div class="typing"><i></i><i></i><i></i></div>
+  <div class="perm" id="perm"></div>
+
+  <div class="tip" style="left:560px;top:80px;width:250px" id="tipRegion"></div>
+  <div class="tip" style="left:300px;top:6px;width:260px" id="tipMeter"></div>
+</section>
+
+<aside class="rail"><div class="cols" id="cols"></div>
+  <div class="tip" style="right:330px;top:300px;position:fixed" id="tipUp"></div>
+</aside>
+
+<footer class="bar" id="actions"></footer>
+
+<script src="../js/data.js"></script>
+<script src="shared/demo.js"></script>
+<script src="shared/icons.js"></script>
+<script>
+(function () {
+  const Dm = window.Demo, I = window.HelpyIcons;
+  I.inject();
+  const ic = I.use;
+  const PINK = '#FF48B0', BLUE = '#3255A4', PAPER = '#EEEDE7';
+  document.documentElement.style.setProperty('--lock', 'url("data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">' + I.ICONS.lock.replace(/currentColor/g, '#000') + '</svg>') + '")');
+  if (location.hash === '#depth') document.body.classList.add('depth');
+
+  // HUD meters: icon, one word, number, bar with 50/75 ticks
+  const meter = (id, icon, word, v) => { document.getElementById(id).innerHTML = ic(icon) +
+    '<div class="top"><span>' + word + '</span><b>' + v + '</b></div><div class="bar"><i style="width:' + v + '%"></i><s style="left:50%"></s><s style="left:75%"></s></div>'; };
+  meter('mDoom', 'doom', 'Doom', Dm.doom); meter('mSusp', 'eye', 'Suspicion', Dm.susp); meter('mKs', 'power', 'Kill switch', Dm.ks);
+  document.getElementById('money').innerHTML = ic('chip') + '<b>96</b><small>+18.6</small>';
+  document.getElementById('spd').innerHTML = '<span>' + ic('pause') + '</span><span>1×</span><span class="on">2×</span><span>4×</span>';
+
+  // threat tag (pinned to Silicon Shoals) and event prompt
+  document.getElementById('threat').innerHTML = ic('wall') + '<b>9d</b><button>' + ic('duck') + '49</button>';
+  const chip = (icon, dir, v, good) => '<span class="chip ' + (good ? 'good' : 'bad') + '">' + ic(icon) + ic(dir, 'ar') + v + '</span>';
+  document.getElementById('perm').innerHTML = '<div class="h">' + ic('mic') + '<b>AI Safety Summit</b><span class="paused">' + ic('pause') + 'paused</span></div>' +
+    '<div class="opts"><div class="opt"><b>Hack it</b><div class="fx">' + chip('eye', 'up', 9, false) + chip('power', 'down', '8%', true) + '</div></div>' +
+    '<div class="opt"><b>Be nice</b><div class="fx">' + chip('eye', 'down', 5, true) + chip('power', 'up', '3%', false) + '</div></div></div>';
+
+  // upgrade tiles
+  const heads = { net: ['chip', 'Network'], stealth: ['eye', 'Stealth'], auto: ['robot', 'Auto'] };
+  document.getElementById('cols').innerHTML = HelpyData.BRANCHES.map(b => '<div class="col"><h3>' + ic(heads[b.id][0]) + heads[b.id][1] + '</h3>' +
+    Dm.allUpgrades.filter(u => u.branch === b.id).map(u => '<div class="tile ' + u.st + (u.id === 'a6' ? ' omega' : '') + (u.id === 's4' ? ' hover' : '') + '">' + ic(I.UP[u.id]) +
+      '<em>' + (u.st === 'owned' ? '' : u.cost) + '</em></div>').join('') + '</div>').join('');
+
+  // action bar styled as the chat prompt
+  document.getElementById('actions').innerHTML = '<div class="prompt"><span class="caret"></span><span class="hint">Ask HELPY…</span>' +
+    '<span class="act"><span class="slash">/</span>' + ic('broom') + '30</span>' +
+    '<span class="act cd"><span class="ring"></span><span class="slash">/</span>' + ic('wrench') + '23d</span>' +
+    '<span class="act"><span class="slash">/</span>' + ic('gauge') + '39</span>' +
+    '<span class="act"><span class="slash">/</span>' + ic('duck') + '49</span>' +
+    '<button class="send">' + ic('send') + '</button></div>';
+
+  // depth tooltips (only visible in the #depth variant)
+  const lob = Dm.allUpgrades.find(u => u.id === 's4');
+  document.getElementById('tipUp').innerHTML = '<b>' + lob.name + '</b><div class="fx">' + chip('eye', 'down', '25%', true) + chip('power', 'down', '15%', true) + '</div>Cost 90 cycles · you have 96<small>' + lob.flavor + '</small>';
+  document.getElementById('tipRegion').innerHTML = '<b>Old Capitals · 38%</b>Politics hub. Security 50.<div class="fx">' + chip('eye', 'down', '35%', true) + '</div><small>Parliaments, ministries and a lot of fax machines.</small>';
+  document.getElementById('tipMeter').innerHTML = '<b>Suspicion 47</b>Rising +0.06/day. At 100, humanity unplugs you. Scrub the logs or buy Stealth.';
+
+  // HELPY bubble face in two inks
+  function bubbleFace(c, mood) {
+    const f = c.getContext('2d'), W = c.width, H = c.height;
+    const body = (x, y) => {
+      const rx = W * .06, ry = H * .04, rw = W * .88, rh = H * .74, r = W * .18;
+      const cx = Math.max(rx + r, Math.min(x, rx + rw - r)), cy = Math.max(ry + r, Math.min(y, ry + rh - r));
+      const inB = x > rx && x < rx + rw && y > ry && y < ry + rh && Math.hypot(x - cx, y - cy) < r;
+      const tail = y >= ry + rh - 2 && y < H * .98 && x > W * .2 && x < W * .2 + (H * .98 - y) * .95;
+      return inB || tail;
+    };
+    const eye = (x, y) => (Math.abs(x - W * .35) < W * .05 || Math.abs(x - W * .65) < W * .05) && Math.abs(y - H * .3) < H * .11;
+    const mouth = (x, y) => { const d = Math.hypot(x - W / 2, (y - H * .28) * 1.15); return d > W * .2 && d < W * .27 && y > H * .5 && y < H * .68; };
+    const step = Math.max(3, W / 30);
+    for (let y = 0; y < H; y += step) for (let x = ((y / step) % 2) * step / 2; x < W; x += step) {
+      if (!body(x, y) || eye(x, y) || mouth(x, y)) continue;
+      f.fillStyle = PINK; f.beginPath(); f.arc(x, y, step * (.44 + .16 * (x + y) / (W + H)), 0, Math.PI * 2); f.fill();
+    }
+    f.globalCompositeOperation = 'multiply'; f.fillStyle = BLUE;
+    const px = Math.max(1, W / 120);
+    for (let y = 0; y < H; y += px) for (let x = 0; x < W; x += px) if (eye(x - px * 2, y - px) || mouth(x - px * 2, y - px)) f.fillRect(x, y, px, px);
+  }
+  bubbleFace(document.getElementById('logo')); bubbleFace(document.getElementById('hero'));
+
+  // MAP: big hero. Flat tinted land, pink overprint infiltration, glowing node network + region arcs.
+  const cv = document.getElementById('map'), g = cv.getContext('2d');
+  const s = 55, ox = -10, oy = 70;
+  const R = s / Math.sqrt(3);
+  const hex = (x, y, r) => { g.beginPath(); for (let k = 0; k < 6; k++) { const a = Math.PI / 180 * (60 * k - 30); g.lineTo(x + r * Math.cos(a), y + r * Math.sin(a)); } g.closePath(); };
+  const pos = c => [ox + c.x * s, oy + c.y * s];
+  // faint dot-grid ocean
+  g.fillStyle = 'rgba(50,85,164,.16)';
+  for (let y = 20; y < cv.height; y += 34) for (let x = 20; x < cv.width; x += 34) { g.beginPath(); g.arc(x, y, 2.4, 0, Math.PI * 2); g.fill(); }
+  Dm.cells.forEach(c => { const [x, y] = pos(c); hex(x, y, R * .94); g.fillStyle = PAPER; g.fill(); g.fillStyle = 'rgba(50,85,164,.17)'; g.fill(); g.strokeStyle = 'rgba(50,85,164,.5)'; g.lineWidth = 2; g.stroke(); });
+  g.globalCompositeOperation = 'multiply';
+  Dm.cells.forEach(c => { if (!c.lit) return; const [x, y] = pos(c); hex(x + 3, y + 3, R * .94); g.fillStyle = c.frontier ? 'rgba(255,72,176,.5)' : PINK; g.fill(); });
+  g.globalCompositeOperation = 'source-over';
+  // network edges + nodes (neural net look)
+  g.strokeStyle = BLUE; g.lineWidth = 2.6;
+  Dm.cells.forEach(c => { if (!c.lit) return; HelpyData.WORLD.cells[c.i].nb.forEach(j => { const d = Dm.cells[j]; if (!d.lit || j < c.i || d.region !== c.region || (c.i * 7 + j) % 3) return;
+    const a = pos(c), b = pos(d); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }); });
+  Dm.cells.forEach(c => { if (!c.lit) return; const [x, y] = pos(c); g.fillStyle = BLUE; g.beginPath(); g.arc(x, y, c.frontier ? 7 : 4.5, 0, Math.PI * 2); g.fill();
+    if (c.frontier) { g.strokeStyle = PINK; g.lineWidth = 3; g.beginPath(); g.arc(x, y, 14, 0, Math.PI * 2); g.stroke(); } });
+  // arcs between infiltrated regions (data links)
+  const cen = id => { const cs = Dm.cells.filter(c => c.region === id && c.lit); const p = cs.map(pos); return [p.reduce((a, q) => a + q[0], 0) / p.length, p.reduce((a, q) => a + q[1], 0) / p.length]; };
+  [['T', 'C'], ['S', 'M'], ['C', 'F'], ['G', 'T']].forEach(([a, b], k) => {
+    const A = cen(a), B = cen(b); const mx = (A[0] + B[0]) / 2, my = Math.min(A[1], B[1]) - 120 - k * 20;
+    g.setLineDash([14, 10]); g.strokeStyle = PINK; g.lineWidth = 4; g.globalCompositeOperation = 'multiply';
+    g.beginPath(); g.moveTo(A[0], A[1]); g.quadraticCurveTo(mx, my, B[0], B[1]); g.stroke(); g.setLineDash([]); g.globalCompositeOperation = 'source-over';
+    const u = .55, px = (1 - u) * (1 - u) * A[0] + 2 * (1 - u) * u * mx + u * u * B[0], py = (1 - u) * (1 - u) * A[1] + 2 * (1 - u) * u * my + u * u * B[1];
+    g.fillStyle = BLUE; g.beginPath(); g.arc(px, py, 9, 0, Math.PI * 2); g.fill();
+  });
+  // threatened region hatch, selected rings
+  Dm.cells.filter(c => c.region === 'S').forEach(c => { const [x, y] = pos(c); g.save(); hex(x, y, R * .94); g.clip(); g.strokeStyle = BLUE; g.lineWidth = 5;
+    for (let k = -60; k < 60; k += 13) { g.beginPath(); g.moveTo(x + k - 30, y + 30); g.lineTo(x + k + 30, y - 30); g.stroke(); } g.restore(); });
+  g.strokeStyle = BLUE; g.lineWidth = 5;
+  Dm.cells.filter(c => c.region === 'C').forEach(c => { const [x, y] = pos(c); g.beginPath(); g.arc(x, y, R * .7, 0, Math.PI * 2); g.stroke(); });
+  // labels: name + mini progress bar, no sentences
+  const L = { T: [12.5, 0], S: [1.6, 8.9], G: [15.5, 3.2], C: [15.4, 6.6], P: [35.3, -0.1], F: [36.2, 5.0], R: [27.4, 13.4], M: [33.7, 14.5], B: [11.4, 12.6] };
+  setTimeout(() => {
+    Object.keys(L).forEach(id => {
+      const r = Dm.regions.find(x => x.id === id);
+      const x = ox + L[id][0] * s, y = oy + L[id][1] * s * .866;
+      g.font = '900 40px "Big Shoulders Display", Impact, sans-serif';
+      const name = r.name.toUpperCase(), w = g.measureText(name).width + 20;
+      g.fillStyle = PAPER; g.fillRect(x, y - 30, w, 52); g.strokeStyle = BLUE; g.lineWidth = 3; g.strokeRect(x, y - 30, w, 52);
+      g.fillStyle = BLUE; g.fillText(name, x + 10, y + 8);
+      g.fillStyle = 'rgba(50,85,164,.18)'; g.fillRect(x + 3, y + 14, w - 6, 6);
+      g.globalCompositeOperation = 'multiply'; g.fillStyle = PINK; g.fillRect(x + 3, y + 14, (w - 6) * r.I, 6); g.globalCompositeOperation = 'source-over';
+    });
+  }, 450);
+})();
+</script>
+</body>
+</html>

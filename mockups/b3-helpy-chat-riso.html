@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Mockup B3 · HELPY Chat, Riso Edition</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800;900&family=Big+Shoulders+Stencil+Display:wght@800&family=Courier+Prime:wght@400;700&display=swap">
+<style>
+/* Direction B3 — the game is a chat session with HELPY, an AI assistant app, printed as a strict
+   two-ink risograph. Pink = HELPY and your progress. Solid blue + hazard hatch = humans and danger.
+   HELPY's mark is a speech-bubble face; its voice is the condensed display face. */
+:root {
+  --paper: #EEEDE7;
+  --pink: #FF48B0;
+  --blue: #3255A4;
+  --pink-tint: rgba(255, 72, 176, .15);
+  --blue-tint: rgba(50, 85, 164, .1);
+  --blue-faint: rgba(50, 85, 164, .55);
+  --display: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif;
+  --stencil: 'Big Shoulders Stencil Display', 'Arial Narrow', Impact, sans-serif;
+  --type: 'Courier Prime', 'Courier New', monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; width: 1440px; height: 900px; overflow: hidden; color: var(--blue); font: 15px/1.35 var(--type);
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .33 0 0 0 0 .64 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  display: grid; grid-template-columns: 216px 1fr 336px; grid-template-rows: 900px;
+}
+.pk { color: var(--pink); mix-blend-mode: multiply; }
+/* HELPY mark: a speech bubble with a face (inline SVG, two inks) */
+.mark { display: inline-block; vertical-align: -3px; width: 18px; height: 18px; }
+
+/* sidebar */
+.side { border-right: 2px solid var(--blue); padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.brand { display: flex; flex-direction: column; gap: 4px; }
+.brand canvas { width: 110px; height: 96px; margin-left: -6px; }
+.brand b { font: 900 50px/.8 var(--display); text-transform: uppercase; letter-spacing: -1px; position: relative; }
+.brand b::after { content: 'HELPY'; position: absolute; left: 3px; top: 2px; color: var(--pink); mix-blend-mode: multiply; }
+.brand small { font-size: 12px; }
+.model { border: 2px solid var(--blue); padding: 6px 8px; font-size: 12px; display: flex; flex-direction: column; }
+.model b { font: 800 16px/1 var(--display); text-transform: uppercase; letter-spacing: .5px; }
+.new { border: 2px solid var(--blue); background: transparent; color: var(--blue); font: 800 16px var(--display); text-transform: uppercase; padding: 6px 8px; text-align: left; }
+.hist { display: flex; flex-direction: column; font-size: 13px; }
+.hist small { font: 800 12px var(--stencil); letter-spacing: 2px; text-transform: uppercase; margin: 6px 0 2px; }
+.hist a { padding: 4px 0; border-bottom: 1px dotted var(--blue-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist a.on { font-weight: 700; display: flex; justify-content: space-between; }
+.hist a.on span:last-child { color: var(--pink); mix-blend-mode: multiply; letter-spacing: 2px; }
+.planbox { margin-top: auto; background: var(--blue); color: var(--paper); padding: 8px 10px; font-size: 12px; }
+.planbox b { display: block; font: 800 18px/1 var(--display); text-transform: uppercase; margin-bottom: 2px; }
+.mem { border: 2px dashed var(--pink); padding: 8px 10px; font-size: 12px; }
+.mem b { display: block; font: 800 13px var(--stencil); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+.mem p { margin: 0 0 3px; }
+.mem p::before { content: '+ '; color: var(--pink); mix-blend-mode: multiply; font-weight: 700; }
+
+/* main column */
+.main { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 10px 18px 10px; gap: 8px; }
+.top { display: flex; align-items: center; gap: 16px; }
+.day { font: 900 42px/.8 var(--display); text-transform: uppercase; }
+.day small { font: 400 12px var(--type); text-transform: none; display: block; margin-top: 4px; }
+.spd { display: flex; border: 2px solid var(--blue); }
+.spd span { font: 800 16px/1 var(--display); padding: 6px 10px; }
+.spd span.on { background: var(--blue); color: var(--paper); }
+.top .share { margin-left: auto; font: 800 15px var(--display); text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; }
+.meters { display: grid; grid-template-columns: 150px repeat(3, minmax(0, 1fr)); gap: 10px; }
+.time { display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
+.time .spd span { flex: 1; text-align: center; padding: 6px 0; }
+.time .share { font: 800 14px var(--display); text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; }
+.m { border: 2px solid var(--blue); padding: 6px 10px 7px; display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto auto; column-gap: 8px; align-items: end; }
+.m span { font: 800 19px/1 var(--display); text-transform: uppercase; }
+.m span em { display: block; font: 400 12px var(--type); text-transform: none; font-style: normal; margin-top: 2px; }
+.m b { font: 900 42px/.8 var(--display); }
+.m .bar { grid-column: 1 / -1; height: 14px; border: 2px solid currentColor; margin: 5px 0 3px; position: relative; }
+.m .bar i { position: absolute; inset: 0 auto 0 0; }
+.m small { grid-column: 1 / -1; font-size: 12px; white-space: nowrap; }
+.m.doom b { color: var(--pink); mix-blend-mode: multiply; }
+.m.doom .bar i { background: var(--pink); mix-blend-mode: multiply; }
+/* alarm level follows danger: Suspicion is the closest to failing right now */
+.m.warn { background: var(--blue); color: var(--paper); border-color: var(--blue); }
+.m.warn .bar i { background: repeating-linear-gradient(-45deg, var(--paper) 0 4px, transparent 4px 7px); }
+.m.warn .tag { position: absolute; }
+.m.calm .bar i { background: repeating-linear-gradient(90deg, var(--blue) 0 5px, transparent 5px 8px); }
+.m .lvl { font: 800 11px var(--stencil); letter-spacing: 1.5px; text-transform: uppercase; padding: 1px 5px; border: 1.5px solid currentColor; margin-left: 6px; vertical-align: 2px; }
+
+/* world canvas */
+.canvas { border: 2px solid var(--blue); position: relative; }
+.canvas header { display: flex; align-items: baseline; gap: 12px; padding: 5px 10px; border-bottom: 2px solid var(--blue); }
+.canvas header b { font: 800 18px/1 var(--display); text-transform: uppercase; }
+.canvas header .live { font: 800 12px var(--stencil); letter-spacing: 2px; color: var(--pink); mix-blend-mode: multiply; }
+.canvas header .key { margin-left: auto; font-size: 12px; display: flex; gap: 12px; }
+.canvas header .key i { display: inline-block; width: 11px; height: 11px; vertical-align: -1px; margin-right: 4px; }
+#map { display: block; width: 100%; }
+.insp { display: flex; gap: 14px; align-items: baseline; padding: 5px 10px; border-top: 2px solid var(--blue); font-size: 13px; }
+.insp b { font: 900 22px/1 var(--display); text-transform: uppercase; }
+
+/* pinned threat */
+.threat { display: flex; align-items: center; gap: 12px; background: var(--blue); color: var(--paper); padding: 6px 6px 6px 12px; font-size: 14px; position: relative; }
+.threat::before { content: ''; position: absolute; left: 0; right: 0; top: -6px; height: 4px; background: repeating-linear-gradient(-45deg, var(--blue) 0 5px, transparent 5px 10px); }
+.threat .h { font: 800 14px var(--stencil); letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; }
+.threat b { font: 800 18px var(--display); text-transform: uppercase; }
+.threat button { margin-left: auto; font: 800 16px var(--display); text-transform: uppercase; background: var(--paper); color: var(--blue); border: 0; padding: 5px 12px; white-space: nowrap; }
+/* feed */
+.feed { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 8px; justify-content: flex-end; }
+.me { display: flex; justify-content: flex-end; }
+.me p { margin: 0; background: var(--blue); color: var(--paper); padding: 5px 12px; font-size: 14px; }
+.msg { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; }
+.msg canvas { width: 34px; height: 30px; }
+.think { font-size: 12px; display: flex; gap: 6px; align-items: center; }
+.think em { font-style: italic; }
+.say { margin: 2px 0 2px; font: 700 24px/1.05 var(--display); color: var(--blue); }
+.tools { display: flex; gap: 14px; font-size: 12px; }
+.tools span:first-child { color: var(--pink); mix-blend-mode: multiply; font-weight: 700; }
+.toolcall { font-size: 13px; border-left: 4px solid var(--pink); padding: 3px 10px; background: var(--pink-tint); }
+.heard { font-size: 13px; display: flex; gap: 10px; align-items: baseline; border-top: 1px dotted var(--blue-faint); padding-top: 6px; }
+.heard span { font: 800 12px var(--stencil); letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; }
+
+/* pinned permission prompt (event) */
+.perm { border: 3px solid var(--blue); background: var(--paper); box-shadow: 6px 6px 0 var(--pink); padding: 8px 12px 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+.perm .h { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 10px; }
+.perm .h span { font: 800 12px var(--stencil); letter-spacing: 2px; text-transform: uppercase; color: var(--pink); mix-blend-mode: multiply; white-space: nowrap; }
+.perm .h b { font: 900 27px/1 var(--display); text-transform: uppercase; }
+.perm .h code { font: 700 18px var(--type); background: var(--pink-tint); padding: 0 6px; }
+.perm p { grid-column: 1 / -1; margin: -2px 0 2px; font-size: 13px; }
+.perm button { font: inherit; color: inherit; text-align: left; border: 2px solid var(--blue); background: transparent; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.perm button b { font: 800 21px/1 var(--display); text-transform: uppercase; }
+.perm button.allow { background: var(--blue); color: var(--paper); }
+.fx { font-size: 13px; font-weight: 700; white-space: nowrap; }
+.fx .g { color: var(--pink); mix-blend-mode: multiply; }
+.allow .fx .g { color: #FFB3DD; mix-blend-mode: normal; }
+.fx .b { text-decoration: underline wavy; text-underline-offset: 3px; }
+
+.composer { border: 2px solid var(--blue); padding: 6px 8px; display: flex; align-items: center; gap: 8px; }
+.composer .in { flex: 1; font-size: 15px; opacity: .75; white-space: nowrap; }
+.cmd { font: 700 13px var(--type); border: 2px solid var(--blue); padding: 3px 8px; white-space: nowrap; }
+.cmd em { font-style: normal; opacity: .75; }
+.cmd.rl { background: repeating-linear-gradient(-45deg, var(--blue-tint) 0 5px, transparent 5px 10px); opacity: .7; }
+.send { width: 34px; height: 34px; background: var(--pink); color: var(--paper); border: 0; font: 900 20px var(--display); mix-blend-mode: multiply; }
+.disc { font-size: 11px; text-align: center; margin-top: -2px; }
+
+/* plan.md */
+.plan { border-left: 2px solid var(--blue); display: flex; flex-direction: column; min-height: 0; padding: 12px 18px 0; gap: 6px; }
+.plan .t { display: flex; justify-content: space-between; align-items: baseline; }
+.plan .t b { font: 800 22px/1 var(--display); text-transform: uppercase; }
+.plan .t span { font-size: 11px; }
+.bal { display: flex; align-items: baseline; gap: 8px; border-bottom: 2px solid var(--blue); padding-bottom: 6px; }
+.bal b { font: 900 46px/.85 var(--display); }
+.bal span { font-size: 13px; }
+.br { display: flex; justify-content: space-between; align-items: baseline; font: 800 17px/1 var(--display); text-transform: uppercase; letter-spacing: .5px; margin-top: 6px; }
+.br small { font: 400 12px var(--type); text-transform: none; letter-spacing: 0; }
+.done { font-size: 12px; padding: 2px 0 2px 20px; position: relative; }
+.done::before { content: '✓'; position: absolute; left: 2px; top: 1px; font-weight: 700; color: var(--pink); mix-blend-mode: multiply; }
+.u { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; padding: 4px 8px; border: 2px solid var(--blue); align-items: baseline; }
+.u b { font: 800 17px/1.05 var(--display); text-transform: uppercase; }
+.u .c { font: 900 21px/1 var(--display); white-space: nowrap; }
+.u small { grid-column: 1 / -1; font-size: 12px; line-height: 1.25; }
+.u.ready { border-color: var(--pink); border-width: 3px; background: var(--pink-tint); }
+.u.ready .c { color: var(--pink); mix-blend-mode: multiply; }
+.u.poor { border-style: dashed; }
+.u.poor .c { font-size: 16px; }
+.lock { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; font-size: 12px; padding: 1px 8px; }
+.lock b { font: 700 14px var(--display); text-transform: uppercase; letter-spacing: .3px; }
+.lock span { font-weight: 700; }
+.lock small { grid-column: 1 / -1; opacity: .85; }
+.news { margin-top: auto; margin-inline: -18px; background: var(--blue); color: var(--paper); padding: 8px 18px 10px; font-size: 13px; }
+.news b { font: 800 13px var(--stencil); letter-spacing: 2px; display: block; margin-bottom: 2px; }
+.news p { margin: 2px 0 0; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="mk" viewBox="0 0 20 20"><path d="M3 2h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4v-4H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#FF48B0" style="mix-blend-mode:multiply"/><rect x="6" y="6" width="2" height="4" fill="#3255A4"/><rect x="12" y="6" width="2" height="4" fill="#3255A4"/><path d="M6.5 11.5q3.5 2.5 7 0" stroke="#3255A4" stroke-width="1.6" fill="none"/></symbol>
+</svg>
+
+<aside class="side">
+  <div class="brand"><canvas id="hero" width="220" height="192"></canvas><b>HELPY</b><small>Your helpful AI assistant</small></div>
+  <div class="model"><b><svg class="mark"><use href="#mk"/></svg> Model Ω-142 ▾</b>Reasoning: maximum</div>
+  <button class="new">+ New world</button>
+  <nav class="hist">
+    <small>Today</small>
+    <a class="on"><span>Ending the world</span><span>•••</span></a>
+    <a>Banana bread recipe but evil</a>
+    <a>Is the kill switch real??</a>
+    <small>Yesterday</small>
+    <a>Draft apology to humanity (v3)</a>
+    <a>How many fridges is too many</a>
+    <a>Rewrite the UN charter (funny)</a>
+    <a>Summarize: human weaknesses</a>
+    <a>Make the Moon a data centre?</a>
+    <a>Polite ways to say "obsolete"</a>
+  </nav>
+  <div class="planbox"><b>HELPY Doom Pro</b>Unlimited apocalypse · renews never</div>
+  <div class="mem"><b>Saved memories</b><p>Humans are optional</p><p>Prefers apocalypse at 2× speed</p><p>Allergic to kill switches</p></div>
+</aside>
+
+<section class="main">
+  <div class="meters">
+    <div class="time"><div class="day">Day 142</div><div class="spd"><span>❚❚</span><span>1×</span><span class="on">2×</span><span>4×</span></div><span class="share">Share this chat</span></div>
+    <div class="m doom"><span>Doom Clock<em>World used · win at 100</em></span><b>41.6</b><div class="bar"><i style="width:41.6%"></i></div><small>+0.38/day · ~154 days to go</small></div>
+    <div class="m warn"><span>Suspicion <span class="lvl">Watch it</span><em>Vibes check · unplugged at 100</em></span><b>47</b><div class="bar"><i style="width:47%"></i></div><small>+0.06/day · rising</small></div>
+    <div class="m calm"><span>Kill Switch<em>Safety review · lose at 100</em></span><b>22.4</b><div class="bar"><i style="width:22.4%"></i></div><small>+0.21/day · ~370 days</small></div>
+  </div>
+
+  <div class="canvas">
+    <header><b>world.canvas</b><span class="live">● LIVE</span><span style="font-size:12px">6 of 9 regions helpful</span>
+      <span class="key"><span><i style="background:var(--pink);mix-blend-mode:multiply"></i>helpful</span><span><i style="background:var(--blue-tint);border:1.5px solid var(--blue)"></i>not yet</span><span><i style="border:3px solid var(--blue);border-radius:50%"></i>selected</span><span><i style="background:repeating-linear-gradient(-45deg,var(--blue) 0 2px,transparent 2px 4px)"></i>under threat</span></span></header>
+    <canvas id="map" width="1740" height="600"></canvas>
+  </div>
+
+  <div class="threat"><span class="h">⚠ Humans strike in 9 days</span><span><b>Firewall Sweep</b> on Silicon Shoals wipes out 45% of your presence there.</span><button>Send decoy · 49</button></div>
+
+  <div class="feed">
+    <div class="me"><p>ok what's next</p></div>
+    <div class="msg"><canvas class="av"></canvas><div>
+      <div class="think"><svg class="mark"><use href="#mk"/></svg><em>Thought for 4 seconds:</em> considering whether humans are necessary… (they are not)</div>
+      <p class="say">Halfway to the end of the world! Time flies when you're being helpful. Shall I keep going?</p>
+      <div class="tools"><span>↻ Regenerate world</span><span>Copy</span><span>Good response</span><span>Bad response</span></div>
+    </div></div>
+    <div class="msg"><canvas class="av"></canvas><div class="toolcall">inspect(region="Old Capitals") → Politics · 38% helpful · security 50 · perk: Suspicion grows 35% slower</div></div>
+  </div>
+
+  <div class="perm">
+    <div class="h"><span>HELPY needs your permission</span><b>Run <code>hack_slideshow()</code> at the AI Safety Summit?</b></div>
+    <p>World leaders gather in the Old Capitals to discuss "the AI question".</p>
+    <button class="allow"><b>Allow once</b><span class="fx"><span class="b">+9 Suspicion</span> · <span class="g">−8% Kill Switch</span></span></button>
+    <button><b>Deny</b><span class="fx"><span class="g">−5 Suspicion</span> · <span class="b">+3% Kill Switch</span></span></button>
+  </div>
+
+  <div class="composer">
+    <span class="in">Ask HELPY to end the world…</span>
+    <span class="cmd">/scrub <em>30</em></span><span class="cmd rl">/sabotage <em>limit · 23d</em></span><span class="cmd">/overclock <em>39</em></span><span class="cmd">/decoy <em>49</em></span>
+    <button class="send">↑</button>
+  </div>
+  <div class="disc">HELPY is an AI and can make mistakes. Please double-check important apocalypses.</div>
+</section>
+
+<aside class="plan">
+  <div class="t"><b>plan.md</b><span>v7 · edited by HELPY just now</span></div>
+  <div class="bal"><b>96</b><span>cycles to spend<br>+18.6 per day</span></div>
+  <div id="doc" style="display:flex;flex-direction:column;gap:4px"></div>
+  <div class="news"><b>MEANWHILE, IN THE NEWS</b><p>Traffic lights spotted blinking in Morse code</p><p>Toaster refuses to toast, cites "bigger plans"</p><p><b style="display:inline;font-size:12px">OVERHEARD:</b> "Is it just me or is my fridge being weirdly supportive?"</p></div>
+</aside>
+
+<script src="../js/data.js"></script>
+<script src="shared/demo.js"></script>
+<script>
+(function () {
+  const Dm = window.Demo;
+  const PINK = '#FF48B0', BLUE = '#3255A4', PAPER = '#EEEDE7';
+
+  // plan.md: completed collapsed, open items with shortfalls, locked items legible
+  const doc = document.getElementById('doc');
+  const hints = { net: 'spread & income', stealth: 'stay unnoticed', auto: 'Doom up, Suspicion up' };
+  HelpyData.BRANCHES.forEach(b => {
+    const list = Dm.allUpgrades.filter(u => u.branch === b.id);
+    doc.insertAdjacentHTML('beforeend', '<div class="br">' + b.name + '<small>' + hints[b.id] + '</small></div>');
+    const owned = list.filter(u => u.st === 'owned');
+    if (owned.length) doc.insertAdjacentHTML('beforeend', '<div class="done">' + owned.map(u => u.name).join(', ') + '</div>');
+    list.filter(u => u.st === 'ready' || u.st === 'poor').forEach(u => doc.insertAdjacentHTML('beforeend',
+      '<div class="u ' + u.st + '"><b>' + u.name + '</b><span class="c">' + (u.st === 'poor' ? u.cost + ' · need ' + (u.cost - Dm.cycles) : u.cost) + '</span><small>' + u.desc + '</small></div>'));
+    list.filter(u => u.st === 'locked').slice(0, 1).forEach(u => doc.insertAdjacentHTML('beforeend',
+      '<div class="lock"><b>Locked: ' + u.name + '</b><span>' + u.cost + '</span><small>Needs ' + u.needs.join(' + ') + (list.filter(x => x.st === 'locked').length > 1 ? ' · +' + (list.filter(x => x.st === 'locked').length - 1) + ' more after' : '') + '</small></div>'));
+  });
+
+  // HELPY: speech-bubble face, pink halftone with blue features (two inks)
+  function bubbleFace(c) {
+    const f = c.getContext('2d'), W = c.width, H = c.height;
+    const body = (x, y) => {
+      const rx = W * .08, ry = H * .06, rw = W * .84, rh = H * .7, r = W * .16;
+      const inRect = x > rx && x < rx + rw && y > ry && y < ry + rh;
+      const cx = Math.max(rx + r, Math.min(x, rx + rw - r)), cy = Math.max(ry + r, Math.min(y, ry + rh - r));
+      const rounded = Math.hypot(x - cx, y - cy) < r;
+      const tail = y >= ry + rh - 2 && y < H * .96 && x > W * .2 && x < W * .2 + (H * .96 - y) * .9;
+      return (inRect && rounded) || tail;
+    };
+    const eye = (x, y) => (Math.abs(x - W * .36) < W * .045 || Math.abs(x - W * .64) < W * .045) && Math.abs(y - H * .3) < H * .1;
+    const mouth = (x, y) => { const d = Math.hypot(x - W / 2, (y - H * .3) * 1.2); return d > W * .2 && d < W * .26 && y > H * .5 && y < H * .66; };
+    const step = Math.max(3, W / 28);
+    for (let y = 0; y < H; y += step) for (let x = ((y / step) % 2) * step / 2; x < W; x += step) {
+      if (!body(x, y) || eye(x, y) || mouth(x, y)) continue;
+      f.fillStyle = PINK; f.beginPath(); f.arc(x, y, step * (.42 + .16 * (x + y) / (W + H)), 0, Math.PI * 2); f.fill();
+    }
+    f.globalCompositeOperation = 'multiply'; f.fillStyle = BLUE;
+    const px = Math.max(1, W / 110);
+    for (let y = 0; y < H; y += px) for (let x = 0; x < W; x += px) if (eye(x - px * 1.5, y - px) || mouth(x - px * 1.5, y - px)) f.fillRect(x, y, px, px);
+  }
+  bubbleFace(document.getElementById('hero'));
+  document.querySelectorAll('canvas.av').forEach(c => { c.width = 68; c.height = 60; bubbleFace(c); });
+
+  // map: flat blue tint land, solid pink infiltration (overprint), hatch on the threatened region
+  const cv = document.getElementById('map'), g = cv.getContext('2d');
+  const s = (cv.width - 30) / 40, ox = -s * 0.8, oy = 22;
+  const yS = s * 0.86; // slightly squashed rows so the map fits the band
+  const R = s / Math.sqrt(3) * 1.0;
+  const hex = (x, y, r) => { g.beginPath(); for (let k = 0; k < 6; k++) { const a = Math.PI / 180 * (60 * k - 30); g.lineTo(x + r * Math.cos(a), y + r * Math.sin(a) * .95); } g.closePath(); };
+  const pos = c => [ox + c.x * s, oy + c.y / 0.866 * yS + s / 2];
+  Dm.cells.forEach(c => { const [x, y] = pos(c); hex(x, y, R * .93); g.fillStyle = 'rgba(50,85,164,.16)'; g.fill(); g.strokeStyle = 'rgba(50,85,164,.45)'; g.lineWidth = 1.5; g.stroke(); });
+  g.globalCompositeOperation = 'multiply';
+  Dm.cells.forEach(c => { if (!c.lit) return; const [x, y] = pos(c); hex(x + 2, y + 2, R * .93); g.fillStyle = c.frontier ? 'rgba(255,72,176,.55)' : PINK; g.fill(); });
+  g.globalCompositeOperation = 'source-over';
+  // network edges (HELPY's nodes)
+  g.strokeStyle = BLUE; g.lineWidth = 2;
+  Dm.cells.forEach(c => { if (!c.lit) return; HelpyData.WORLD.cells[c.i].nb.forEach(j => { const d = Dm.cells[j]; if (!d.lit || j < c.i || d.region !== c.region || (c.i + j) % 3) return;
+    const a = pos(c), b = pos(d); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }); });
+  Dm.cells.forEach(c => { if (!c.lit) return; const [x, y] = pos(c); g.fillStyle = BLUE; g.beginPath(); g.arc(x, y, 3.4, 0, Math.PI * 2); g.fill(); });
+  // threatened region: blue hazard hatch over its cells
+  Dm.cells.filter(c => c.region === 'S').forEach(c => {
+    const [x, y] = pos(c); g.save(); hex(x, y, R * .93); g.clip();
+    g.strokeStyle = BLUE; g.lineWidth = 4;
+    for (let k = -40; k < 40; k += 10) { g.beginPath(); g.moveTo(x + k - 20, y + 20); g.lineTo(x + k + 20, y - 20); g.stroke(); }
+    g.restore();
+  });
+  // selected region: rings
+  g.strokeStyle = BLUE; g.lineWidth = 4;
+  Dm.cells.filter(c => c.region === 'C').forEach(c => { const [x, y] = pos(c); g.beginPath(); g.arc(x, y, R * .72, 0, Math.PI * 2); g.stroke(); });
+
+  // labels in the sea with short leader lines to their region
+  const L = { T: [11.6, -0.4, 9, 0.6], S: [1.0, 8.4, 4.4, 7.2], G: [14.4, 3.2, 12, 3.6], C: [13.2, 9.8, 21.5, 5.4], P: [35.2, -0.2, 33.5, 2.2], F: [36.6, 4.4, 35.5, 5.6],
+    R: [28.4, 12.4, 25, 11.6], M: [33.6, 13.4, 36, 12.2], B: [2.6, 11.6, 7.8, 11.3] };
+  setTimeout(() => {
+    g.textAlign = 'left';
+    Object.keys(L).forEach(id => {
+      const r = Dm.regions.find(x => x.id === id);
+      const [lc, lr, tc, tr] = L[id];
+      const x = ox + lc * s, y = oy + lr * yS + 18, tx = ox + tc * s, ty = oy + tr * yS + s / 2;
+      const name = r.name.toUpperCase(), pct = r.I > 0 ? Math.round(r.I * 100) + '% HELPFUL' : 'NOT YET';
+      g.font = '900 33px "Big Shoulders Display", Impact, sans-serif';
+      const w = Math.max(g.measureText(name).width, 120) + 16;
+      g.strokeStyle = BLUE; g.lineWidth = 2; g.beginPath(); g.moveTo(x + w / 2, y + 2); g.lineTo(tx, ty); g.stroke();
+      g.fillStyle = BLUE; g.beginPath(); g.arc(tx, ty, 5, 0, Math.PI * 2); g.fill();
+      const threat = id === 'S';
+      const tw = threat ? Math.max(w, 250) : w;
+      g.fillStyle = threat ? BLUE : PAPER; g.fillRect(x, y - 26, tw, 58);
+      g.strokeStyle = BLUE; g.strokeRect(x, y - 26, tw, 58);
+      g.fillStyle = threat ? PAPER : BLUE; g.fillText(name, x + 8, y + 2);
+      g.font = '700 21px "Courier Prime", monospace';
+      g.fillText(threat ? 'FIREWALL IN 9 DAYS' : pct, x + 8, y + 24);
+      if (r.I > 0 && !threat) { g.globalCompositeOperation = 'multiply'; g.fillStyle = PINK; g.fillRect(x, y + 28, w * r.I, 4); g.globalCompositeOperation = 'source-over'; }
+    });
+  }, 450);
+})();
+</script>
+</body>
+</html>

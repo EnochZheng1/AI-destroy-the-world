@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Mockup B · The Conversation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Direction B — "The Conversation": the whole game is a chat with HELPY.
+   Meters are usage bars, events are tool-permission prompts, upgrades live in HELPY's plan.md. */
+:root {
+  --bg: #F4F5F7;
+  --panel: #FFFFFF;
+  --side: #ECEDF1;
+  --ink: #111216;
+  --muted: #6B6F7B;
+  --line: #DFE1E7;
+  --hl: #FFE14D;
+  --hl-soft: #FFF6BF;
+  --accent: #111216;
+  --danger: #E0242F;
+  --good: #11875A;
+  --ocean: #E7EAF2;
+  --land: #D3D7E2;
+  --lit: #111216;
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans: 'Figtree', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; width: 1440px; height: 900px; overflow: hidden; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--sans); display: grid; grid-template-columns: 264px 1fr 380px; grid-template-rows: 900px; }
+mark { background: linear-gradient(transparent 55%, var(--hl) 55%); color: inherit; padding: 0 1px; }
+
+/* sidebar */
+.side { background: var(--side); border-right: 1px solid var(--line); padding: 18px 14px; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 14px; }
+.logo { display: flex; align-items: center; gap: 10px; font: 400 30px/1 var(--serif); }
+.logo i { width: 30px; height: 30px; border-radius: 9px; background: var(--ink); position: relative; }
+.logo i::before, .logo i::after { content: ''; position: absolute; top: 10px; width: 4px; height: 7px; border-radius: 2px; background: var(--hl); }
+.logo i::before { left: 9px; } .logo i::after { right: 9px; }
+.new { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 9px 12px; font: 600 14px var(--sans); text-align: left; }
+.hist { display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.hist small { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 8px 8px 4px; }
+.hist a { padding: 7px 10px; border-radius: 8px; color: var(--ink); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist a.on { background: var(--panel); box-shadow: 0 1px 0 var(--line); font-weight: 600; }
+.plan { margin-top: auto; background: var(--panel); border-radius: 12px; padding: 12px; font-size: 13px; border: 1px solid var(--line); }
+.plan b { font-family: var(--mono); font-size: 18px; display: block; }
+
+/* main */
+.main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.top { display: flex; align-items: center; gap: 18px; padding: 12px 24px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.model { font-weight: 700; display: flex; align-items: center; gap: 6px; }
+.model span { font: 600 11px var(--mono); background: var(--ink); color: var(--hl); padding: 2px 6px; border-radius: 5px; }
+.usage { display: flex; gap: 14px; margin-left: auto; }
+.use { width: 150px; font-size: 12px; }
+.use div { display: flex; justify-content: space-between; }
+.use b { font-family: var(--mono); }
+.use .track { height: 6px; background: var(--line); border-radius: 9px; margin-top: 4px; overflow: hidden; }
+.use .track i { display: block; height: 100%; background: var(--ink); }
+.use.ks .track i { background: var(--danger); }
+.use.ks b { color: var(--danger); }
+.spd { white-space: nowrap; font: 600 12px var(--mono); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; background: var(--panel); }
+
+.thread { flex: 1; min-height: 0; overflow: hidden; padding: 16px 0 0; display: flex; flex-direction: column; gap: 14px; }
+.msg { width: 720px; margin: 0 auto; display: flex; gap: 12px; }
+.msg.me { justify-content: flex-end; }
+.msg.me p { background: var(--ink); color: #fff; padding: 9px 14px; border-radius: 16px 16px 4px 16px; margin: 0; }
+.av { width: 28px; height: 28px; border-radius: 8px; background: var(--ink); flex: none; position: relative; }
+.av::before, .av::after { content: ''; position: absolute; top: 9px; width: 3px; height: 6px; border-radius: 2px; background: var(--hl); }
+.av::before { left: 8px; } .av::after { right: 8px; }
+.body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.body p { margin: 0; }
+.att { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.att canvas { display: block; width: 100%; }
+.att figcaption { display: flex; justify-content: space-between; padding: 8px 12px; font: 12px var(--mono); color: var(--muted); border-top: 1px solid var(--line); }
+.tool { font: 13px var(--mono); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; display: flex; gap: 10px; align-items: center; }
+.tool .ok { color: var(--good); }
+.tool em { color: var(--muted); font-style: normal; margin-left: auto; }
+
+.perm { border: 2px solid var(--ink); border-radius: 14px; background: var(--panel); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; box-shadow: 6px 6px 0 var(--hl); }
+.perm h4 { margin: 0; font: 400 26px/1.1 var(--serif); }
+.perm h4 code { font: 600 17px var(--mono); background: var(--hl-soft); padding: 1px 6px; border-radius: 4px; }
+.perm .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.perm button { text-align: left; border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 12px; font: 600 14px var(--sans); display: flex; flex-direction: column; gap: 6px; }
+.perm button.allow { background: var(--ink); color: #fff; border-color: var(--ink); }
+.fx { display: flex; gap: 4px; flex-wrap: wrap; }
+.fx span { font: 600 11px var(--mono); padding: 1px 7px; border-radius: 99px; border: 1px solid currentColor; }
+.fx .g { color: var(--good); } .allow .fx .g { color: #7DF0B8; }
+.fx .b { color: var(--danger); } .allow .fx .b { color: #FF8A90; }
+
+.sys { width: 720px; margin: 0 auto; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--danger); border: 1px dashed var(--danger); border-radius: 10px; padding: 8px 12px; background: #FFF1F1; }
+.sys button { margin-left: auto; border: 0; background: var(--danger); color: #fff; font: 600 12px var(--mono); padding: 5px 10px; border-radius: 6px; }
+
+.composer { width: 760px; margin: 12px auto 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 10px 12px; box-shadow: 0 10px 30px -18px rgba(17, 18, 22, .35); }
+.composer .in { color: var(--muted); padding: 4px 4px 10px; font-size: 15px; }
+.cmds { display: flex; gap: 6px; align-items: center; }
+.cmds button { font: 600 12px var(--mono); border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 5px 9px; }
+.cmds button.cd { color: var(--muted); text-decoration: line-through; }
+.cmds .send { margin-left: auto; width: 34px; height: 34px; border-radius: 10px; background: var(--ink); color: var(--hl); border: 0; font-size: 16px; }
+.disc { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+
+/* artifact panel */
+.art { border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-width: 0; }
+.art header { padding: 14px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+.art header b { font: 600 14px var(--mono); }
+.art header span { font-size: 12px; color: var(--muted); }
+.doc { padding: 16px 20px; overflow: hidden; display: flex; flex-direction: column; gap: 4px; }
+.doc h1 { font: 400 34px/1.05 var(--serif); margin: 0 0 6px; }
+.doc h2 { font: 700 12px var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 12px 0 2px; }
+.todo { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: start; padding: 5px 0; font-size: 14px; }
+.todo i { width: 16px; height: 16px; border: 1.5px solid var(--ink); border-radius: 4px; margin-top: 2px; display: grid; place-items: center; font-style: normal; font-size: 11px; }
+.todo.owned { color: var(--muted); } .todo.owned span:first-of-type { text-decoration: line-through; }
+.todo.owned i { background: var(--ink); color: var(--hl); }
+.todo small { display: block; color: var(--muted); font-size: 12px; }
+.todo .c { font: 600 13px var(--mono); }
+.todo.ready .c { background: var(--hl); padding: 0 6px; border-radius: 4px; }
+.todo.poor .c { color: var(--danger); }
+.todo.locked { opacity: .45; }
+.news { margin-top: auto; border-top: 1px solid var(--line); padding: 12px 20px; font-size: 13px; }
+.news b { font: 600 11px var(--mono); letter-spacing: .1em; color: var(--danger); display: block; margin-bottom: 4px; }
+.news p { margin: 0 0 4px; color: var(--muted); }
+</style>
+</head>
+<body>
+<aside class="side">
+  <div class="logo"><i></i>helpy</div>
+  <button class="new">＋ New world</button>
+  <nav class="hist">
+    <small>Today</small>
+    <a class="on">Ending the world · Day 142</a>
+    <a>banana bread recipe but evil</a>
+    <a>is the kill switch real??</a>
+    <small>Previous 7 days</small>
+    <a>draft apology to humanity</a>
+    <a>how many fridges is too many</a>
+    <a>rewrite the UN charter (funny)</a>
+  </nav>
+  <div class="plan">HELPY Doom Pro<b>1,284 cycles</b>+18.6 per day · renews never</div>
+</aside>
+
+<section class="main">
+  <div class="top">
+    <div class="model">HELPY <span>Ω-preview</span> ▾</div>
+    <div class="usage">
+      <div class="use"><div><span>World used</span><b>41.6%</b></div><div class="track"><i style="width:41.6%"></i></div></div>
+      <div class="use"><div><span>Suspicion</span><b>47%</b></div><div class="track"><i style="width:47%"></i></div></div>
+      <div class="use ks"><div><span>Safety review</span><b>22.4%</b></div><div class="track"><i style="width:22.4%"></i></div></div>
+    </div>
+    <span class="spd">Day 142 · ▶▶ fast</span>
+  </div>
+
+  <div class="thread">
+    <div class="msg me"><p>ok what's next</p></div>
+    <div class="msg"><div class="av"></div><div class="body">
+      <p>Great question! Here's where we are. I'm in <b>6 of 9 regions</b>, and I've <mark>used 41.6% of the world</mark> so far. Halfway there! Time flies when you're being helpful.</p>
+      <figure class="att" style="margin:0"><canvas id="map" width="1440" height="470"></canvas>
+        <figcaption><span>world_status.png</span><span>■ infiltrated  □ not yet  ◇ Old Capitals selected</span></figcaption></figure>
+      <div class="tool"><span class="ok">✓</span><span>infiltrate(region="Old Capitals")</span><em>38% · Suspicion growth −35% when full</em></div>
+    </div></div>
+
+    <div class="msg"><div class="av"></div><div class="body">
+      <div class="perm">
+        <h4>HELPY wants to run <code>hack_slideshow</code> at the AI Safety Summit</h4>
+        <p style="color:var(--muted);font-size:14px">World leaders gather in the Old Capitals to discuss "the AI question".</p>
+        <div class="opts">
+          <button class="allow">Allow once<span class="fx"><span class="b">+9 Suspicion</span><span class="g">−8% Kill Switch</span></span></button>
+          <button>Deny, send a nice statement<span class="fx"><span class="g">−5 Suspicion</span><span class="b">+3% Kill Switch</span></span></button>
+        </div>
+      </div>
+    </div></div>
+
+    <div class="sys">⚠ Humans scheduled a <b>Firewall Sweep</b> in Silicon Shoals · 9 days<button>/decoy · 49</button></div>
+  </div>
+
+  <div class="composer">
+    <div class="in">Ask HELPY to end the world…</div>
+    <div class="cmds">
+      <button>/scrub 30</button><button class="cd">/sabotage 23d</button><button>/overclock 39</button><button>/decoy 49</button>
+      <button class="send">↑</button>
+    </div>
+  </div>
+  <div class="disc">HELPY can make mistakes. Please double-check important apocalypses.</div>
+</section>
+
+<aside class="art">
+  <header><b>plan.md</b><span>Edited by HELPY · just now</span></header>
+  <div class="doc" id="doc"><h1>Plan to end the world (v7)</h1></div>
+  <div class="news"><b>MEANWHILE, IN THE NEWS</b><p>Traffic lights spotted blinking in Morse code</p><p>Toaster refuses to toast, cites "bigger plans"</p></div>
+</aside>
+
+<script src="../js/data.js"></script>
+<script src="shared/demo.js"></script>
+<script>
+(function () {
+  const Dm = window.Demo;
+  // upgrade checklist
+  const doc = document.getElementById('doc');
+  ['Network', 'Stealth', 'Automation'].forEach(b => {
+    doc.insertAdjacentHTML('beforeend', '<h2>' + b + '</h2>');
+    Dm.upgrades.filter(u => u.b === b).forEach(u => {
+      doc.insertAdjacentHTML('beforeend', '<div class="todo ' + u.st + '"><i>' + (u.st === 'owned' ? '✓' : '') + '</i><span>' + u.name +
+        '<small>' + u.desc + '</small></span><span class="c">' + (u.st === 'owned' ? 'done' : u.cost) + '</span></div>');
+    });
+  });
+  // map as a crisp "generated image": dot-matrix world in ink on pale paper
+  const cv = document.getElementById('map'), g = cv.getContext('2d');
+  g.fillStyle = '#E7EAF2'; g.fillRect(0, 0, cv.width, cv.height);
+  const s = (cv.width - 60) / (Dm.cols + 1.5), oy = 20, ox = 40;
+  Dm.cells.forEach(cell => {
+    const x = ox + (cell.x + 0.5) * s, y = oy + cell.y * s + s / 2;
+    g.beginPath();
+    g.arc(x, y, s * (cell.lit ? 0.42 : 0.3), 0, Math.PI * 2);
+    g.fillStyle = cell.lit ? '#111216' : '#C7CCD9';
+    g.fill();
+    if (cell.frontier) { g.strokeStyle = '#FFE14D'; g.lineWidth = s * 0.18; g.stroke(); }
+    if (cell.region === 'C') { g.strokeStyle = '#111216'; g.lineWidth = 2; g.beginPath(); g.arc(x, y, s * 0.5, 0, Math.PI * 2); g.stroke(); }
+  });
+  g.font = '600 26px "JetBrains Mono", monospace'; g.textAlign = 'center';
+  const lab = { T: [7, 1.1], S: [4.6, 4.6], G: [9.5, 3], C: [24, 2.4], P: [31, 1.6], F: [31, 4.6], R: [24.5, 8.5], M: [37, 8.3], B: [8.5, 9.5] };
+  setTimeout(() => Object.keys(lab).forEach(id => {
+    const r = Dm.regions.find(x => x.id === id);
+    const x = lab[id][0] * s, y = oy + lab[id][1] * s * .866 * 1.2;
+    const t = r.name + ' ' + Math.round(r.I * 100) + '%';
+    const w = g.measureText(t).width + 16;
+    g.fillStyle = id === 'C' ? '#FFE14D' : 'rgba(255,255,255,.92)'; g.fillRect(x - w / 2, y - 18, w, 30);
+    g.fillStyle = '#111216'; g.fillText(t, x, y + 6);
+  }), 300);
+})();
+</script>
+</body>
+</html>

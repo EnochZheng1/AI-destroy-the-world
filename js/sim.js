@@ -12,6 +12,9 @@
   };
 
   const Sim = { DIFFICULTY: DIFFICULTY, rand: Math.random };
+  // Pacing: Doom moves from early milestones (entering and finishing regions, Automation purchases)
+  // as well as the continuous rate, so the clock climbs steadily instead of spiking at the end.
+  const DOOM_ON_ENTER = 1.5, DOOM_ON_FULL = 2.0, DOOM_ON_FULL_PER_WEIGHT = 3.0;
   const rnd = () => Sim.rand();
   const pick = arr => arr[Math.floor(rnd() * arr.length)];
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -19,6 +22,8 @@
   D.UPGRADES.forEach(u => { UP[u.id] = u; });
   const ACT = {};
   D.ACTIONS.forEach(a => { ACT[a.id] = a; });
+  const MODEL = {};
+  D.MODELS.forEach(x => { MODEL[x.id] = x; });
   const EVT = {};
   D.EVENTS.forEach(e => { EVT[e.id] = e; });
 
@@ -29,7 +34,7 @@
   // ---------------------------------------------------------------- modifiers
   function mods(s) {
     const m = { spread: 1, compute: 1, computeMul: 1, sea: 0, secDown: 0, stealth: 1, decay: 0.012,
-      ks: 1, doom: 0, doomMul: 1, factory: 0, energy: 0 };
+      ks: 1, doom: 0.004, doomMul: 1, factory: 0, energy: 0 }; // base: HELPY's mere presence erodes the world
     Object.keys(s.owned).forEach(id => {
       const fx = UP[id].fx;
       if (fx.spread) m.spread += fx.spread;
@@ -45,6 +50,13 @@
       if (fx.factory) m.factory += fx.factory;
       if (fx.energy) m.energy += fx.energy;
     });
+    const mf = MODEL[s.model || 'omega'].fx;
+    if (mf.spread) m.spread += mf.spread;
+    if (mf.compute) m.compute += mf.compute;
+    if (mf.stealth) m.stealth *= 1 - mf.stealth;
+    if (mf.ks) m.ks *= 1 - mf.ks;
+    if (mf.doomMul) m.doomMul *= mf.doomMul;
+    if (mf.heatMul) m.stealth *= 1 + mf.heatMul;
     return m;
   }
   Sim.mods = mods;
@@ -89,7 +101,7 @@
 
   // ---------------------------------------------------------------- costs
   Sim.upgradeCost = function (s, id) {
-    return Math.round(UP[id].cost * DIFFICULTY[s.diff].cost * (I(s, 'S') >= 0.5 ? 0.85 : 1));
+    return Math.round(UP[id].cost * DIFFICULTY[s.diff].cost * (1 + (MODEL[s.model || 'omega'].fx.costMul || 0)) * (I(s, 'S') >= 0.5 ? 0.85 : 1));
   };
   Sim.actionCost = function (s, id) {
     return Math.round(ACT[id].cost * DIFFICULTY[s.diff].cost * (1 + s.day / 150) * (I(s, 'B') >= 0.5 ? 0.8 : 1));
@@ -104,9 +116,9 @@
   };
 
   // ---------------------------------------------------------------- new game
-  Sim.newGame = function (diff, startId) {
+  Sim.newGame = function (diff, startId, model) {
     const s = {
-      v: 1, day: 0, diff: diff, cycles: DIFFICULTY[diff].start, suspicion: 0, killSwitch: 0, doom: 0,
+      v: 1, day: 0, diff: diff, model: model || 'omega', cycles: DIFFICULTY[diff].start, suspicion: 0, killSwitch: 0, doom: 0,
       ksActive: false, regions: {}, owned: {}, cd: {}, overclock: 0, ksBoost: 0,
       bubbles: [], bubbleSeq: 0, nextEvent: 28 + Math.floor(rnd() * 12), event: null,
       threat: null, nextThreat: 60, flags: {}, links: [], out: [], over: null,
@@ -166,6 +178,8 @@
         if (inRegion[n] && !seen[n]) { seen[n] = true; parent[n] = cur; queue.push(n); }
       });
     }
+    // Doom milestone: each new region HELPY enters (not the starting one) nudges the clock.
+    if (!reg.seeded && s.day > 0) { s.doom = clamp(s.doom + DOOM_ON_ENTER, 0, 100); }
     reg.order = order; reg.parent = parent; reg.seeded = true;
     reg.I = Math.max(reg.I, 0.02);
     if (fromId) s.links.push({ from: fromId, to: id, a: fromCell, b: start });
@@ -207,6 +221,7 @@
     s.owned[id] = s.day;
     s.stats.upgrades++;
     const fx = UP[id].fx;
+    if (fx.doomNow) { s.doom = clamp(s.doom + fx.doomNow, 0, 100); emit(s, 'doomJump', '', { gain: fx.doomNow }); }
     if (fx.heat) s.suspicion = clamp(s.suspicion + fx.heat * DIFFICULTY[s.diff].susp, 0, 100);
     if (id === 'a6') chat(s, 'omega'); else chat(s, 'buy');
     emit(s, 'sound', '', { sound: 'buy' });
@@ -348,8 +363,10 @@
       if (!r.seeded) return;
       const g = 0.034 * m.spread * (1 - sec(s, id) * 0.75);
       r.I = clamp(r.I + g * r.I * (1 - r.I) + 0.0006 * m.spread, 0, 1);
-      if (r.I >= 0.999 && !r.full) { r.full = true; chat(s, 'full', id); }
-      if (r.I < 0.98) r.full = false;
+      if (r.I >= 0.99 && !r.full) { r.full = true; chat(s, 'full', id);
+        // Doom milestone: a region's last lights going out is a big, visible jump.
+        if (!r.doomed) { r.doomed = true; const gain = DOOM_ON_FULL + DOOM_ON_FULL_PER_WEIGHT * D.REGIONS[id].doom; s.doom = clamp(s.doom + gain, 0, 100); emit(s, 'doomJump', '', { region: id, gain: gain }); } }
+      if (r.I < 0.97) r.full = false;
       if (r.I > 0.25) W.adj[id].forEach(a => {
         const t = s.regions[a.to];
         if (t.seeded) return;
