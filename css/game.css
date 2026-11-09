@@ -196,6 +196,20 @@ body[data-mode="pick"] .meters, body[data-mode="pick"] .econ, body[data-mode="pi
 .leak .ic { width: 15px; height: 15px; }
 @keyframes bob { 50% { margin-top: -5px; } }
 
+/* coach tips */
+.coach { position: fixed; left: 0; top: 0; z-index: 12; width: 270px; padding: 12px 14px 10px; display: grid; grid-template-columns: 34px 1fr; gap: 6px 10px; align-items: center;
+  border-color: var(--ai); box-shadow: 0 0 0 1px var(--ai), 0 0 30px rgba(255, 42, 69, .45); background: rgba(12, 6, 10, .96); }
+.coach.in { animation: coachIn .35s ease-out; }
+.coach canvas { width: 34px; height: 30px; }
+.coach p { margin: 0; font: 600 13px/1.35 var(--mono); color: var(--text); }
+.coach .ok { grid-column: 2; justify-self: end; font: 800 12px var(--wide); font-stretch: 112%; text-transform: uppercase; letter-spacing: .06em; padding: 5px 10px; background: var(--ai); color: #12030a; }
+.coach .skip { grid-column: 1 / 2; grid-row: 2; font: 500 10px var(--mono); color: var(--dim); text-decoration: underline; justify-self: start; white-space: nowrap; }
+.coach::after { content: ''; position: absolute; border: 8px solid transparent; }
+.coach[data-arrow="down"]::after { left: var(--ax); bottom: -17px; margin-left: -8px; border-top: 9px solid var(--ai); }
+.coach[data-arrow="up"]::after { left: var(--ax); top: -17px; margin-left: -8px; border-bottom: 9px solid var(--ai); }
+.coach[data-arrow="right"]::after { right: -17px; top: 50%; margin-top: -8px; border-left: 9px solid var(--ai); }
+@keyframes coachIn { from { opacity: 0; } }
+
 /* hover card */
 .card { position: fixed; z-index: 9; width: 280px; padding: 12px 14px; font: 500 13px/1.35 var(--mono); color: var(--dim); border-color: rgba(233, 236, 244, .4); pointer-events: none; }
 .card b { display: block; font: 800 19px/1.1 var(--wide); font-stretch: 112%; text-transform: uppercase; color: var(--text); margin-bottom: 8px; }

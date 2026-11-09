@@ -2,6 +2,7 @@
 import { createWorld } from './world.js';
 import { createHud, SHORT, EVREG } from './hud.js';
 import { drawFace } from './face.js';
+import { createCoach } from './coach.js';
 
 const D = window.HelpyData, Sim = window.HelpySim, A = window.HelpyAudio, I = window.HelpyIcons;
 const $ = id => document.getElementById(id);
@@ -10,6 +11,8 @@ const DAYS_PER_SEC = 1.0; // at 1×
 const params = new URLSearchParams(location.search);
 
 const world = createWorld($('gl'));
+const coach = createCoach();
+if (params.get('coach')) coach.reset();
 let S = null, mode = 'title', speed = 1, lastSpeed = 1, acc = 0, selected = null, diff = 'normal', hudT = 0;
 
 const hud = createHud(world, {
@@ -199,6 +202,7 @@ function frame(now) {
   }
   world.frame(dt);
   hud.overlays(dt, selected);
+  coach.update(S, mode, dt);
   hudT -= dt; if (hudT <= 0 && S) { hud.render(selected); if (selected) hud.renderRegionCard(selected); hudT = .25; }
   requestAnimationFrame(frame);
 }
