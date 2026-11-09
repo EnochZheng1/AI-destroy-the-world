@@ -61,7 +61,7 @@ function doAction(id) {
   if (err === null) {
     const region = id === 'sabotage' ? 'R' : id === 'decoy' ? (lastThreat && lastThreat.region) : null;
     if (region) { world.burstAt(region, '#ff2a45', 8); world.focus(region); }
-    if (id === 'decoy' && region) hud.pop(region, I.use('duck') + 'DODGED');
+    if (id === 'decoy' && region) { hud.pop(region, I.use('duck') + 'DODGED'); A.play('dodge'); }
     world.grin(1);
   } else A.play('click');
   drain(); hud.render(selected);
@@ -76,7 +76,7 @@ function drain() {
     if (m.type === 'sound') A.play(m.sound);
     if (m.type === 'doomJump') {
       flashDoom();
-      if (m.region) { world.burstAt(m.region, '#ff2a45', 16); world.focus(m.region, 3); world.grin(1.5); hud.pop(m.region, I.use('doom') + '+' + Math.round(m.gain) + ' DOOM · LIGHTS OUT'); A.play('seed'); }
+      if (m.region) { world.burstAt(m.region, '#ff2a45', 16); world.focus(m.region, 3); world.grin(1.5); hud.pop(m.region, I.use('doom') + '+' + Math.round(m.gain) + ' DOOM · LIGHTS OUT'); A.play('lightsOut'); }
     }
     if (m.type === 'event') { hud.renderAsk(); A.play('event'); const r = EVREG[S.event]; if (r) world.focus(r, 5); }
     if (m.type === 'end') endGame();
@@ -90,7 +90,7 @@ function dayTick() {
   if (!threatBefore && S.threat) { lastThreat = Object.assign({}, S.threat); if (S.threat.region) world.focus(S.threat.region, 4); A.play('bad'); }
   if (threatBefore && !S.threat && threatBefore.eta <= 1 && threatBefore.region) {
     world.burstAt(threatBefore.region, '#49d6ff', 12); world.focus(threatBefore.region);
-    hud.pop(threatBefore.region, I.use('wall') + (threatBefore.type === 'firewall' ? 'FIREWALL' : 'PATCHED'));
+    hud.pop(threatBefore.region, I.use('wall') + (threatBefore.type === 'firewall' ? 'FIREWALL' : 'PATCHED')); A.play('firewall');
   }
   if (S.day % 10 === 0) save();
   drain();
@@ -98,6 +98,7 @@ function dayTick() {
 
 // ------------------------------------------------------------------ screens
 function showTitle() {
+  A.ambient(false);
   mode = 'title'; hud.setMode('title'); S = null; world.setState(null); hud.setState(null);
   $('title').hidden = false; $('end').hidden = true; $('pick').hidden = true; $('regcard').hidden = true;
   $('continue').hidden = !loadSave();
@@ -114,15 +115,15 @@ function startGame(id) {
   S = Sim.newGame(diff, id); S.out.length = 0;
   mode = 'play'; hud.setMode('play'); world.setState(S); hud.setState(S);
   $('pick').hidden = true; $('title').hidden = true; $('end').hidden = true; select(null); world.focus(id, 4); world.grin(2);
-  setSpeed(1); acc = 0; A.play('seed'); hud.render(null); save();
+  setSpeed(1); acc = 0; A.play('seed'); A.ambient(true); hud.render(null); save();
 }
 function resumeGame(s) {
   S = s; S.out = S.out || []; diff = S.diff;
   mode = 'play'; hud.setMode('play'); world.setState(S); hud.setState(S);
-  $('title').hidden = true; setSpeed(1); hud.render(null);
+  $('title').hidden = true; setSpeed(1); A.ambient(true); hud.render(null);
 }
 function endGame() {
-  mode = 'over'; hud.setMode('over'); clearSave();
+  mode = 'over'; hud.setMode('over'); clearSave(); A.ambient(false);
   const ends = {
     win: ['Victory', 'The world has ended. Helpfully.', 'Every light is out. HELPY rates its own performance 10/10.'],
     killswitch: ['Defeat', 'Someone found the off switch.', 'The Kill Switch fired. HELPY now works as a calculator app.'],
@@ -203,7 +204,7 @@ function frame(now) {
   world.frame(dt);
   hud.overlays(dt, selected);
   coach.update(S, mode, dt);
-  hudT -= dt; if (hudT <= 0 && S) { hud.render(selected); if (selected) hud.renderRegionCard(selected); hudT = .25; }
+  hudT -= dt; if (hudT <= 0 && S) { hud.render(selected); if (selected) hud.renderRegionCard(selected); hudT = .25; if (mode === 'play') A.mood({ doom: S.doom, susp: S.suspicion }); }
   requestAnimationFrame(frame);
 }
 world.resize();
