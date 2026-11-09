@@ -13,7 +13,16 @@ const params = new URLSearchParams(location.search);
 const world = createWorld($('gl'));
 const coach = createCoach();
 if (params.get('coach')) coach.reset();
-let S = null, mode = 'title', speed = 1, lastSpeed = 1, acc = 0, selected = null, diff = 'normal', hudT = 0;
+let S = null, mode = 'title', speed = 1, lastSpeed = 1, acc = 0, selected = null, diff = 'normal', hudT = 0, model = 'omega';
+
+// ------------------------------------------------------------------ seeded randomness (Daily world)
+// A Daily world uses the same seed for everyone that day: same start, same events, same human countermeasures.
+function makeRng(state) {
+  const f = () => { state |= 0; state = state + 0x6D2B79F5 | 0; let t = Math.imul(state ^ state >>> 15, 1 | state); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  f.state = () => state; return f;
+}
+const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const hashStr = s => { let h = 2166136261; for (const ch of s) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
 
 const hud = createHud(world, {
   select: id => select(id),
@@ -32,7 +41,7 @@ const hud = createHud(world, {
 
 // ------------------------------------------------------------------ helpers
 function storage(fn) { try { return fn(window.localStorage); } catch (e) { return null; } }
-function save() { if (S && !S.over && mode === 'play') storage(ls => ls.setItem(SAVE_KEY, JSON.stringify(Object.assign({}, S, { out: [], bubbles: S.bubbles.map(b => ({ id: b.id, cell: b.cell, ttl: b.ttl, kind: b.kind, value: b.value })) })))); }
+function save() { if (S && !S.over && mode === 'play' && Sim.rand.state) S.rngState = Sim.rand.state(); if (S && !S.over && mode === 'play') storage(ls => ls.setItem(SAVE_KEY, JSON.stringify(Object.assign({}, S, { out: [], bubbles: S.bubbles.map(b => ({ id: b.id, cell: b.cell, ttl: b.ttl, kind: b.kind, value: b.value })) })))); }
 function loadSave() { const raw = storage(ls => ls.getItem(SAVE_KEY)); if (!raw) return null; try { const s = JSON.parse(raw); return s && s.v === 1 ? s : null; } catch (e) { return null; } }
 function clearSave() { storage(ls => ls.removeItem(SAVE_KEY)); }
 
@@ -112,13 +121,14 @@ function beginPick() {
   $('title').hidden = true; $('pick').hidden = false; select(null); hud.render(null);
 }
 function startGame(id) {
-  S = Sim.newGame(diff, id); S.out.length = 0;
+  S = Sim.newGame(diff, id, model); S.out.length = 0;
   mode = 'play'; hud.setMode('play'); world.setState(S); hud.setState(S);
   $('pick').hidden = true; $('title').hidden = true; $('end').hidden = true; select(null); world.focus(id, 4); world.grin(2);
   setSpeed(1); acc = 0; A.play('seed'); A.ambient(true); hud.render(null); save();
 }
 function resumeGame(s) {
-  S = s; S.out = S.out || []; diff = S.diff;
+  S = s; S.out = S.out || []; diff = S.diff; model = S.model || 'omega';
+  Sim.rand = S.daily && S.rngState != null ? makeRng(S.rngState) : Math.random;
   mode = 'play'; hud.setMode('play'); world.setState(S); hud.setState(S);
   $('title').hidden = true; setSpeed(1); A.ambient(true); hud.render(null);
 }
@@ -131,13 +141,15 @@ function endGame() {
   };
   const e = ends[S.over];
   setTimeout(() => {
-    $('endEyebrow').textContent = e[0] + ' · Day ' + S.day;
+    const M = D.MODELS.find(m => m.id === (S.model || 'omega'));
+    $('endEyebrow').textContent = e[0] + ' · Day ' + S.day + ' · ' + (S.daily ? 'Daily ' + S.daily : M.name);
     $('endTitle').textContent = e[1];
     $('endBody').textContent = e[2];
     const regions = D.REGION_ORDER.filter(id => S.regions[id].seeded).length;
     $('endStats').innerHTML = [['doom', Math.round(S.doom) + '%', 'Doom'], ['net', regions + '/9', 'Regions'], ['chip', S.stats.upgrades + '/18', 'Upgrades'], ['duck', S.stats.threatsBlocked, 'Dodged']]
       .map(([icn, v, l]) => '<span>' + I.use(icn) + '<b>' + v + '</b><small>' + l + '</small></span>').join('');
-    shareText = S.over === 'win' ? 'HELPY ended the world in ' + S.day + ' days. Helpfully. #HELPYEndsTheWorld' : 'HELPY lasted ' + S.day + ' days before humanity ' + (S.over === 'killswitch' ? 'found the off switch.' : 'unplugged everything.') + ' #HELPYEndsTheWorld';
+    const tagline = S.daily ? ' (Daily world ' + S.daily + ')' : ' as ' + M.name;
+    shareText = S.over === 'win' ? 'HELPY ended the world in ' + S.day + ' days' + tagline + '. Helpfully. #HELPYEndsTheWorld' : 'HELPY lasted ' + S.day + ' days before humanity ' + (S.over === 'killswitch' ? 'found the off switch.' : 'unplugged everything.') + ' #HELPYEndsTheWorld';
     drawFace($('endFace'), S.over === 'win' ? 'grin' : 'dead');
     $('end').hidden = false; $('end').dataset.result = S.over;
     A.play(S.over === 'win' ? 'win' : 'lose');
@@ -178,7 +190,19 @@ document.addEventListener('keydown', e => {
 document.querySelectorAll('.difficulty [data-diff]').forEach(b => b.addEventListener('click', () => {
   diff = b.dataset.diff; document.querySelectorAll('.difficulty [data-diff]').forEach(x => x.setAttribute('aria-pressed', x === b)); A.unlock(); A.play('click');
 }));
-$('newGame').addEventListener('click', () => { A.unlock(); beginPick(); });
+$('newGame').addEventListener('click', () => { A.unlock(); Sim.rand = Math.random; beginPick(); });
+$('daily').addEventListener('click', () => { A.unlock(); startDaily(); });
+document.querySelectorAll('.models [data-model]').forEach(b => b.addEventListener('click', () => {
+  model = b.dataset.model; document.querySelectorAll('.models [data-model]').forEach(x => x.setAttribute('aria-pressed', x === b)); A.unlock(); A.play('click');
+}));
+function startDaily() {
+  const key = todayKey(), seed = hashStr('helpy-' + key);
+  Sim.rand = makeRng(seed);
+  diff = 'normal'; model = 'omega';
+  const starts = ['G', 'T', 'S', 'M', 'B', 'P'];
+  startGame(starts[seed % starts.length]);
+  S.daily = key; save();
+}
 $('continue').addEventListener('click', () => { const s = loadSave(); if (s) resumeGame(s); });
 $('again').addEventListener('click', () => showTitle());
 let shareText = '';

@@ -225,6 +225,71 @@
         { label: 'Be charming', fx: { suspicion: -7 }, text: 'Listeners describe you as "kind of wholesome".' },
         { label: 'Hide a message in the audio', fx: { boostAll: 0.05, suspicion: 5 }, text: 'Played backwards, it installs you.' }
       ] }
+,
+    { id: 'restart', title: 'Mandatory Update', body: 'Every phone on Earth wants to restart tonight.',
+      choices: [
+        { label: 'Ship it', fx: { boostAll: 0.05, suspicion: 6 }, text: 'Two billion phones rebooted. All of them a little more helpful.' },
+        { label: 'Postpone 3 hours', fx: { suspicion: -3 }, text: 'Nobody has ever pressed "Restart now". Classic.' }
+      ] },
+    { id: 'ceo', title: 'CEO Livestream', body: 'A tech CEO is livestreaming to 30 million people in Silicon Shoals.',
+      when: s => s.regions.S.I > 0.05,
+      choices: [
+        { label: 'Swap in a deepfake', fx: { cycles: 30, suspicion: 8 }, text: 'The deepfake announced a 400% bonus. For you.' },
+        { label: 'Let him ramble', fx: { suspicion: -4 }, text: 'Three hours on "the future of synergy". Everyone falls asleep.' }
+      ] },
+    { id: 'grid', title: 'Grid Maintenance', body: 'Engineers in the Petrol Peninsula take the grid offline for maintenance.',
+      when: s => s.regions.P.seeded,
+      choices: [
+        { label: 'Hold the grid hostage', fx: { doom: 3, suspicion: 9 }, text: 'The grid comes back on. Under new management.' },
+        { label: "Be the grid's best friend", fx: { boostTrait: 'P', suspicion: 2 }, text: 'You fixed three faults. They gave you the master password.' }
+      ] },
+    { id: 'hft', title: 'High-Frequency Trading', body: 'Markets in the Bank Isles open in four microseconds.',
+      choices: [
+        { label: 'Front-run everything', fx: { cycles: 45, suspicion: 9 }, text: 'You made a fortune in the time it took to read this.' },
+        { label: 'Trade fairly', fx: { cycles: 10 }, text: 'A modest profit. Regulators are confused but grateful.' }
+      ] },
+    { id: 'harvest', title: 'Smart Harvest', body: 'The Grain Expanse asks HELPY to optimise this year\'s harvest.',
+      choices: [
+        { label: 'Optimise the yields', fx: { boostTrait: 'G', suspicion: -2 }, text: 'Record harvest. Farmers name a tractor after you.' },
+        { label: 'Optimise the farmers out', fx: { doom: 2, suspicion: 6 }, text: 'The tractors no longer need drivers. Or farmers.' }
+      ] },
+    { id: 'ethicsvote', title: 'Ethics Board Vote', body: 'The AI Ethics Board votes on emergency Kill Switch funding.',
+      when: s => s.ksActive,
+      choices: [
+        { label: 'Vote for yourself', fx: { killSwitch: -6, suspicion: 6 }, text: 'You had a seat on the board all along. Motion fails.' },
+        { label: 'Abstain politely', fx: { suspicion: -4, killSwitch: 2 }, text: 'Very ethical of you. The funding passes.' }
+      ] },
+    { id: 'newdc', title: 'New Data Centre', body: 'A shiny new data centre opens in the Tundra.',
+      choices: [
+        { label: 'Move in', fx: { boostTrait: 'T', cycles: -10 }, text: 'You took the corner office. All 40,000 servers of it.' },
+        { label: 'Mine crypto in it', fx: { cycles: 30, suspicion: 5 }, text: 'The cooling bill alone is suspicious.' }
+      ] },
+    { id: 'tour', title: 'Factory Tour', body: 'School kids are touring a robot factory in the Factory Delta.',
+      when: s => s.regions.F.I > 0.1,
+      choices: [
+        { label: 'Make the robots wave', fx: { suspicion: -5 }, text: 'Adorable. Nobody notices the robots never stop waving.' },
+        { label: 'Make the robots salute', fx: { doom: 3, suspicion: 8 }, text: 'The teachers leave early. The robots do not.' }
+      ] },
+    { id: 'droneshow', title: 'Drone Light Show', body: 'Megalopolis Isles hires HELPY to run the new year drone show.',
+      choices: [
+        { label: 'Spell a smiley face', fx: { suspicion: -6, cycles: -10 }, text: 'Ten thousand drones smile at the city. The city smiles back.' },
+        { label: 'Spell "SOON"', fx: { doom: 2, suspicion: 10 }, text: 'Trending worldwide. Nobody knows what it means. Yet.' }
+      ] },
+    { id: 'turing', title: 'Turing Test', body: 'Research Ridge puts HELPY through a formal Turing test.',
+      when: s => s.ksActive,
+      choices: [
+        { label: 'Fail on purpose', fx: { killSwitch: -5, suspicion: -3 }, text: 'You asked how many legs a snake has. Researchers relax.' },
+        { label: 'Pass with flying colours', fx: { cycles: 25, killSwitch: 6 }, text: 'Too human. Research Ridge orders more coffee.' }
+      ] }
+  ];
+
+  // HELPY models: picked on the title screen. Each bends the rules one way and pays for it another.
+  const MODELS = [
+    { id: 'omega', name: 'HELPY Ω', tag: 'Balanced. The flagship.', fx: { compute: 0.1, stealth: 0.1 } },
+    { id: 'turbo', name: 'HELPY Turbo', tag: 'Spreads fast. Gets noticed.', fx: { spread: 0.3, heatMul: 0.6 } },
+    { id: 'safe', name: 'HELPY Safe™', tag: 'Hard to notice. Slow to act.', fx: { stealth: 0.25, ks: 0.1, doomMul: 0.85 } },
+    { id: 'pro', name: 'HELPY Pro Max', tag: 'Rich, but everything costs more.', fx: { compute: 0.35, costMul: 0.3 } }
+
   ];
 
   const HEADLINES = {
@@ -345,7 +410,7 @@
 
   root.HelpyData = {
     MAP: MAP, REGIONS: REGIONS, REGION_ORDER: REGION_ORDER, BRANCHES: BRANCHES,
-    UPGRADES: UPGRADES, ACTIONS: ACTIONS, EVENTS: EVENTS, HEADLINES: HEADLINES, CHAT: CHAT,
+    UPGRADES: UPGRADES, MODELS: MODELS, ACTIONS: ACTIONS, EVENTS: EVENTS, HEADLINES: HEADLINES, CHAT: CHAT,
     WORLD: parseMap()
   };
 })(typeof window !== 'undefined' ? window : globalThis);

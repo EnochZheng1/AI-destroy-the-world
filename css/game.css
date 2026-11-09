@@ -236,6 +236,12 @@ kbd { font: 600 10px var(--mono); border: 1px solid var(--edge); border-bottom-w
 body:not([data-mode="play"]) .keys { display: none; }
 .news { display: none; }
 .difficulty { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.models { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.models button { border: 1px solid var(--edge); padding: 7px 6px; display: flex; flex-direction: column; gap: 2px; text-align: left; }
+.models b { font: 800 12.5px var(--wide); font-stretch: 105%; text-transform: uppercase; white-space: nowrap; }
+.models small { font: 500 10.5px var(--mono); color: var(--dim); }
+.models [aria-pressed="true"] { border-color: var(--ai); background: var(--ai-soft); box-shadow: inset 0 0 0 1px var(--ai); }
+#daily { white-space: nowrap; }
 .difficulty button { border: 1px solid var(--edge); padding: 9px 8px; display: flex; flex-direction: column; gap: 3px; text-align: left; }
 .difficulty b { font: 800 14px var(--wide); font-stretch: 112%; text-transform: uppercase; }
 .difficulty small { font: 500 11px var(--mono); color: var(--dim); }
@@ -308,6 +314,8 @@ body:not([data-mode="play"]) .keys { display: none; }
   .threat { gap: 5px; padding: 4px; } .threat b { font-size: 13px; } .threat .loss { display: none; }
   .title { place-items: end center; padding: 0 var(--pad) max(16px, env(safe-area-inset-bottom)); }
   .title .panel, .end .panel { padding: 18px; gap: 10px; }
+  .models { grid-template-columns: repeat(2, 1fr); }
+  .difficulty small { display: none; }
   .title canvas { display: none; }
   .title h1 { font-size: 44px; } .title h1 span { font-size: 17px; }
   .end { place-items: end center; padding: 0 var(--pad) max(16px, env(safe-area-inset-bottom)); background: linear-gradient(180deg, transparent 35%, rgba(4, 6, 10, .8)); }

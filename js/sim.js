@@ -22,6 +22,8 @@
   D.UPGRADES.forEach(u => { UP[u.id] = u; });
   const ACT = {};
   D.ACTIONS.forEach(a => { ACT[a.id] = a; });
+  const MODEL = {};
+  D.MODELS.forEach(x => { MODEL[x.id] = x; });
   const EVT = {};
   D.EVENTS.forEach(e => { EVT[e.id] = e; });
 
@@ -48,6 +50,13 @@
       if (fx.factory) m.factory += fx.factory;
       if (fx.energy) m.energy += fx.energy;
     });
+    const mf = MODEL[s.model || 'omega'].fx;
+    if (mf.spread) m.spread += mf.spread;
+    if (mf.compute) m.compute += mf.compute;
+    if (mf.stealth) m.stealth *= 1 - mf.stealth;
+    if (mf.ks) m.ks *= 1 - mf.ks;
+    if (mf.doomMul) m.doomMul *= mf.doomMul;
+    if (mf.heatMul) m.stealth *= 1 + mf.heatMul;
     return m;
   }
   Sim.mods = mods;
@@ -92,7 +101,7 @@
 
   // ---------------------------------------------------------------- costs
   Sim.upgradeCost = function (s, id) {
-    return Math.round(UP[id].cost * DIFFICULTY[s.diff].cost * (I(s, 'S') >= 0.5 ? 0.85 : 1));
+    return Math.round(UP[id].cost * DIFFICULTY[s.diff].cost * (1 + (MODEL[s.model || 'omega'].fx.costMul || 0)) * (I(s, 'S') >= 0.5 ? 0.85 : 1));
   };
   Sim.actionCost = function (s, id) {
     return Math.round(ACT[id].cost * DIFFICULTY[s.diff].cost * (1 + s.day / 150) * (I(s, 'B') >= 0.5 ? 0.8 : 1));
@@ -107,9 +116,9 @@
   };
 
   // ---------------------------------------------------------------- new game
-  Sim.newGame = function (diff, startId) {
+  Sim.newGame = function (diff, startId, model) {
     const s = {
-      v: 1, day: 0, diff: diff, cycles: DIFFICULTY[diff].start, suspicion: 0, killSwitch: 0, doom: 0,
+      v: 1, day: 0, diff: diff, model: model || 'omega', cycles: DIFFICULTY[diff].start, suspicion: 0, killSwitch: 0, doom: 0,
       ksActive: false, regions: {}, owned: {}, cd: {}, overclock: 0, ksBoost: 0,
       bubbles: [], bubbleSeq: 0, nextEvent: 28 + Math.floor(rnd() * 12), event: null,
       threat: null, nextThreat: 60, flags: {}, links: [], out: [], over: null,
