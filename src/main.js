@@ -64,12 +64,17 @@ function doAction(id) {
   drain(); hud.render(selected);
 }
 let lastThreat = null;
+function flashDoom() { const el = $('mDoom'); el.classList.remove('jump'); void el.offsetWidth; el.classList.add('jump'); }
 
 // process sim messages and state diffs into visuals + sound
 function drain() {
   if (!S) return;
   S.out.splice(0).forEach(m => {
     if (m.type === 'sound') A.play(m.sound);
+    if (m.type === 'doomJump') {
+      flashDoom();
+      if (m.region) { world.burstAt(m.region, '#ff2a45', 16); world.focus(m.region, 3); world.grin(1.5); hud.pop(m.region, I.use('doom') + '+' + Math.round(m.gain) + ' DOOM · LIGHTS OUT'); A.play('seed'); }
+    }
     if (m.type === 'event') { hud.renderAsk(); A.play('event'); const r = EVREG[S.event]; if (r) world.focus(r, 5); }
     if (m.type === 'end') endGame();
   });

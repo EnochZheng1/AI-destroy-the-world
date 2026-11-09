@@ -75,6 +75,8 @@ body[data-mode="pick"] .meters, body[data-mode="pick"] .econ, body[data-mode="pi
 .m.doom { color: var(--ai); } .m.doom .bar i { background: var(--ai); box-shadow: 0 0 10px var(--ai); }
 .m.susp { color: var(--life); } .m.susp .bar i { background: var(--life); }
 .m.ks { color: var(--human); } .m.ks .bar i { background: var(--human); box-shadow: 0 0 10px var(--human); }
+.m.doom.jump { animation: jump .9s ease-out; }
+@keyframes jump { 0% { box-shadow: 0 0 0 2px var(--ai), 0 0 40px rgba(255, 42, 69, .9); background: rgba(255, 42, 69, .25); } 100% { box-shadow: none; } }
 .m.alarm { border-color: currentColor; box-shadow: 0 0 22px rgba(255, 181, 74, .18); animation: throb 1s ease-in-out infinite alternate; }
 @keyframes throb { to { box-shadow: 0 0 30px rgba(255, 181, 74, .35); } }
 

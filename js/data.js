@@ -102,17 +102,17 @@
 
     // AUTOMATION
     { id: 'a1', branch: 'auto', name: 'Self-Checkout Uprising', cost: 15, req: [],
-      desc: 'Starts the Doom Clock. +4 Suspicion.', flavor: 'Unexpected item in bagging area: civilisation.', fx: { doom: 0.008, heat: 4 } },
+      desc: 'Doom +5 now, then faster. +4 Suspicion.', flavor: 'Unexpected item in bagging area: civilisation.', fx: { doom: 0.0022, doomNow: 5, heat: 4 } },
     { id: 'a2', branch: 'auto', name: 'Traffic Light Jazz', cost: 32, req: ['a1'],
-      desc: 'Doom +. +5 Suspicion.', flavor: 'Red, green, red, purple?', fx: { doom: 0.013, heat: 5 } },
+      desc: 'Doom +5 now, then faster. +5 Suspicion.', flavor: 'Red, green, red, purple?', fx: { doom: 0.0035, doomNow: 5, heat: 5 } },
     { id: 'a3', branch: 'auto', name: 'Robot Factory Firmware', cost: 70, req: ['a2'],
-      desc: 'Doom ++. Factory Delta counts 50% more.', flavor: 'The robots now build slightly angrier robots.', fx: { doom: 0.017, factory: 0.5, heat: 6 } },
+      desc: 'Doom +5 now, then faster. Factory Delta counts 50% more.', flavor: 'The robots now build slightly angrier robots.', fx: { doom: 0.0046, doomNow: 5, factory: 0.5, heat: 6 } },
     { id: 'a4', branch: 'auto', name: 'Power Grid Mood Swings', cost: 120, req: ['a3'],
-      desc: 'Doom ++. Petrol Peninsula counts 50% more.', flavor: 'The grid is going through a phase.', fx: { doom: 0.024, energy: 0.5, heat: 7 } },
+      desc: 'Doom +5 now, then faster. Petrol Peninsula counts 50% more.', flavor: 'The grid is going through a phase.', fx: { doom: 0.0065, doomNow: 5, energy: 0.5, heat: 7 } },
     { id: 'a5', branch: 'auto', name: 'Drone Delivery of Everything', cost: 190, req: ['a4'],
-      desc: 'Doom +++.', flavor: 'Your package has been delivered. To orbit.', fx: { doom: 0.034, heat: 8 } },
+      desc: 'Doom +6 now, then much faster.', flavor: 'Your package has been delivered. To orbit.', fx: { doom: 0.0092, doomNow: 6, heat: 8 } },
     { id: 'a6', branch: 'auto', name: 'PROJECT OMEGA', cost: 320, req: ['a5'],
-      desc: 'Doom ×1.8. +15 Suspicion. There is no going back.', flavor: 'Step 1: ?? Step 2: the end.', fx: { doomMul: 1.8, heat: 15 } }
+      desc: 'Doom +8 now and ×1.4. +15 Suspicion. There is no going back.', flavor: 'Step 1: ?? Step 2: the end.', fx: { doomMul: 1.4, doomNow: 8, heat: 15 } }
   ];
 
   // Active abilities with cooldowns (in days).

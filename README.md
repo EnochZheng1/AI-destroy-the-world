@@ -40,6 +40,7 @@ Progress autosaves in your browser. Phones get a compact HUD, with Regions and U
 | `js/data.js`, `js/sim.js` | Rules and data: regions, upgrades, events, the simulation. Pure logic that also runs in Node |
 | `js/audio.js`, `js/icons.js` | Sound effects and the pictogram set |
 | `tools/simulate.js` | Headless balance test with bot strategies |
+| `tools/pacing.js` | Pacing report: the day Doom first reaches 1/10/25/50/75%, and Doom at fixed days |
 | `tools/screens.js` | Screenshots of the real game in named states (desktop and phone) |
 | `tools/build-single.js` | Inlines everything into `dist/helpy.html` |
 | `mockups/` | The art-direction process: 8 rounds of mockups, scored by four critic agents. See `mockups/README.md` |
@@ -66,11 +67,17 @@ To write `dist/helpy.html`, run:
 npm run single
 ```
 
-To run the balance test:
+To run the balance test and the pacing report:
 
 ```bash
 npm run simulate
 ```
+
+```bash
+node tools/pacing.js 100
+```
+
+Doom fills from milestones as well as a steady rate. Entering a new region, finishing one ("lights out"), and buying an Automation upgrade each add an immediate chunk. On Normal, Doom reaches about 10% around day 110, 50% around day 215, and the average win is around day 275.
 
 URL parameters, for testing and screenshots:
 

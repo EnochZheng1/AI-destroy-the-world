@@ -30,6 +30,7 @@ export function fxChips(f) {
   if (f.stealth) o.push(chip('eye', -Math.round(f.stealth * 100), true));
   if (f.decay) o.push(chip('eye', -Math.round(f.decay * 100), true));
   if (f.ks) o.push(chip('power', -Math.round(f.ks * 100), true));
+  if (f.doomNow) o.push('<span class="good">' + ic('doom') + '+' + f.doomNow + ' now</span>');
   if (f.doom) o.push(chip('doom', Math.round(f.doom * 1000), true));
   if (f.doomMul) o.push(chip('doom', Math.round((f.doomMul - 1) * 100), true));
   if (f.heat) o.push(chip('eye', f.heat, false));
@@ -52,6 +53,7 @@ const restFx = u => {
   if (f.compute) return ic('cyc') + '▲' + Math.round(f.compute * 100);
   if (f.computeMul) return ic('cyc') + '▲' + Math.round((f.computeMul - 1) * 100);
   if (f.spread) return ic('net') + '▲' + Math.round(f.spread * 100);
+  if (f.doomNow) return ic('doom') + '+' + f.doomNow;
   if (f.doom) return ic('doom') + '▲' + Math.round(f.doom * 1000);
   if (f.doomMul) return ic('doom') + '▲' + Math.round((f.doomMul - 1) * 100);
   if (f.decay) return ic('eye') + '▼';
