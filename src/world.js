@@ -14,11 +14,15 @@ const R = 10, LAT0 = 50, LAT_STEP = 6.8, LON_SPAN = 320;
 const N = W.cells.length;
 
 export const cellXY = i => { const c = W.cells[i]; return [c.c + .5 + .5 * (c.r % 2), c.r * .866]; };
+const centroidCache = {};
 export function regionCentroid(id, S, litOnly) {
+  if (!litOnly && centroidCache[id]) return centroidCache[id];
   let cells = W.regionCells[id];
   if (litOnly && S) { const l = Sim.litCells(S, id); if (l.length) cells = l; }
   let x = 0, y = 0; cells.forEach(i => { const p = cellXY(i); x += p[0]; y += p[1]; });
-  return [x / cells.length, y / cells.length];
+  const c = [x / cells.length, y / cells.length];
+  if (!litOnly) centroidCache[id] = c;
+  return c;
 }
 
 export function createWorld(canvas) {
@@ -148,9 +152,19 @@ export function createWorld(canvas) {
     if (!S) return 'G';
     return (S.threat && S.threat.region) || D.REGION_ORDER.filter(id => S.regions[id].seeded && S.regions[id].I < .99).sort((a, b) => S.regions[a].I - S.regions[b].I)[0] || D.REGION_ORDER.find(id => S.regions[id].seeded) || 'G';
   }
+  // Quality: high = full bloom at up to 2x pixels; medium = half-res bloom, up to 1.25x; low = no bloom, 1x.
+  let quality = 'high';
+  const QUALITY = { high: { dpr: 2, bloom: 1 }, medium: { dpr: 1.25, bloom: .5 }, low: { dpr: 1, bloom: 0 } };
+  function setQuality(q) {
+    quality = QUALITY[q] ? q : 'high';
+    renderer.setPixelRatio(Math.min(QUALITY[quality].dpr, window.devicePixelRatio || 1));
+    composer.setPixelRatio(Math.min(QUALITY[quality].dpr, window.devicePixelRatio || 1));
+    resize();
+  }
   function resize() {
-    const w = canvas.clientWidth, h = canvas.clientHeight;
-    renderer.setSize(w, h, false); composer.setSize(w, h); bloom.setSize(w, h);
+    const w = canvas.clientWidth, h = canvas.clientHeight, Q = QUALITY[quality];
+    renderer.setSize(w, h, false); composer.setSize(w, h);
+    if (Q.bloom) bloom.setSize(Math.round(w * Q.bloom), Math.round(h * Q.bloom));
     camera.aspect = w / h;
     const phone = w < 760;
     view.baseDist = phone ? 53 / Math.max(.45, camera.aspect) * .62 : 53;
@@ -160,6 +174,8 @@ export function createWorld(canvas) {
     camera.updateProjectionMatrix();
   }
   let perf = 0;
+  const timing = { sync: 0, render: 0 };
+  const GPU_SYNC = new URLSearchParams(location.search).has('gpusync');
   function updateCamera(dt, now) {
     if (now > view.userUntil) {
       const id = now < view.focusUntil && view.focusId ? view.focusId : frontRegion();
@@ -175,14 +191,32 @@ export function createWorld(canvas) {
   // ---------------------------------------------------------------- per-frame sync with game state
   const cur = new Float32Array(N), HUMAN = new THREE.Color('#3c4d74'), DEAD = new THREE.Color('#14050a'), SELC = new THREE.Color('#7f99d6');
   let selected = null, hovered = null;
+  // Rebuilding every instance each frame is wasteful: only do it when the game state (or selection) changed,
+  // while tower heights are still easing, or for the handful of pulsing frontier cells.
+  let lit = new Set(), front = new Set(), done = new Set(), litArr = [], frontArr = [], sigLast = '', settling = true, flickerT = 0;
   function sync(dt) {
-    const lit = new Set(), front = new Set(), done = new Set();
-    if (S) D.REGION_ORDER.forEach(id => { const l = Sim.litCells(S, id); l.forEach(c => lit.add(c)); if (S.regions[id].I >= .99) l.forEach(c => done.add(c)); else l.slice(-4).forEach(c => front.add(c)); });
+    const sig = S ? S.day + '|' + S.links.length + '|' + selected + '|' + hovered + '|' + Math.round(S.doom) + '|' + (S.over || '') : 'none|' + selected + '|' + hovered;
+    const changed = sig !== sigLast; sigLast = sig;
+    if (changed) {
+      lit = new Set(); front = new Set(); done = new Set();
+      if (S) D.REGION_ORDER.forEach(id => { const l = Sim.litCells(S, id); l.forEach(c => lit.add(c)); if (S.regions[id].I >= .99) l.forEach(c => done.add(c)); else l.slice(-4).forEach(c => front.add(c)); });
+      litArr = [...lit]; frontArr = front.size ? [...front] : litArr;
+    }
     const doom = S ? S.doom / 100 : 0;
+    if (changed || settling) syncCells(dt, doom);
+    else { front.forEach(i => { const k = 1.9 + .5 * Math.sin(perf * 6 + i); towers.instanceColor.setXYZ(i, k, k, k); }); towers.instanceColor.needsUpdate = true; }
+    flickerT -= dt;
+    if (changed || flickerT <= 0) { flickerT = .12; syncLights(); }
+    if (changed) syncNet();
+    syncMovers(dt, doom);
+  }
+  function syncCells(dt, doom) {
+    settling = false;
     for (let i = 0; i < N; i++) {
       const on = lit.has(i);
       const target = on ? (done.has(i) ? .2 + .6 * doom : .35 + .9 * doom) * towerH[i] + (front.has(i) ? .25 : 0) : 0;
       cur[i] += (target - cur[i]) * Math.min(1, dt * 3);
+      if (Math.abs(target - cur[i]) > .003) settling = true;
       dummy.position.copy(cellPos[i]); dummy.quaternion.copy(baseQ[i]);
       const s = cur[i] > .01 ? 1 : .0001; dummy.scale.set(.72 * s, Math.max(.0001, cur[i]), .72 * s); dummy.updateMatrix(); towers.setMatrixAt(i, dummy.matrix);
       const k = done.has(i) ? .22 : front.has(i) ? 1.9 + .5 * Math.sin(perf * 6 + i) : 1.0; towers.instanceColor.setXYZ(i, k, k, k);
@@ -190,21 +224,28 @@ export function createWorld(canvas) {
       const gc = on ? DEAD : (reg === selected || reg === hovered) ? SELC : HUMAN; land.instanceColor.setXYZ(i, gc.r, gc.g, gc.b);
     }
     towers.instanceMatrix.needsUpdate = true; towers.instanceColor.needsUpdate = true; land.instanceColor.needsUpdate = true;
+  }
+  function syncLights() {
     lights.forEach((l, k) => { const dead = lit.has(l.cell), f = Math.random() < .015 ? .25 : 1; lightCol.set(dead ? [0, 0, 0] : [.95 * f, .55 * f, .16 * f], k * 3); });
     lightGeo.attributes.color.needsUpdate = true;
+  }
+  const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _n = new THREE.Vector3(), _t1 = new THREE.Vector3(), _t2 = new THREE.Vector3(), _up = new THREE.Vector3(0, 1, 0);
+  function syncNet() {
     let n = 0;
     if (S) D.REGION_ORDER.forEach(id => { const reg = S.regions[id]; if (!reg.seeded) return;
       Sim.litCells(S, id).forEach(c => { const p = reg.parent[c]; if (p == null || p < 0) return;
-        const a = cellPos[c].clone().setLength(R + .14), b = cellPos[p].clone().setLength(R + .14); netPos.set([a.x, a.y, a.z, b.x, b.y, b.z], n * 6); n++; }); });
+        const a = _a.copy(cellPos[c]).setLength(R + .14), b = _b.copy(cellPos[p]).setLength(R + .14); netPos.set([a.x, a.y, a.z, b.x, b.y, b.z], n * 6); n++; }); });
     netGeo.setDrawRange(0, n * 2); netGeo.attributes.position.needsUpdate = true;
-    const litArr = [...lit], auto = S ? ['a1', 'a2', 'a3', 'a4', 'a5', 'a6'].filter(id => S.owned[id]).length : 0;
+  }
+  function syncMovers(dt, doom) {
+    const auto = S ? ['a1', 'a2', 'a3', 'a4', 'a5', 'a6'].filter(id => S.owned[id]).length : 0;
     drones.count = litArr.length ? Math.min(60, auto * 8 + Math.round(doom * 16)) : 0;
-    const frontArr = front.size ? [...front] : litArr;
+
     for (let k = 0; k < drones.count; k++) { const d = droneSeed[k];
       if (!lit.has(d.cell) || (k % 3 === 0 && !front.has(d.cell))) d.cell = k % 3 === 0 ? frontArr[k % frontArr.length] : litArr[(k * 37) % litArr.length];
-      const base = cellPos[d.cell], nrm = base.clone().normalize(), t1 = new THREE.Vector3(0, 1, 0).cross(nrm).normalize(), t2 = nrm.clone().cross(t1), a = perf * d.sp + d.ph;
-      const p = base.clone().add(t1.clone().multiplyScalar(Math.cos(a) * d.rad)).add(t2.clone().multiplyScalar(Math.sin(a) * d.rad)).add(nrm.clone().multiplyScalar(d.alt));
-      dummy.position.copy(p); dummy.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), nrm); dummy.rotateY(a); dummy.scale.setScalar(1.7); dummy.updateMatrix(); drones.setMatrixAt(k, dummy.matrix); }
+      const base = cellPos[d.cell], nrm = _n.copy(base).normalize(), t1 = _t1.crossVectors(_up, nrm).normalize(), t2 = _t2.crossVectors(nrm, t1), a = perf * d.sp + d.ph;
+      dummy.position.copy(base).addScaledVector(t1, Math.cos(a) * d.rad).addScaledVector(t2, Math.sin(a) * d.rad).addScaledVector(nrm, d.alt);
+      dummy.quaternion.setFromUnitVectors(_up, nrm); dummy.rotateY(a); dummy.scale.setScalar(1.7); dummy.updateMatrix(); drones.setMatrixAt(k, dummy.matrix); }
     drones.instanceMatrix.needsUpdate = true;
     sats.children.forEach(s => { s.visible = !!(S && S.owned.n3); const u = s.userData, a = perf * u.sp + u.ph; s.position.set(Math.cos(a) * 15.5, Math.sin(a) * Math.sin(u.inc) * 15.5, Math.sin(a) * Math.cos(u.inc) * 15.5); s.lookAt(0, 0, 0); });
     // kill switch
@@ -261,12 +302,13 @@ export function createWorld(canvas) {
     cellPos.forEach((c, i) => { const d = c.distanceTo(p); if (d < bd) { bd = d; best = W.cells[i].region; } });
     return best;
   }
-  function project(v) { const p = v.clone().applyMatrix4(globe.matrixWorld).project(camera); return [(p.x + 1) / 2 * canvas.clientWidth, (1 - p.y) / 2 * canvas.clientHeight]; }
+  const _pv = new THREE.Vector3();
+  function project(v) { const p = _pv.copy(v).applyMatrix4(globe.matrixWorld).project(camera); return [Math.round((p.x + 1) / 2 * canvas.clientWidth), Math.round((1 - p.y) / 2 * canvas.clientHeight)]; }
   const camDir = () => camera.position.clone().normalize();
 
   return {
     camera, globe, debug: () => ({ selected, hovered, ringVisible: selRing.visible, ringScale: selRing.scale.x }),
-    setState(s) { S = s; arcGroup.clear(); arcs = []; if (S) S.links.forEach(l => { if (l.a != null && l.b != null) addArc(l.a, l.b); }); selected = null;
+    setState(s) { S = s; sigLast = ''; arcGroup.clear(); arcs = []; if (S) S.links.forEach(l => { if (l.a != null && l.b != null) addArc(l.a, l.b); }); selected = null;
       if (S) { const [la, lo] = regionLatLon(frontRegion()); view.lon = view.tLon = lo; view.lat = view.tLat = Math.max(-12, Math.min(28, la)); } },
     resize, addArc, frontRegion,
     select(id) { selected = id; }, hover(id) { hovered = id; },
@@ -282,10 +324,14 @@ export function createWorld(canvas) {
     frame(dt) {
       perf += dt;
       updateCamera(dt, performance.now() / 1000);
-      sync(dt);
+      const t0 = performance.now(); sync(dt); timing.sync = performance.now() - t0;
       arcs.forEach(a => { a.t = (a.t + dt * .35) % 1; a.pulse.position.copy(a.curve.getPoint(a.t)); });
       for (let k = bursts.length - 1; k >= 0; k--) { const b = bursts[k]; b.t += dt; b.m.scale.setScalar(1 + b.t * b.size); b.m.material.opacity = Math.max(0, .6 * (1 - b.t / 1.2)); if (b.t > 1.2) { globe.remove(b.m); bursts.splice(k, 1); } }
-      composer.render();
-    }
+      const t1 = performance.now(); if (QUALITY[quality].bloom) composer.render(); else renderer.render(scene, camera);
+      if (GPU_SYNC) renderer.getContext().finish(); // test-only: make render time include GPU work
+      timing.render = performance.now() - t1;
+    },
+    timing,
+    setQuality, getQuality: () => quality
   };
 }

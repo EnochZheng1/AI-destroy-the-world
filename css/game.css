@@ -91,6 +91,7 @@ body[data-mode="pick"] .meters, body[data-mode="pick"] .econ, body[data-mode="pi
 .spd button.on { color: var(--void); background: var(--text); }
 .mute { width: 28px; height: 28px; border: 1px solid var(--edge); color: var(--dim); }
 .mute.off { opacity: .4; text-decoration: line-through; }
+.qbtn { width: auto; padding: 0 6px; font: 600 10px var(--mono); }
 
 /* upgrade rack */
 .rack { position: fixed; right: var(--pad); top: 84px; width: 366px; padding: 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; z-index: 3; }

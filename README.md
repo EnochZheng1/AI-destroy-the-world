@@ -94,6 +94,26 @@ node tools/pacing.js 100 models
 
 Doom fills from milestones as well as a steady rate. Entering a new region, finishing one ("lights out"), and buying an Automation upgrade each add an immediate chunk. On Normal, Doom reaches about 10% around day 110, 50% around day 215, and the average win is around day 275.
 
+### Performance
+
+Graphics quality is **Auto** by default (the button next to ♪ cycles Auto / High / Medium / Low):
+
+| Level | Bloom | Max pixel ratio |
+| --- | --- | --- |
+| High | Full-resolution bloom | 2× |
+| Medium | Half-resolution bloom | 1.25× |
+| Low | No bloom | 1× |
+
+Auto starts phones and low-core machines on Medium and steps down whenever frames average slower than about 45 fps. The scene only rebuilds its instances when the game state changes.
+
+To profile, run:
+
+```bash
+node tools/perf.js
+```
+
+It reports frame time split into sync, render and HUD, with render including GPU work (`gpusync`). Measured in a software-rendered browser, a 2× desktop frame drops from 17.9 ms on High to 12.1 ms on Medium and 8.4 ms on Low. JavaScript stays around 1.5–2 ms per frame. Real GPUs will be faster, but in the same proportions.
+
 URL parameters, for testing and screenshots:
 
 - `?play=G` starts in Grain Expanse.
@@ -102,6 +122,8 @@ URL parameters, for testing and screenshots:
 - `&select=R` selects a region.
 - `&pause=1` starts paused.
 - `&nobuy=150` makes the stand-in player stop buying from that day.
+- `&quality=low` forces a graphics level.
+- `&coach=1` resets the first-run tips.
 
 ---
 

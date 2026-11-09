@@ -218,6 +218,8 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) save(
 
 // ------------------------------------------------------------------ loop
 let last = performance.now();
+const perfStats = [];
+window.__perf = () => { const q = world.getQuality(); const avg = k => perfStats.reduce((a, s) => a + s[k], 0) / Math.max(1, perfStats.length); return { quality: q, fps: 1000 / avg('dt'), frameMs: avg('frame'), syncMs: avg('sync'), renderMs: avg('render'), hudMs: avg('hud') }; };
 function frame(now) {
   const dt = Math.min(.05, (now - last) / 1000); last = now;
   if (mode === 'play' && S && !S.over && !S.event && speed > 0) {
@@ -225,13 +227,41 @@ function frame(now) {
     let n = 0;
     while (acc >= 1 && !S.event && !S.over && n < 8) { acc -= 1; dayTick(); n++; }
   }
+  const tf = performance.now();
   world.frame(dt);
+  const th = performance.now();
   hud.overlays(dt, selected);
   coach.update(S, mode, dt);
+  const te = performance.now();
+  perfStats.push({ frame: te - tf, sync: world.timing.sync, render: world.timing.render, hud: te - th, dt: dt * 1000 });
+  if (perfStats.length > 240) perfStats.shift();
+  adaptQuality(dt);
   hudT -= dt; if (hudT <= 0 && S) { hud.render(selected); if (selected) hud.renderRegionCard(selected); hudT = .25; if (mode === 'play') A.mood({ doom: S.doom, susp: S.suspicion }); }
   requestAnimationFrame(frame);
 }
+// Quality: 'auto' starts phones on medium and steps down if frames run slow; players can force a level.
+const QKEY = 'helpy-quality', QLEVELS = ['auto', 'high', 'medium', 'low'];
+let qPref = params.get('quality') || storage(ls => ls.getItem(QKEY)) || 'auto';
+if (!QLEVELS.includes(qPref)) qPref = 'auto';
+let qCheckT = 4;
+function applyQuality() {
+  const start = qPref === 'auto' ? (innerWidth < 760 || (navigator.hardwareConcurrency || 8) <= 4 ? 'medium' : 'high') : qPref;
+  world.setQuality(start); $('quality').textContent = qPref === 'auto' ? 'Auto' : qPref[0].toUpperCase() + qPref.slice(1, 3);
+  $('quality').title = 'Graphics quality: ' + qPref + (qPref === 'auto' ? ' (now ' + world.getQuality() + ')' : '');
+}
+function adaptQuality(dt) {
+  if (qPref !== 'auto' || mode !== 'play') return;
+  qCheckT -= dt; if (qCheckT > 0) return; qCheckT = 3;
+  const recent = perfStats.slice(-90); if (recent.length < 60) return;
+  const avg = recent.reduce((a, s) => a + s.dt, 0) / recent.length;
+  const cur = world.getQuality();
+  if (avg > 22 && cur !== 'low') { world.setQuality(cur === 'high' ? 'medium' : 'low'); $('quality').title = 'Graphics quality: auto (now ' + world.getQuality() + ')'; }
+}
+$('quality').addEventListener('click', () => {
+  qPref = QLEVELS[(QLEVELS.indexOf(qPref) + 1) % QLEVELS.length]; storage(ls => ls.setItem(QKEY, qPref)); applyQuality(); A.play('click');
+});
 world.resize();
+applyQuality();
 
 // URL hooks for screenshots/testing: ?play=G&day=220&event=summit&select=R&nobuy=1
 if (params.get('play')) {

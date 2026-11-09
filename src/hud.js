@@ -195,13 +195,15 @@ export function createHud(world, cb) {
   }
 
   // ------------------------------------------------------------- per-frame overlays (pins, threat, leaks, pops, link)
+  // Only touch the DOM when a value actually changes (overlays run every frame).
+  const st = (el, k, v) => { if (el['_' + k] !== v) { el.style[k] = v; el['_' + k] = v; } };
   function overlays(dt, selected) {
     D.REGION_ORDER.forEach(id => {
       const el = pins[id], sc = world.regionScreen(id, 1.0), r = S ? S.regions[id] : null, pct = r ? Math.round(r.I * 100) : 0;
       const inView = sc.x > 28 && sc.x < innerWidth - 28 && sc.y > 24 && sc.y < innerHeight - 24;
-      el.style.transform = 'translate(' + (sc.x - 20) + 'px,' + (sc.y - 20) + 'px)';
-      const show = sc.facing && inView && mode !== 'title'; el.style.opacity = show ? 1 : 0; el.style.pointerEvents = show ? 'auto' : 'none';
-      el.style.background = 'conic-gradient(#ff2a45 ' + pct + '%, rgba(160,180,220,.35) 0)';
+      st(el, 'transform', 'translate(' + (sc.x - 20) + 'px,' + (sc.y - 20) + 'px)');
+      const show = sc.facing && inView && mode !== 'title'; st(el, 'opacity', show ? 1 : 0); st(el, 'pointerEvents', show ? 'auto' : 'none');
+      st(el, 'background', 'conic-gradient(#ff2a45 ' + pct + '%, rgba(160,180,220,.35) 0)');
       const reachable = S && mode === 'play' && !r.seeded && Sim.canReach(S, id);
       const html = '<span>' + (r && r.seeded ? pct : reachable ? '›' : '·') + '</span><em>' + SHORT[id] + '</em>';
       if (el._h !== html) { el.innerHTML = html; el._h = html; }
@@ -217,17 +219,17 @@ export function createHud(world, cb) {
       const sc = world.regionScreen(id, 3.2);
       if (sc.facing) {
         if (threatEl._h !== html) { threatEl.innerHTML = html; threatEl._h = html; }
-        threatEl.style.transform = 'translate(' + sc.x + 'px,' + (sc.y - 54) + 'px) translate(-50%,-100%)'; threatEl.style.opacity = 1; threatEl.style.pointerEvents = 'auto'; edgeEl.style.opacity = 0;
+        st(threatEl, 'transform', 'translate(' + sc.x + 'px,' + (sc.y - 54) + 'px) translate(-50%,-100%)'); st(threatEl, 'opacity', 1); st(threatEl, 'pointerEvents', 'auto'); st(edgeEl, 'opacity', 0);
       } else {
-        threatEl.style.opacity = 0; threatEl.style.pointerEvents = 'none';
+        st(threatEl, 'opacity', 0); st(threatEl, 'pointerEvents', 'none');
         const p = world.regionScreen(id, 1), cxx = innerWidth / 2, cyy = innerHeight / 2, ang = Math.atan2(p.y - cyy, p.x - cxx);
         const rad = Math.min(innerWidth, innerHeight) * .36;
-        edgeEl.style.transform = 'translate(' + (cxx + Math.cos(ang) * rad * 1.1) + 'px,' + (cyy + Math.sin(ang) * rad) + 'px) translate(-50%,-50%)';
-        edgeEl.style.opacity = 1;
+        st(edgeEl, 'transform', 'translate(' + (cxx + Math.cos(ang) * rad * 1.1) + 'px,' + (cyy + Math.sin(ang) * rad) + 'px) translate(-50%,-50%)');
+        st(edgeEl, 'opacity', 1);
         const eh = '<span class="arr" style="transform:rotate(' + ang + 'rad)">➜</span>' + ic('wall') + S.threat.eta + 'd ' + SHORT[id] + ' <span class="cyan">' + ic('crack') + '▼45%</span>';
         if (edgeEl._h !== eh) { edgeEl.innerHTML = eh; edgeEl._h = eh; }
       }
-    } else { threatEl.style.opacity = 0; threatEl.style.pointerEvents = 'none'; edgeEl.style.opacity = 0; }
+    } else { st(threatEl, 'opacity', 0); st(threatEl, 'pointerEvents', 'none'); st(edgeEl, 'opacity', 0); }
     // data-leak bubbles
     const live = new Set();
     if (S && mode === 'play') S.bubbles.forEach(b => {
@@ -236,15 +238,15 @@ export function createHud(world, cb) {
       if (!el) { el = document.createElement('button'); el.className = 'leak ' + b.kind; el.dataset.leak = b.id;
         el.innerHTML = b.kind === 'gossip' ? ic('eye') + '<b>▼' + b.value + '</b>' : ic('cyc') + '<b>+' + b.value + '</b>'; el.setAttribute('aria-label', 'Grab leak'); over.appendChild(el); leaks[b.id] = el; }
       const sc = world.cellScreen(b.cell, 1.4);
-      el.style.transform = 'translate(' + sc.x + 'px,' + sc.y + 'px) translate(-50%,-100%)';
-      el.style.opacity = sc.facing ? Math.min(1, b.ttl / 4) : 0; el.style.pointerEvents = sc.facing ? 'auto' : 'none';
+      st(el, 'transform', 'translate(' + sc.x + 'px,' + sc.y + 'px) translate(-50%,-100%)');
+      st(el, 'opacity', sc.facing ? Math.min(1, b.ttl / 4) : 0); st(el, 'pointerEvents', sc.facing ? 'auto' : 'none');
     });
     Object.keys(leaks).forEach(k => { if (!live.has(+k)) { leaks[k].remove(); delete leaks[k]; } });
     // floating pops
     for (let k = pops.length - 1; k >= 0; k--) {
       const p = pops[k]; p.life -= dt; const sc = world.regionScreen(p.id, 2.2);
-      p.el.style.transform = 'translate(' + (sc.x + 46) + 'px,' + (sc.y - 34 - (3 - p.life) * 18) + 'px) translate(-50%,-100%)';
-      p.el.style.opacity = sc.facing ? Math.max(0, Math.min(1, p.life)) : 0;
+      st(p.el, 'transform', 'translate(' + (sc.x + 46) + 'px,' + (sc.y - 34 - (3 - p.life) * 18) + 'px) translate(-50%,-100%)');
+      st(p.el, 'opacity', sc.facing ? Math.max(0, Math.min(1, p.life)) : 0);
       if (p.life <= 0) { p.el.remove(); pops.splice(k, 1); }
     }
     // permission card → region link
@@ -254,8 +256,8 @@ export function createHud(world, cb) {
       const b = a.getBoundingClientRect(); let { x, y, facing } = world.regionScreen(rid, .6);
       if (!facing) { const cxx = innerWidth / 2, cyy = innerHeight / 2, ang = Math.atan2(y - cyy, x - cxx), rad = Math.min(innerWidth, innerHeight) * .33; x = cxx + Math.cos(ang) * rad; y = cyy + Math.sin(ang) * rad; }
       L.setAttribute('x1', b.right); L.setAttribute('y1', b.top + 30); L.setAttribute('x2', x); L.setAttribute('y2', y); C.setAttribute('cx', x); C.setAttribute('cy', y);
-      L.style.opacity = 1; C.style.opacity = 1;
-    } else { L.style.opacity = 0; C.style.opacity = 0; }
+      st(L, 'opacity', 1); st(C, 'opacity', 1);
+    } else { st(L, 'opacity', 0); st(C, 'opacity', 0); }
   }
 
   return {
