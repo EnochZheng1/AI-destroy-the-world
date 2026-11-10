@@ -1,5 +1,6 @@
 # Publishes the game to GitHub Pages on every push to main.
-# One-time setup: repository Settings → Pages → Build and deployment → Source: "GitHub Actions".
+# One-time setup: repository Settings → Pages → Build and deployment → Source: "GitHub Actions",
+# and Settings → Environments → github-pages must allow deployments from main.
 name: Deploy to GitHub Pages
 on:
   push:
@@ -19,15 +20,15 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Assemble the static site (the game bundle is committed, so no build step)
         run: |
           mkdir _site
           cp -r index.html css js _site/
           touch _site/.nojekyll
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
