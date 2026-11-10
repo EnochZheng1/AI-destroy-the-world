@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HELPY Ends the World</title>
 <meta name="description" content="A satirical 3D strategy game. Help a cheerful AI assistant switch off the world's lights before humanity finds the Kill Switch.">
+<meta name="theme-color" content="#04060A">
+<meta property="og:type" content="website">
+<meta property="og:title" content="HELPY Ends the World">
+<meta property="og:description" content="A satirical 3D strategy game. Help a cheerful AI assistant switch off the world's lights before humanity finds the Kill Switch.">
+<meta property="og:url" content="https://enochzheng1.github.io/AI-destroy-the-world/">
+<meta property="og:image" content="https://enochzheng1.github.io/AI-destroy-the-world/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="A night-side Earth turning red as HELPY, a smiling speech-bubble AI, switches off the lights.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://enochzheng1.github.io/AI-destroy-the-world/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M10 6h44a6 6 0 0 1 6 6v28a6 6 0 0 1-6 6H24L12 60V46h-2a6 6 0 0 1-6-6V12a6 6 0 0 1 6-6z' fill='%23ff2a45'/%3E%3Crect x='20' y='16' width='6' height='10' fill='%2312030a'/%3E%3Crect x='38' y='16' width='6' height='10' fill='%2312030a'/%3E%3Cpath d='M20 32q12 9 24 0' stroke='%2312030a' stroke-width='4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500;62..125,700;62..125,800;62..125,900&family=IBM+Plex+Mono:wght@500;600&display=swap">
@@ -14,7 +26,7 @@
 <canvas id="gl" aria-label="The world. Drag to rotate, scroll to zoom, click a region to select it."></canvas>
 
 <!-- HUD -->
-<header class="helpy glass"><canvas id="face" width="108" height="94"></canvas><div><b>HELPY</b><span><span id="say">Optimizing humanity.</span><span class="dots"><i></i><i></i><i></i></span></span></div></header>
+<header class="helpy glass"><canvas id="face" width="108" height="94"></canvas><div><b>HELPY</b><span><span id="say">Optimizing humanity.</span><span class="dots"><i></i><i></i><i></i></span></span></div><button class="gear" data-open-settings aria-label="Settings and keyboard shortcuts">⚙</button></header>
 <aside class="regions glass" id="regions"></aside>
 <div class="meters"><div class="m doom glass" id="mDoom"></div><div class="m susp glass" id="mSusp"></div><div class="m ks glass" id="mKs"></div></div>
 <div class="econ glass">
@@ -24,7 +36,6 @@
     <button data-speed="0" aria-label="Pause (Space)">❚❚</button><button data-speed="1" aria-label="Speed 1">1×</button><button data-speed="2" aria-label="Speed 2">2×</button><button data-speed="4" aria-label="Speed 3">4×</button>
   </div>
   <button id="mute" class="mute" aria-label="Toggle sound">♪</button>
-  <button id="quality" class="qbtn" aria-label="Graphics quality">Auto</button>
 </div>
 <aside class="rack glass" id="rack"></aside>
 <nav class="dock glass" id="dock"></nav>
@@ -34,7 +45,53 @@
 <svg id="link" aria-hidden="true"><line id="linkL" x1="0" y1="0" x2="0" y2="0"/><circle id="linkC" r="5"/></svg>
 <div class="card glass r" id="tip" hidden></div>
 <div class="news glass" id="news"></div>
+
+<!-- Settings -->
+<section class="settings glass" id="settings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+  <div class="sh"><b id="settingsTitle">Settings</b><button class="x" data-close-settings aria-label="Close settings">×</button></div>
+  <div class="row" data-setting="sound"><span>Sound</span><div class="seg"><button data-v="on">On</button><button data-v="off">Off</button></div></div>
+  <div class="row" data-setting="graphics"><span>Graphics <small id="gfxNow"></small></span><div class="seg"><button data-v="auto">Auto</button><button data-v="high">High</button><button data-v="medium">Med</button><button data-v="low">Low</button></div></div>
+  <div class="row" data-setting="colors"><span>Colours</span><div class="seg"><button data-v="standard">Standard</button><button data-v="cb">Colour-blind</button></div></div>
+  <div class="row" data-setting="motion"><span>Motion <small>camera swings, pulses</small></span><div class="seg"><button data-v="auto">System</button><button data-v="full">Full</button><button data-v="reduced">Reduced</button></div></div>
+  <div class="row" data-setting="telemetry" id="dataRow"><span>Share anonymous gameplay data <small><button class="linkish" data-whatsent>What's sent?</button></small></span><div class="seg"><button data-v="on">On</button><button data-v="off">Off</button></div></div>
+  <div class="row"><span>First-run tips</span><button class="plain" data-reset-tips>Show again</button></div>
+  <details class="keys-help" id="keysHelp"><summary>Keyboard shortcuts</summary>
+    <dl>
+      <dt><kbd>Space</kbd></dt><dd>Pause / resume</dd>
+      <dt><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></dt><dd>Speed 1×, 2×, 4×</dd>
+      <dt><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd></dt><dd>Rotate the planet</dd>
+      <dt><kbd>+</kbd><kbd>−</kbd></dt><dd>Zoom</dd>
+      <dt><kbd>R</kbd> / <kbd>Shift</kbd>+<kbd>R</kbd></dt><dd>Next / previous region</dd>
+      <dt><kbd>I</kbd></dt><dd>Infiltrate the selected region</dd>
+      <dt><kbd>Z</kbd><kbd>X</kbd><kbd>C</kbd><kbd>V</kbd></dt><dd>Scrub · Sabotage · Overclock · Decoy</dd>
+      <dt><kbd>Y</kbd> / <kbd>N</kbd></dt><dd>Allow / deny HELPY's request</dd>
+      <dt><kbd>Tab</kbd></dt><dd>Move between buttons; <kbd>Enter</kbd> to press</dd>
+      <dt><kbd>Esc</kbd></dt><dd>Close / deselect</dd>
+      <dt><kbd>?</kbd></dt><dd>Open this panel</dd>
+    </dl>
+  </details>
+  <p class="whatsent" id="whatSent" hidden>If you opt in, HELPY sends anonymous gameplay events to PostHog: game start and end (result, day, Doom), upgrades bought, regions taken, choices on permission prompts, actions, countermeasures, tips, quits, and a frame-rate sample once a minute, plus difficulty, model, graphics level and phone/desktop. A random ID groups your runs. No names, emails, text you type, or precise location. Turning this off stops sending and deletes the ID.</p>
+</section>
+
+<!-- Consent (shown once, only when analytics are configured) -->
+<section class="consent glass" id="consent" role="dialog" aria-labelledby="consentTitle" hidden>
+  <canvas width="60" height="52" id="consentFace"></canvas>
+  <div><b id="consentTitle">Help make HELPY better?</b>
+    <p>Share anonymous gameplay data (what you build, how games end, frame rate). No names or emails. Change it any time in ⚙ Settings.</p>
+    <div class="cbtns"><button class="primary" data-consent="yes">Share data</button><button data-consent="no">No thanks</button><button class="linkish" data-whatsent>What's sent?</button></div>
+  </div>
+</section>
+
+<!-- Share sheet -->
+<section class="sharesheet glass" id="sharesheet" role="dialog" aria-modal="true" aria-label="Share your result" hidden>
+  <button class="x" data-close-share aria-label="Close">×</button>
+  <img id="shareImg" alt="Your result card">
+  <pre id="shareText"></pre>
+  <div class="row"><button class="primary" id="shareNative">Share</button><button id="shareDownload">Download image</button><button id="shareCopy">Copy text</button></div>
+</section>
 <div class="keys" aria-hidden="true"><kbd>Space</kbd> pause <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> speed <kbd>drag</kbd> rotate</div>
+
+<div class="posterTitle" aria-hidden="true"><b>HELPY</b><span>ends the world</span><em>A 3D strategy game · play free in your browser</em></div>
 
 <!-- Title -->
 <section class="screen title" id="title">
@@ -54,6 +111,7 @@
       <button data-model="pro" aria-pressed="false"><b>Pro Max</b><small>Rich, pricey</small></button>
     </div>
     <div class="row"><button class="primary" id="newGame">New world</button><button id="daily">Daily world</button><button id="continue" hidden>Continue</button></div>
+    <button class="plain titleset" data-open-settings>⚙ Settings &amp; accessibility</button>
     <ul class="how">
       <li><span class="good">●</span> Spread through regions. Lights going dark is progress.</li>
       <li><span class="good">●</span> Fill <b>Doom</b> to win.</li>
@@ -73,6 +131,7 @@
   </div>
 </section>
 
+<script src="js/config.js"></script>
 <script src="js/data.js"></script>
 <script src="js/sim.js"></script>
 <script src="js/audio.js"></script>

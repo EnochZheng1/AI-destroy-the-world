@@ -26,7 +26,7 @@ const STEPS = [
     targets: ['#mDoom'], text: 'Doom rises as the lights go out. Fill it to win.' }
 ];
 
-export function createCoach() {
+export function createCoach(opts = {}) {
   let state = read();
   const el = document.createElement('div');
   el.className = 'coach glass'; el.hidden = true;
@@ -34,9 +34,9 @@ export function createCoach() {
   document.body.appendChild(el);
   drawFace(el.querySelector('canvas'), 'grin');
   let current = null, shownFor = 0, lost = 0, lastRect = null;
-  const finish = id => { state[id] = 1; write(state); current = null; el.hidden = true; el.classList.remove('in'); };
-  el.querySelector('.ok').addEventListener('click', () => current && finish(current.id));
-  el.querySelector('.skip').addEventListener('click', () => { STEPS.forEach(s => { state[s.id] = 1; }); write(state); current = null; el.hidden = true; });
+  const finish = (id, how) => { state[id] = 1; write(state); current = null; el.hidden = true; el.classList.remove('in'); if (opts.onTip) opts.onTip(id, how || 'done'); };
+  el.querySelector('.ok').addEventListener('click', () => current && finish(current.id, 'dismissed'));
+  el.querySelector('.skip').addEventListener('click', () => { STEPS.forEach(s => { state[s.id] = 1; }); write(state); if (opts.onTip) opts.onTip(current ? current.id : 'none', 'skipped_all'); current = null; el.hidden = true; });
 
   function findTarget(step) {
     for (const sel of step.targets) {
@@ -60,11 +60,12 @@ export function createCoach() {
   }
 
   return {
-    reset() { state = {}; write(state); },
+    redraw() { drawFace(el.querySelector('canvas'), 'grin'); },
+    reset() { state = {}; write(state); current = null; },
     update(S, mode, dt) {
       if (!S || mode !== 'play' || S.over) { el.hidden = true; return; }
       if (current && current.done && current.done(S)) finish(current.id);
-      if (current && current.timeout && (shownFor += dt) > current.timeout) finish(current.id);
+      if (current && current.timeout && (shownFor += dt) > current.timeout) finish(current.id, 'timeout');
       if (!current) { current = STEPS.find(s => !state[s.id] && s.when(S) && !(s.done && s.done(S))) || null; shownFor = 0;
         if (current) { el.querySelector('p').textContent = current.text; el.classList.remove('in'); lost = 0; lastRect = null; } }
       if (!current) { el.hidden = true; return; }

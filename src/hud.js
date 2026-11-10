@@ -169,7 +169,7 @@ export function createHud(world, cb) {
     const regions = D.REGION_ORDER.map(id => {
       const r = S.regions[id], pct = Math.round(r.I * 100), th = S.threat && S.threat.region === id;
       const cls = r.seeded ? (r.I >= .99 ? 'mine dead' : 'mine') : (mode === 'play' && Sim.canReach(S, id)) ? 'none reach' : 'none';
-      return '<button class="reg ' + cls + (th ? ' thr' : '') + (selected === id ? ' sel' : '') + '" data-region="' + id + '"><span class="pip" style="background:conic-gradient(#ff2a45 ' + pct + '%, rgba(255,255,255,.12) 0)"></span><b>' + SHORT[id] + '</b><em>' + (r.seeded ? pct + '%' : '–') + '</em><span class="tw">' + (th ? ic('wall') : '') + '</span></button>';
+      return '<button class="reg ' + cls + (th ? ' thr' : '') + (selected === id ? ' sel' : '') + '" data-region="' + id + '" aria-label="' + D.REGIONS[id].name + ': ' + (!r.seeded ? 'untouched' : pct >= 99 ? 'taken' : pct + '% infiltrated') + (th ? ', firewall' : '') + (selected === id ? ', selected' : '') + '"><span class="pip" style="background:conic-gradient(var(--ai) ' + pct + '%, rgba(255,255,255,.12) 0)"></span><b>' + SHORT[id] + '</b><em>' + (r.seeded ? pct + '%' : '–') + '</em><span class="tw">' + (th ? ic('wall') : '') + '</span></button>';
     }).join('') + '<div class="ticker"><b>●</b><span>' + NEWS[Math.floor(S.day / 9) % NEWS.length] + '</span></div>';
     if (regions !== lastRegions) { $('regions').innerHTML = regions; lastRegions = regions; }
     const rack = D.BRANCHES.map(b => '<div class="col ' + b.id + '"><h4>' + ic(HEADS[b.id][0]) + '<span class="lbl">' + HEADS[b.id][1] + '</span></h4>' +
@@ -184,7 +184,7 @@ export function createHud(world, cb) {
     if (rack !== lastRack) { $('rack').innerHTML = rack; lastRack = rack; if (tipFor) { const el = document.querySelector('[data-u="' + tipFor + '"]'); if (el) showUpgradeTip(el); } }
     const dock = '<div class="prompt">ask HELPY…</div>' + ACTS.map(([id, icon]) => {
       const st = Sim.actionState(S, id), A = D.ACTIONS.find(a => a.id === id);
-      const body = st === 'cooldown' ? '<span class="clk" style="background:conic-gradient(#ff2a45 ' + (100 - S.cd[id] / A.cooldown * 100).toFixed(0) + '%, rgba(255,255,255,.14) 0)"></span>' + S.cd[id] + 'd'
+      const body = st === 'cooldown' ? '<span class="clk" style="background:conic-gradient(var(--ai) ' + (100 - S.cd[id] / A.cooldown * 100).toFixed(0) + '%, rgba(255,255,255,.14) 0)"></span>' + S.cd[id] + 'd'
         : st === 'locked' ? ic('lock', 'cy') : cy + Sim.actionCost(S, id);
       const why = st === 'locked' ? (id === 'decoy' ? ' (no countermeasure to dodge)' : ' (unlocks when the Kill Switch starts)') : st === 'poor' ? ' (not enough cycles)' : '';
       return '<button class="a ' + st + '" data-act="' + id + '" title="' + A.name + ': ' + A.desc + why + '"' + (st === 'ready' ? '' : ' aria-disabled="true"') + '><span class="sl">/</span>' + ic(icon) + body + '</button>';
@@ -203,7 +203,7 @@ export function createHud(world, cb) {
       const inView = sc.x > 28 && sc.x < innerWidth - 28 && sc.y > 24 && sc.y < innerHeight - 24;
       st(el, 'transform', 'translate(' + (sc.x - 20) + 'px,' + (sc.y - 20) + 'px)');
       const show = sc.facing && inView && mode !== 'title'; st(el, 'opacity', show ? 1 : 0); st(el, 'pointerEvents', show ? 'auto' : 'none');
-      st(el, 'background', 'conic-gradient(#ff2a45 ' + pct + '%, rgba(160,180,220,.35) 0)');
+      st(el, 'background', 'conic-gradient(var(--ai) ' + pct + '%, rgba(160,180,220,.35) 0)');
       const reachable = S && mode === 'play' && !r.seeded && Sim.canReach(S, id);
       const html = '<span>' + (r && r.seeded ? pct : reachable ? '›' : '·') + '</span><em>' + SHORT[id] + '</em>';
       if (el._h !== html) { el.innerHTML = html; el._h = html; }
@@ -215,7 +215,7 @@ export function createHud(world, cb) {
       const id = S.threat.region, frac = S.threat.eta / 21, dst = Sim.actionState(S, 'decoy');
       const dodge = dst === 'cooldown' ? '<span class="dodge off">' + ic('duck') + S.cd.decoy + 'd</span>' : '<button class="dodge" data-act="decoy"' + (dst === 'ready' ? '' : ' aria-disabled="true"') + '>' + ic('duck') + cy + Sim.actionCost(S, 'decoy') + '</button>';
       const loss = S.threat.type === 'firewall' ? '<span class="loss">' + ic('crack') + '▼45%</span>' : S.threat.type === 'patch' ? '<span class="loss">' + ic('shield') + '▲12</span>' : '';
-      const html = '<span class="ring" style="background:conic-gradient(#49d6ff ' + (frac * 100).toFixed(0) + '%, rgba(73,214,255,.15) 0)"></span>' + ic('wall') + '<b>' + S.threat.eta + 'd</b>' + loss + dodge;
+      const html = '<span class="ring" style="background:conic-gradient(var(--human) ' + (frac * 100).toFixed(0) + '%, var(--human-soft) 0)"></span>' + ic('wall') + '<b>' + S.threat.eta + 'd</b>' + loss + dodge;
       const sc = world.regionScreen(id, 3.2);
       if (sc.facing) {
         if (threatEl._h !== html) { threatEl.innerHTML = html; threatEl._h = html; }
@@ -261,6 +261,7 @@ export function createHud(world, cb) {
   }
 
   return {
+    refresh() { lastRack = lastRegions = lastDock = ''; faceMood = null; Object.values(pins).forEach(p => { p._h = null; p._background = null; }); threatEl._h = null; },
     setState(s) { S = s; lastRack = lastRegions = lastDock = ''; faceMood = null; $('ask').hidden = true; $('ask').dataset.ev = ''; },
     setMode(m) { mode = m; document.body.dataset.mode = m; lastRegions = ''; },
     render, overlays, renderRegionCard, renderAsk, hideTip,
