@@ -1,6 +1,8 @@
-// HELPY's face: a red speech bubble with two eyes and a smile.
+// HELPY's face (uses the current palette's HELPY colour): a red speech bubble with two eyes and a smile.
 // Moods: '' (calm), 'blink', 'sweat' (Suspicion > 50), 'sweat-blink', 'grin' (just did something), 'dead' (game over).
-export function drawFace(canvas, mood = '', color = '#ff2a45') {
+import { PAL } from './palette.js';
+
+export function drawFace(canvas, mood = '', color = PAL.ai) {
   const g = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
   g.clearRect(0, 0, W, H);

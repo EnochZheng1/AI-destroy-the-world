@@ -24,10 +24,10 @@ const BOTS = {
   idle: []
 };
 
-function play(diff, botName, seed, skill) {
+function play(diff, botName, seed, skill, model) {
   Sim.rand = mulberry32(seed);
   const start = ['T', 'G', 'S', 'M'][seed % 4];
-  const s = Sim.newGame(diff, start);
+  const s = Sim.newGame(diff, start, model);
   const order = BOTS[botName];
   while (!s.over && s.day < 3000) {
     if (s.event) Sim.resolveEvent(s, Sim.rand() < 0.5 ? 0 : 1);
@@ -56,6 +56,9 @@ function play(diff, botName, seed, skill) {
   return s;
 }
 
+module.exports = { play, BOTS };
+if (require.main === module) main();
+function main() {
 const N = +process.argv[2] || 200;
 for (const diff of ['easy', 'normal', 'hard']) {
   for (const bot of Object.keys(BOTS)) {
@@ -70,4 +73,5 @@ for (const diff of ['easy', 'normal', 'hard']) {
       Object.entries(res).map(([k, v]) => `${k}:${(100 * v / N).toFixed(0)}%`).join('  '),
       wins ? ` avgWinDay:${Math.round(days / wins)}` : '');
   }
+}
 }
