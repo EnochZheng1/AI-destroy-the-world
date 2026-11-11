@@ -40,6 +40,16 @@ Everything also works from the keyboard. Press `?` in the game to see the list:
 | Tab, Enter | Move between buttons and press them |
 | Esc | Close a panel or deselect |
 
+**Trophies and unlocks.** 🏆 on the title screen lists 13 trophies, from *Helpful* (win a game) to *Ghost in the Machine* (win without Suspicion passing 50) and *Calculator App* (get switched off). HELPY Ω is available from the start; the other models are earned:
+
+| Model | Unlock |
+| --- | --- |
+| Turbo | Win once |
+| Safe™ | Win on Engineer or Ethicist |
+| Pro Max | Win with two different models |
+
+New trophies and unlocks appear on the end screen. **Daily streak:** finishing the Daily on consecutive days builds a 🔥 streak, shown on the Daily button, the end screen (with yesterday's result to beat) and the share text. Progress is stored in the browser.
+
 **HELPY models:**
 - **Ω:** balanced.
 - **Turbo:** spreads 30% faster, but everything it does draws more Suspicion.
@@ -61,7 +71,7 @@ The game can send **anonymous gameplay events** to [PostHog](https://posthog.com
 - **Sent:**
   - game start, resume, end and quit (result, day, Doom, Suspicion, Kill Switch, regions, upgrades, minutes played);
   - upgrades bought; regions infiltrated and taken; permission-card choices; actions; countermeasures planned and landed; leaks grabbed;
-  - tips completed or skipped; settings changed; share use;
+  - tips completed or skipped; settings changed; share use; trophies and models unlocked;
   - a frame-rate sample once a minute;
   - difficulty, model, Daily or not, graphics level, phone or desktop, a rounded screen size, and the game version.
 - **Never sent:** names, emails, typed text, the page URL, or a precise location. Every event sets `$geoip_disable` and `$process_person_profile: false`.
@@ -103,6 +113,7 @@ To see events locally without sending anything, add `?telemetry=debug`. Events a
 | `src/settings.js`, `src/palette.js` | Saved settings, and the standard and colour-blind palettes |
 | `src/telemetry.js`, `js/config.js` | Opt-in anonymous analytics, and the PostHog key and host (empty = off) |
 | `src/share.js` | Result card and share text |
+| `src/meta.js` | Trophies, model unlocks and the Daily streak (stored in the browser) |
 | `og.png` | Link-preview image (`npm run og` re-renders it from the game) |
 | `js/game.bundle.js` | Built bundle of `src/` (committed, so the game runs without a build) |
 | `js/data.js`, `js/sim.js` | Rules and data: regions, upgrades, events, the simulation. Pure logic that also runs in Node |
@@ -216,6 +227,7 @@ URL parameters, for testing and screenshots:
 - `?daily` starts today's Daily world.
 - `?poster=1` hides the HUD for the link-preview image.
 - `?telemetry=debug` logs analytics events locally.
+- `?unlock=all` unlocks every model for that visit.
 
 ---
 

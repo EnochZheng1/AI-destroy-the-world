@@ -2,6 +2,7 @@
 // that compares well between friends, especially on the same Daily world.
 import { drawFace } from './face.js';
 import { PAL } from './palette.js';
+import { meta } from './meta.js';
 
 const D = window.HelpyData;
 export const SITE = 'https://enochzheng1.github.io/AI-destroy-the-world/';
@@ -15,7 +16,8 @@ export const regionSquares = S => D.REGION_ORDER.map(id => { const r = S.regions
 export function shareText(S) {
   const M = D.MODELS.find(m => m.id === (S.model || 'omega'));
   const who = S.daily ? 'HELPY Daily ' + S.daily : M.name + ' (' + window.HelpySim.DIFFICULTY[S.diff].label + ')';
-  const line = who + ': ' + RESULT[S.over][1] + ' on day ' + S.day + ' ' + regionSquares(S) + (S.stats.threatsBlocked ? ' 🦆' + S.stats.threatsBlocked : '');
+  const st = S.daily ? meta.streak() : 0;
+  const line = who + ': ' + RESULT[S.over][1] + ' on day ' + S.day + ' ' + regionSquares(S) + (S.stats.threatsBlocked ? ' 🦆' + S.stats.threatsBlocked : '') + (st > 1 ? ' 🔥' + st : '');
   return line + '\n' + (S.daily ? 'Play today\'s Daily: ' + siteUrl() + '?daily' : siteUrl());
 }
 

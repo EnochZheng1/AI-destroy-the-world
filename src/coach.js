@@ -15,7 +15,7 @@ const STEPS = [
   { id: 'buy', when: S => D.UPGRADES.some(u => Sim.upgradeState(S, u.id) === 'ready'), done: S => Object.keys(S.owned).length > 0,
     targets: ['.rack.open .t.ready', '[data-sheet="rack"]'], text: 'You can afford an upgrade. Open Upgrades and tap a glowing tile.' },
   { id: 'leak', when: S => S.bubbles.length > 0, done: S => S.stats.bubbles > 0,
-    targets: ['.leak'], text: 'Leaked data! Tap the coin to grab it.' },
+    targets: ['.leak'], text: 'Leaked data! Grab the coin.' },
   { id: 'spread', when: S => canAffordSpread(S), done: S => seeded(S) >= 2,
     targets: ['#regcard [data-cmd="infiltrate"]', '.pin.reach', '.reg.reach'], text: 'Tap a › region, then Infiltrate to spread.' },
   { id: 'event', when: S => !!S.event, done: S => S.stats.events > 0,
@@ -43,7 +43,7 @@ export function createCoach(opts = {}) {
       const t = document.querySelector(sel);
       if (!t) continue;
       const r = t.getBoundingClientRect(), cs = getComputedStyle(t);
-      if (r.width && r.height && cs.opacity !== '0' && r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth) return r;
+      if (r.width && r.height && +cs.opacity > .6 && r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth) return r;
     }
     return null;
   }

@@ -6,6 +6,7 @@ import { createCoach } from './coach.js';
 import { settings } from './settings.js';
 import { telemetry } from './telemetry.js';
 import { renderCard, shareText } from './share.js';
+import { meta, TROPHIES } from './meta.js';
 
 const D = window.HelpyData, Sim = window.HelpySim, A = window.HelpyAudio, I = window.HelpyIcons;
 const $ = id => document.getElementById(id);
@@ -102,6 +103,7 @@ function dayTick() {
   const seededBefore = D.REGION_ORDER.filter(id => S.regions[id].seeded);
   const threatBefore = S.threat ? Object.assign({}, S.threat) : null;
   Sim.tick(S);
+  S.peak = S.peak || { s: 0, k: 0 }; S.peak.s = Math.max(S.peak.s, S.suspicion); S.peak.k = Math.max(S.peak.k, S.killSwitch);
   D.REGION_ORDER.forEach(id => { if (S.regions[id].seeded && !seededBefore.includes(id)) { onSeed(id); telemetry.track('region_infiltrated', { region: id, day: S.day, how: 'spread' }); } });
   if (!threatBefore && S.threat) { telemetry.track('threat_planned', { type: S.threat.type, region: S.threat.region || null, day: S.day }); lastThreat = Object.assign({}, S.threat); if (S.threat.region) world.focus(S.threat.region, 4); A.play('bad'); }
   if (threatBefore && !S.threat && threatBefore.eta <= 1) telemetry.track('threat_landed', { type: threatBefore.type, region: threatBefore.region || null, day: S.day });
@@ -120,6 +122,7 @@ function showTitle() {
   $('title').hidden = false; $('end').hidden = true; $('pick').hidden = true; $('regcard').hidden = true;
   $('continue').hidden = !loadSave();
   drawFace($('titleFace'), '');
+  renderTitleMeta();
 }
 function beginPick() {
   clearSave();
@@ -132,6 +135,7 @@ function beginPick() {
 let runStarted = 0;
 function runProps() { return { difficulty: S.diff, model: S.model || 'omega', daily: S.daily || null, start_region: S.start || null }; }
 function startGame(id, daily) {
+  if (!daily && !meta.modelUnlocked(model)) model = 'omega';
   S = Sim.newGame(diff, id, model); S.out.length = 0; S.start = id; if (daily) S.daily = daily; runStarted = performance.now();
   mode = 'play'; hud.setMode('play'); world.setState(S); hud.setState(S);
   $('pick').hidden = true; $('title').hidden = true; $('end').hidden = true; select(null); world.focus(id, 4); world.grin(2);
@@ -147,6 +151,9 @@ function resumeGame(s) {
 }
 function endGame() {
   mode = 'over'; hud.setMode('over'); clearSave(); A.ambient(false);
+  const unlocked = meta.record(S);
+  unlocked.trophies.forEach(t => telemetry.track('trophy_unlocked', { trophy: t.id, day: S.day }));
+  unlocked.models.forEach(m => telemetry.track('model_unlocked', { model: m }));
   telemetry.track('game_end', Object.assign(runProps(), { result: S.over, day: S.day, doom: Math.round(S.doom), suspicion: Math.round(S.suspicion), kill_switch: Math.round(S.killSwitch),
     regions: D.REGION_ORDER.filter(id => S.regions[id].seeded).length, regions_taken: D.REGION_ORDER.filter(id => S.regions[id].I >= .99).length,
     upgrades: S.stats.upgrades, owned: Object.keys(S.owned).join(','), dodged: S.stats.threatsBlocked, events: S.stats.events, leaks: S.stats.bubbles,
@@ -166,6 +173,7 @@ function endGame() {
     const regions = D.REGION_ORDER.filter(id => S.regions[id].seeded).length;
     $('endStats').innerHTML = [['doom', Math.round(S.doom) + '%', 'Doom'], ['net', regions + '/9', 'Regions'], ['chip', S.stats.upgrades + '/18', 'Upgrades'], ['duck', S.stats.threatsBlocked, 'Dodged']]
       .map(([icn, v, l]) => '<span>' + I.use(icn) + '<b>' + v + '</b><small>' + l + '</small></span>').join('');
+    renderEndNew(unlocked);
     endShot = world.snapshot();
     drawFace($('endFace'), S.over === 'win' ? 'grin' : 'dead');
     $('end').hidden = false; $('end').dataset.result = S.over;
@@ -199,9 +207,9 @@ function endGame() {
 }
 document.addEventListener('keydown', e => {
   if (e.target.closest && e.target.closest('input, textarea, select')) return;
-  if (e.key === 'Escape') { if (!$('settings').hidden) { closeSettings(); return; } if (!$('sharesheet').hidden) { $('sharesheet').hidden = true; return; } }
+  if (e.key === 'Escape') { if (!$('trophies').hidden) { closeTrophies(); return; } if (!$('settings').hidden) { closeSettings(); return; } if (!$('sharesheet').hidden) { $('sharesheet').hidden = true; return; } }
   if (e.key === '?') { openSettings(true); return; }
-  if (!$('settings').hidden) return;
+  if (!$('settings').hidden || !$('trophies').hidden) return;
   if (mode === 'play' || mode === 'pick') {
     const step = { ArrowLeft: [-40, 0], ArrowRight: [40, 0], ArrowUp: [0, -30], ArrowDown: [0, 30] }[e.key];
     if (step && !e.target.closest('button')) { e.preventDefault(); world.rotateBy(step[0], step[1]); return; }
@@ -226,6 +234,7 @@ document.querySelectorAll('.difficulty [data-diff]').forEach(b => b.addEventList
 $('newGame').addEventListener('click', () => { A.unlock(); Sim.rand = Math.random; beginPick(); });
 $('daily').addEventListener('click', () => { A.unlock(); startDaily(); });
 document.querySelectorAll('.models [data-model]').forEach(b => b.addEventListener('click', () => {
+  if (!meta.modelUnlocked(b.dataset.model)) { b.classList.remove('nope'); void b.offsetWidth; b.classList.add('nope'); A.play('click'); return; }
   model = b.dataset.model; document.querySelectorAll('.models [data-model]').forEach(x => x.setAttribute('aria-pressed', x === b)); A.unlock(); A.play('click');
 }));
 function startDaily() {
@@ -237,6 +246,41 @@ function startDaily() {
 }
 $('continue').addEventListener('click', () => { const s = loadSave(); if (s) resumeGame(s); });
 $('again').addEventListener('click', () => showTitle());
+// ------------------------------------------------------------------ trophies, unlocks, streak
+const MODEL_SUB = {};
+document.querySelectorAll('.models [data-model]').forEach(b => { MODEL_SUB[b.dataset.model] = b.querySelector('small').textContent; });
+function renderTitleMeta() {
+  if (!meta.modelUnlocked(model)) model = 'omega';
+  document.querySelectorAll('.models [data-model]').forEach(b => {
+    const id = b.dataset.model, open = meta.modelUnlocked(id);
+    b.classList.toggle('locked', !open); b.setAttribute('aria-disabled', !open); b.setAttribute('aria-pressed', id === model);
+    b.querySelector('small').textContent = open ? MODEL_SUB[id] : '🔒 ' + meta.unlockHint(id);
+  });
+  const st = meta.streak();
+  $('streak').hidden = st < 1; $('streak').textContent = '🔥' + st;
+  $('trophyBtn').textContent = '🏆 ' + meta.count() + '/' + TROPHIES.length;
+}
+function renderTrophies() {
+  const list = meta.trophies();
+  $('trophyCount').textContent = list.filter(t => t.got).length + '/' + list.length;
+  $('trophyGrid').innerHTML = list.map(t => '<div class="tro' + (t.got ? ' got' : '') + '">' + I.use(t.got ? t.icon : 'lock') + '<b>' + t.name + '</b><small>' + t.how + '</small></div>').join('');
+  $('modelUnlocks').innerHTML = D.MODELS.filter(m => m.id !== 'omega').map(m => '<span class="' + (meta.modelUnlocked(m.id) ? 'on' : '') + '">' + (meta.modelUnlocked(m.id) ? '✓ ' : '🔒 ') + m.name + (meta.modelUnlocked(m.id) ? '' : ': ' + meta.unlockHint(m.id)) + '</span>').join('');
+}
+let trophiesReturn = null;
+function openTrophies() { trophiesReturn = document.activeElement; renderTrophies(); $('trophies').hidden = false; $('trophies').querySelector('.x').focus(); telemetry.track('trophies_opened', { count: meta.count() }); }
+function closeTrophies() { $('trophies').hidden = true; if (trophiesReturn && trophiesReturn.focus) trophiesReturn.focus(); }
+document.querySelectorAll('[data-open-trophies]').forEach(b => b.addEventListener('click', openTrophies));
+document.querySelector('[data-close-trophies]').addEventListener('click', closeTrophies);
+function renderEndNew(u) {
+  const bits = u.trophies.map(t => '<span class="nt">' + I.use(t.icon) + '<b>' + t.name + '</b></span>')
+    .concat(u.models.map(id => '<span class="nm">' + I.use('omega') + '<b>' + D.MODELS.find(m => m.id === id).name + ' unlocked</b></span>'));
+  if (S.daily) {
+    const y = meta.yesterday(), st = meta.streak();
+    bits.push('<span class="nd">' + (st > 1 ? '🔥' + st + ' days' : 'Daily done') + (y ? ' · yesterday: ' + (y.r === 'win' ? 'won day ' + y.d : 'lost day ' + y.d) : '') + '</span>');
+  }
+  $('endNew').innerHTML = bits.join(''); $('endNew').hidden = !bits.length;
+}
+
 // ------------------------------------------------------------------ share sheet
 let endShot = null, cardBlob = null;
 $('share').addEventListener('click', async () => {
