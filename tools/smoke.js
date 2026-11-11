@@ -109,6 +109,17 @@ async function main() {
     ok(/ended the world on day \d+ [🟥🟧⬛]{9}/u.test(await p.$eval('#shareText', e => e.textContent)), 'share text has the day and 9 region squares');
     await shot(p, 'smoke-share');
     await p.keyboard.press('Escape');
+    // meta-progression: a win earns a trophy and unlocks Turbo, but not Pro Max
+    await p.waitForFunction(() => /Helpful/.test(document.getElementById('endNew').textContent), null, { timeout: 5000 }).catch(() => {});
+    ok(/Helpful/.test(await p.$eval('#endNew', e => e.textContent)) && /Turbo unlocked/.test(await p.$eval('#endNew', e => e.textContent)), 'a win shows the new trophy and the Turbo unlock');
+    await p.click('#again'); await p.waitForTimeout(300);
+    ok(await p.$eval('[data-model="turbo"]', b => !b.classList.contains('locked')) && await p.$eval('[data-model="pro"]', b => b.classList.contains('locked')), 'Turbo is unlocked on the title screen, Pro Max still locked');
+    await p.click('[data-model="pro"]', { force: true });
+    ok(await p.$eval('[data-model="pro"]', b => b.getAttribute('aria-pressed')) === 'false', 'a locked model cannot be chosen');
+    await p.click('#trophyBtn'); await p.waitForTimeout(200);
+    ok(await visible(p, '#trophies') && await p.$$eval('.tro.got', l => l.length) >= 1, 'trophies panel shows earned trophies');
+    await p.keyboard.press('Escape');
+    ok(!(await visible(p, '#trophies')), 'Esc closes trophies');
     ok(errs.length === 0, 'no page errors' + (errs.length ? ': ' + errs.slice(0, 3).join(' | ') : ''));
     await ctx.close();
   }

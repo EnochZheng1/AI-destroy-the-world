@@ -1,5 +1,6 @@
 // HUD: black-glass panels around the planet. Low text at rest; names, effects and jokes on hover/tap.
 import { drawFace } from './face.js';
+import { meta } from './meta.js';
 
 const D = window.HelpyData, Sim = window.HelpySim, I = window.HelpyIcons;
 const $ = id => document.getElementById(id);
@@ -190,7 +191,9 @@ export function createHud(world, cb) {
     a.innerHTML = '<div class="h"><canvas width="60" height="52" id="askFace"></canvas><span class="lbl">HELPY requests permission</span><span class="p lbl">' + ic('pause') + '</span></div>' +
       '<b class="title">' + ev.title + '</b><span class="code">' + (CODE[ev.id] || 'do_it()') + '</span>' +
       '<div class="opts"><button class="o allow" data-choice="0"><b>Allow once <kbd>Y</kbd></b><div class="fx">' + eventChips(ev.choices[0].fx) + '</div></button>' +
-      '<button class="o" data-choice="1"><b>Deny <kbd>N</kbd></b><div class="fx">' + eventChips(ev.choices[1].fx) + '</div></button></div>';
+      '<button class="o" data-choice="1"><b>Deny <kbd>N</kbd></b><div class="fx">' + eventChips(ev.choices[1].fx) + '</div></button></div>' +
+      (meta.legendDue() ? '<div class="legend"><span class="good">■ helps HELPY</span><span class="bad">■ helps humans</span></div>' : '');
+    if (meta.legendDue()) meta.legendShown();
     drawFace($('askFace'), S.suspicion > 50 ? 'sweat' : '');
     a.hidden = false; $('regcard').hidden = true;
   }

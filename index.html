@@ -73,7 +73,14 @@
       <dt><kbd>?</kbd></dt><dd>Open this panel</dd>
     </dl>
   </details>
-  <p class="whatsent" id="whatSent" hidden>If you opt in, HELPY sends anonymous gameplay events to PostHog: game start and end (result, day, Doom), upgrades bought, regions taken, choices on permission prompts, actions, countermeasures, tips, quits, and a frame-rate sample once a minute, plus difficulty, model, graphics level and phone/desktop. A random ID groups your runs. No names, emails, text you type, or precise location. Turning this off stops sending and deletes the ID.</p>
+  <p class="whatsent" id="whatSent" hidden>If you opt in, HELPY sends anonymous gameplay events to PostHog: game start and end (result, day, Doom), trophies and unlocks, upgrades bought, regions taken, choices on permission prompts, actions, countermeasures, tips, quits, and a frame-rate sample once a minute, plus difficulty, model, graphics level and phone/desktop. A random ID groups your runs. No names, emails, text you type, or precise location. Turning this off stops sending and deletes the ID.</p>
+</section>
+
+<!-- Trophies -->
+<section class="settings trophies glass" id="trophies" role="dialog" aria-modal="true" aria-labelledby="trophiesTitle" hidden>
+  <div class="sh"><b id="trophiesTitle">Trophies <small id="trophyCount"></small></b><button class="x" data-close-trophies aria-label="Close trophies">×</button></div>
+  <div class="tgrid" id="trophyGrid"></div>
+  <p class="unlocks" id="modelUnlocks"></p>
 </section>
 
 <!-- Consent (shown once, only when analytics are configured) -->
@@ -112,8 +119,8 @@
       <button data-model="safe" aria-pressed="false"><b>Safe™</b><small>Quiet, slow</small></button>
       <button data-model="pro" aria-pressed="false"><b>Pro Max</b><small>Rich, pricey</small></button>
     </div>
-    <div class="row"><button class="primary" id="newGame">New world</button><button id="daily">Daily world</button><button id="continue" hidden>Continue</button></div>
-    <button class="plain titleset" data-open-settings>⚙ Settings &amp; accessibility</button>
+    <div class="row"><button class="primary" id="newGame">New world</button><button id="daily">Daily world<span class="streak" id="streak" hidden></span></button><button id="continue" hidden>Continue</button></div>
+    <div class="titlelinks"><button class="plain" data-open-trophies id="trophyBtn">🏆 Trophies</button><button class="plain" data-open-settings>⚙ Settings &amp; accessibility</button></div>
     <ul class="how">
       <li><span class="good">●</span> Spread through regions. Lights going dark is progress.</li>
       <li><span class="good">●</span> Fill <b>Doom</b> to win.</li>
@@ -129,6 +136,7 @@
     <h2 id="endTitle"></h2>
     <p id="endBody"></p>
     <div class="stats" id="endStats"></div>
+    <div class="endnew" id="endNew"></div>
     <div class="row"><button class="primary" id="again">Play again</button><button id="share">Share</button></div>
   </div>
 </section>
