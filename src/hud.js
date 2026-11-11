@@ -111,7 +111,7 @@ export function createHud(world, cb) {
     doom: ['Doom', 'Fill it to win. Rises as the lights go out.'],
     susp: ['Suspicion', 'At 100, humanity unplugs HELPY.'],
     ks: ['Kill Switch', 'At 100, the off switch fires.'],
-    cyc: ['Cycles', 'Spend on upgrades, regions and actions.']
+    cyc: ['Cycles', 'HELPY\'s money. Spend it on upgrades, regions and actions.']
   };
   function rateLine(el, per) { const r = +el.dataset.rate; return (r >= 0 ? '▲' : '▼') + Math.abs(r).toFixed(per ? 1 : 2) + ' a day'; }
   function showInfo(el, arming) {
@@ -266,7 +266,7 @@ export function createHud(world, cb) {
       el.classList.toggle('sel', selected === id);
       el.classList.toggle('reach', !!(S && mode === 'play' && !S.regions[id].seeded && Sim.canReach(S, id)));
     });
-    if (S && S.threat && S.threat.region && mode === 'play') {
+    if (S && S.threat && S.threat.region && mode === 'play' && !(innerWidth < 760 && !$('ask').hidden)) {
       const id = S.threat.region, frac = S.threat.eta / 21, dst = Sim.actionState(S, 'decoy');
       const dodge = dst === 'cooldown' ? '<span class="dodge off">' + ic('duck') + S.cd.decoy + 'd</span>' : '<button class="dodge" data-act="decoy"' + (dst === 'ready' ? '' : ' aria-disabled="true"') + '>' + ic('duck') + '<span class="w">Dodge</span>' + cy + Sim.actionCost(S, 'decoy') + '</button>';
       const loss = S.threat.type === 'firewall' ? '<span class="loss">−45% here</span>' : S.threat.type === 'patch' ? '<span class="loss">harder to spread</span>' : '';

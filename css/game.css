@@ -505,3 +505,7 @@ body:has(.rack.open) .news, body:has(.regions.open) .news { opacity: 0; }
   .stats .ic { display: none; }
 }
 @media (max-width: 760px) { .sheetbtn { width: auto; flex: 1; min-width: 50px; } .sheetbtn .w, .sheetbtn .ph { letter-spacing: 0; } }
+.dodge[aria-disabled="true"] { background: none; color: var(--dim); border: 1px solid var(--edge); }
+.dodge[aria-disabled="true"] .cy { color: #c0485a; }
+@media (max-width: 760px) { .threat .loss { display: inline; font-size: 10.5px; white-space: nowrap; } }
+body:has(#ask:not([hidden])) .news { opacity: 0; }
