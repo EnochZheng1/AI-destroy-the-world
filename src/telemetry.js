@@ -4,6 +4,8 @@
 // game settings (difficulty, model, Daily or not, graphics level), a frame-rate sample once a minute, and a
 // device class (phone/desktop, screen size bucket). Each browser gets a random ID so one player's runs can be
 // grouped; it is created only after consent and deleted if the player opts out.
+// Where it goes: PostHog when a key is set in js/config.js; or, when the game runs as a Claude artifact
+// with its own database, one document per play session in that database (readable only by its owner).
 // What is never sent: names, emails, free text, precise location. Events ask PostHog to skip GeoIP and
 // person profiles; turn on "Discard client IP data" in the PostHog project settings as well.
 import { settings } from './settings.js';
@@ -26,11 +28,35 @@ const device = () => ({
 });
 
 let queue = [], timer = null, base = {};
+// --- Claude artifact database sink (no third-party service; the artifact owner reads it) ---
+let dbSink = null, readyDone = false, early = [];
+const started = Date.now(), dbEvents = [];
+let dbTimer = null, dbBusy = false, dbAgain = false;
+const ready = (async () => {
+  try { if (window.claude && typeof window.claude.use === 'function') dbSink = await window.claude.use('db'); } catch (e) { dbSink = null; }
+  readyDone = true;
+  early.splice(0).forEach(([e, p]) => telemetry.track(e, p));
+})();
+async function flushDb() {
+  clearTimeout(dbTimer); dbTimer = null;
+  if (!dbSink || !dbEvents.length) return;
+  if (dbBusy) { dbAgain = true; return; }
+  dbBusy = true;
+  try {
+    await dbSink.doc('sessions/' + sessionId).set({
+      started: new Date(started).toISOString(), updated: new Date().toISOString(), app_version: VERSION,
+      device: device(), base, events: dbEvents.slice(-1500)
+    });
+  } catch (e) { /* offline or over budget: keep events for the next try */ }
+  dbBusy = false;
+  if (dbAgain) { dbAgain = false; flushDb(); }
+}
 window.__telemetry = []; // what would be / was sent, for testing and the "What is sent" view
 
-function allowed() { return settings.get('telemetry') === true && (enabledByConfig() || debug); }
+function allowed() { return settings.get('telemetry') === true && (enabledByConfig() || debug || !!dbSink); }
 
 function flush(beacon) {
+  flushDb();
   if (!queue.length) return;
   const batch = queue; queue = [];
   if (!enabledByConfig()) return; // debug mode without a key: keep events local only
@@ -41,8 +67,10 @@ function flush(beacon) {
 }
 
 export const telemetry = {
-  configured: enabledByConfig,
-  needsConsent: () => (enabledByConfig() || debug) && settings.get('telemetry') === null,
+  ready,
+  configured: () => enabledByConfig() || !!dbSink,
+  destination: () => (enabledByConfig() ? 'posthog' : dbSink ? 'artifact' : null),
+  needsConsent: () => (enabledByConfig() || debug || !!dbSink) && settings.get('telemetry') === null,
   setConsent(yes) {
     settings.set('telemetry', !!yes);
     if (!yes) { queue = []; try { localStorage.removeItem(ID_KEY); } catch (e) { /* storage unavailable */ } }
@@ -50,12 +78,19 @@ export const telemetry = {
   },
   setBase(props) { base = Object.assign({}, base, props); },
   track(event, props) {
+    if (!readyDone) { early.push([event, props]); return; }
     if (!allowed()) return;
     const e = {
       event, timestamp: new Date().toISOString(), distinct_id: anonId(),
       properties: Object.assign({ $process_person_profile: false, $geoip_disable: true, $session_id: sessionId, app_version: VERSION }, device(), base, props || {})
     };
     window.__telemetry.push(e);
+    if (dbSink) {
+      dbEvents.push(Object.assign({ e: event, t: Math.round((Date.now() - started) / 1000) }, props || {}));
+      if (/^(game_end|game_quit|consent_withdrawn)$/.test(event)) flushDb();
+      else if (!dbTimer) dbTimer = setTimeout(flushDb, 20000);
+      if (!enabledByConfig()) return;
+    }
     if (debug) console.info('[telemetry]', event, e.properties);
     queue.push(e);
     if (queue.length >= 20) flush();

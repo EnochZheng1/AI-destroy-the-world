@@ -310,6 +310,8 @@ $('shareCopy').addEventListener('click', () => {
   const txt = shareText(S), ok = () => { $('shareCopy').textContent = 'Copied!'; setTimeout(() => { $('shareCopy').textContent = 'Copy text'; }, 1600); telemetry.track('share_done', { method: 'copy' }); };
   if (navigator.clipboard) navigator.clipboard.writeText(txt).then(ok, () => selectText($('shareText'))); else selectText($('shareText'));
 });
+// inside a Claude artifact the viewer blocks downloads: offer copy instead
+if (window.claude) $('shareDownload').hidden = true;
 function selectText(el) { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
 document.querySelector('[data-close-share]').addEventListener('click', () => { $('sharesheet').hidden = true; });
 $('mute').addEventListener('click', () => { $('mute').classList.toggle('off', A.toggle()); telemetry.track('setting_changed', { setting: 'sound', value: A.isMuted() ? 'off' : 'on' }); });
@@ -425,7 +427,8 @@ if (params.get('play')) {
   if (params.get('pause')) setSpeed(0);
 } else if (params.get('screen') === 'pick') { beginPick(); if (params.get('select')) select(params.get('select')); }
 else if (params.has('daily')) { showTitle(); startDaily(); }
-else { showTitle(); maybeAskConsent(); }
+else { showTitle(); telemetry.ready.then(() => { if (mode === 'title') maybeAskConsent(); syncSettingsUi(); }); }
+telemetry.ready.then(() => { if (telemetry.destination() === 'artifact') $('whatSent').textContent = $('whatSent').textContent.replace('to PostHog', "to this page's owner, stored in its Claude artifact database"); });
 if (params.get('poster')) { document.body.classList.add('poster'); world.setPoster(true); setSpeed(0); }
 requestAnimationFrame(frame);
 

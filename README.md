@@ -98,6 +98,8 @@ Useful starting points in PostHog:
 - `tip_skipped_all` and `tip_timeout`, to find tips that don't land;
 - `perf_sample` by `device` and `quality`.
 
+**Without PostHog: the Claude playtest build.** `npm run playtest` writes `dist/helpy-playtest.html`, a single-file page for publishing as a Claude artifact with the `db` capability. There the same opt-in events are saved to the artifact's own database, one document per play session (`sessions/<id>`), readable by the artifact's owner, and Claude can read and analyse them directly. No third-party account is needed; players must be signed in to claude.ai and given access.
+
 To see events locally without sending anything, add `?telemetry=debug`. Events are logged to the console and kept in `window.__telemetry`.
 
 ## Project layout

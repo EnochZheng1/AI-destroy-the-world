@@ -11,7 +11,8 @@
     "check:balance": "node tools/check-balance.js",
     "smoke": "node tools/smoke.js",
     "og": "node tools/og-image.js",
-    "test": "npm run check:balance && npm run smoke"
+    "test": "npm run check:balance && npm run smoke",
+    "playtest": "npm run build && node tools/build-single.js dist/helpy-playtest.html --fragment"
   },
   "devDependencies": {
     "esbuild": "0.24.0",
