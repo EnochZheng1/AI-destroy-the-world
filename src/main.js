@@ -55,7 +55,7 @@ function setSpeed(v) { if (v > 0) lastSpeed = v; speed = v; document.querySelect
 function select(id) {
   selected = id; world.select(id);
   if (id) world.focus(id, 4);
-  hud.renderRegionCard(id); hud.render(selected); hud.closeSheets();
+  hud.renderRegionCard(id); hud.render(selected); if (innerWidth < 760) hud.closeSheets();
   if (id) A.play('click');
 }
 
@@ -169,7 +169,7 @@ function endGame() {
     drawFace($('endFace'), S.over === 'win' ? 'grin' : 'dead');
     $('end').hidden = false; $('end').dataset.result = S.over;
     A.play(S.over === 'win' ? 'win' : 'lose');
-  }, 1600);
+  }, 2600);
 }
 
 // ------------------------------------------------------------------ input: globe drag/zoom/click
@@ -211,11 +211,12 @@ document.addEventListener('keydown', e => {
   if (mode === 'pick' && e.key === 'Enter' && selected && !e.target.closest('button')) startGame(selected);
   if (mode !== 'play') return;
   if (e.key === 'i' || e.key === 'I') hudCmd('infiltrate');
+  if (e.key === 'u' || e.key === 'U') hud.toggleSheet('rack');
   const act = { z: 'scrub', x: 'sabotage', c: 'overclock', v: 'decoy' }[e.key.toLowerCase()];
   if (act && !e.ctrlKey && !e.metaKey) doAction(act);
   if (e.code === 'Space') { e.preventDefault(); setSpeed(speed === 0 ? lastSpeed : 0); }
   if (e.key === '1') setSpeed(1); if (e.key === '2') setSpeed(2); if (e.key === '3') setSpeed(4);
-  if (e.key === 'Escape') select(null);
+  if (e.key === 'Escape') { if (document.querySelector('.rack.open,.regions.open')) hud.closeSheets(); else select(null); }
   if (S && S.event && (e.key === 'y' || e.key === 'n')) { telemetry.track('event_choice', { event: S.event, choice: e.key === 'y' ? 'allow' : 'deny', day: S.day, via: 'key' }); Sim.resolveEvent(S, e.key === 'y' ? 0 : 1); drain(); hud.renderAsk(); hud.render(selected); }
 });
 document.querySelectorAll('.difficulty [data-diff]').forEach(b => b.addEventListener('click', () => {
