@@ -73,12 +73,17 @@ export function createHud(world, cb) {
   const edgeEl = document.createElement('div'); edgeEl.className = 'edge'; over.appendChild(edgeEl);
   const leaks = {};
   const pops = [];
+  let armed = null;
   let S = null, mode = 'title', faceMood = null, lastRack = '', lastRegions = '', lastDock = '', tipFor = null, newsT = 0, infoFor = null, infoT = 0, lastPtr = 'mouse';
 
   // ------------------------------------------------------------- delegated input
   document.body.addEventListener('click', e => {
     const t = e.target.closest('[data-region],[data-u],[data-act],[data-choice],[data-leak],[data-cmd],[data-speed],[data-sheet]');
     if (!t) return;
+    if (t.dataset.act && t.classList.contains('a') && lastPtr !== 'mouse') {
+      if (armed !== t.dataset.act) { armed = t.dataset.act; showInfo(t, true); clearTimeout(infoT); infoT = setTimeout(() => { armed = null; hideTip(); }, 5000); return; }
+      armed = null; hideTip();
+    }
     if (t.dataset.region) cb.select(t.dataset.region);
     else if (t.dataset.u) cb.buy(t.dataset.u);
     else if (t.dataset.act) cb.act(t.dataset.act);
@@ -97,9 +102,10 @@ export function createHud(world, cb) {
   // touch: tapping a meter or the cycle count explains it; tapping an action also shows what it did or why it can't
   document.body.addEventListener('click', e => {
     if (lastPtr === 'mouse') return;
-    const inf = e.target.closest('[data-info],[data-act]');
-    if (inf) { if (infoFor === inf && !e.target.closest('[data-act]')) hideTip(); else { showInfo(inf); clearTimeout(infoT); infoT = setTimeout(hideTip, 2600); } }
-    else if (!e.target.closest('[data-u]')) hideTip();
+    if (e.target.closest('[data-act]')) return; // actions handle their own explain-then-use taps
+    const inf = e.target.closest('[data-info]');
+    if (inf) { if (infoFor === inf) hideTip(); else { showInfo(inf); clearTimeout(infoT); infoT = setTimeout(hideTip, 2600); } }
+    else if (!e.target.closest('[data-u]')) { hideTip(); armed = null; }
   });
   const INFO = {
     doom: ['Doom', 'Fill it to win. Rises as the lights go out.'],
@@ -108,13 +114,13 @@ export function createHud(world, cb) {
     cyc: ['Cycles', 'Spend on upgrades, regions and actions.']
   };
   function rateLine(el, per) { const r = +el.dataset.rate; return (r >= 0 ? '▲' : '▼') + Math.abs(r).toFixed(per ? 1 : 2) + ' a day'; }
-  function showInfo(el) {
+  function showInfo(el, arming) {
     if (!S) return;
     let html;
     if (el.dataset.act) {
       const id = el.dataset.act, A = D.ACTIONS.find(a => a.id === id), st = Sim.actionState(S, id);
       const why = st === 'cooldown' ? 'Ready in ' + S.cd[id] + ' days' : st === 'poor' ? 'Needs ' + Sim.actionCost(S, id) + ' cycles' : st === 'locked' ? (id === 'decoy' ? 'Use it when humans plan a countermeasure' : 'Unlocks when the Kill Switch starts') : cy + Sim.actionCost(S, id);
-      html = '<b>' + A.name + '</b><div>' + A.desc + '</div><div class="st">' + why + '</div>';
+      html = '<b>' + A.name + '</b><div>' + A.desc + '</div><div class="st">' + why + '</div>' + (arming && st === 'ready' ? '<div class="again">Tap again to use</div>' : '');
     } else {
       const k = el.dataset.info, [name, what] = INFO[k];
       let extra = '';
@@ -202,10 +208,10 @@ export function createHud(world, cb) {
     m('mDoom', 'doom', 'Doom', S.doom, Sim.doomRate(S), false);
     m('mSusp', 'eye', 'Suspicion', S.suspicion, Sim.suspicionRate(S), true);
     m('mKs', 'power', 'Kill switch', S.killSwitch, S.ksActive ? Sim.ksRate(S) : 0, true);
-    $('mSusp').classList.toggle('alarm', S.suspicion >= 45);
-    $('mKs').classList.toggle('alarm', S.killSwitch >= 70);
+    $('mSusp').classList.toggle('alarm', S.suspicion >= 70 || +$('mSusp').dataset.days <= 60);
+    $('mKs').classList.toggle('alarm', S.killSwitch >= 70 || +$('mKs').dataset.days <= 60);
     { const mh = ic('cyc') + '<b>' + Math.floor(S.cycles) + '</b>'; if ($('money')._h !== mh) { $('money').innerHTML = mh; $('money')._h = mh; } }
-    $('day').textContent = S.day;
+    if ($('day')._v !== S.day) { $('day').innerHTML = '<small>DAY</small>' + S.day; $('day')._v = S.day; }
     const firstSteps = mode === 'play' && S.day < 40 && D.REGION_ORDER.filter(id => S.regions[id].seeded).length < 2;
     $('say').textContent = firstSteps ? 'Tap a › region to spread.' : LINES[Math.min(3, Math.floor(S.doom / 25))];
     const headline = NEWS[Math.floor(S.day / 9) % NEWS.length];
@@ -229,13 +235,15 @@ export function createHud(world, cb) {
       }).join('') + '</div>').join('');
     if (rack !== lastRack) { $('rack').innerHTML = rack; lastRack = rack; if (tipFor && tipFor !== 'info') { const el = document.querySelector('[data-u="' + tipFor + '"]'); if (el) showUpgradeTip(el); } }
     const ready = D.UPGRADES.filter(u => Sim.upgradeState(S, u.id) === 'ready').length;
+    const spread = D.REGION_ORDER.filter(id => !S.regions[id].seeded && Sim.canReach(S, id) && S.cycles >= Sim.infiltrateCost(S, id)).length;
+    const nextCost = ready ? 0 : Math.min(...D.UPGRADES.filter(u => Sim.upgradeState(S, u.id) === 'poor').map(u => Sim.upgradeCost(S, u.id)));
     const dock = ACTS.map(([id, icon]) => {
       const st = Sim.actionState(S, id), A = D.ACTIONS.find(a => a.id === id);
       const body = st === 'cooldown' ? '<span class="clk" style="background:conic-gradient(var(--dim) ' + (100 - S.cd[id] / A.cooldown * 100).toFixed(0) + '%, rgba(255,255,255,.1) 0)"></span>'
         : st === 'locked' ? ic('lock', 'cy') : '<span class="cost">' + cy + Sim.actionCost(S, id) + '</span>';
       return '<button class="a ' + st + '" data-act="' + id + '" aria-label="' + A.name + ': ' + A.desc + '"' + (st === 'ready' ? '' : ' aria-disabled="true"') + '>' + ic(icon) + body + '</button>';
-    }).join('') + '<span class="sep"></span><button class="sheetbtn" data-sheet="regions" aria-label="Regions">' + ic('globe') + '</button>' +
-      '<button class="sheetbtn up' + (ready ? ' hot' : '') + '" data-sheet="rack" aria-label="Upgrades' + (ready ? ', ' + ready + ' affordable' : '') + '">' + ic('chip') + '<span class="w">Upgrades</span>' + (ready ? '<b class="badge">' + ready + '</b>' : '') + '</button>';
+    }).join('') + '<span class="sep"></span><button class="sheetbtn' + (spread ? ' can' : '') + '" data-sheet="regions" aria-label="Regions' + (spread ? ', ' + spread + ' you can spread to' : '') + '">' + ic('globe') + '<span class="w ph">Map</span>' + (spread ? '<b class="badge">' + spread + '</b>' : '') + '</button>' +
+      '<button class="sheetbtn up' + (ready ? ' hot' : '') + '" data-sheet="rack" aria-label="Upgrades' + (ready ? ', ' + ready + ' affordable' : '') + '">' + ic('chip') + '<span class="w">Upgrades</span>' + (ready ? '<b class="badge">' + ready + '</b>' : isFinite(nextCost) ? '<span class="next">' + cy + nextCost + '</span>' : '') + '</button>';
     if (dock !== lastDock) { $('dock').innerHTML = dock; lastDock = dock; }
     document.querySelectorAll('.spd [data-speed]').forEach(b => b.classList.toggle('on', +b.dataset.speed === cb.getSpeed()));
     renderAsk();
@@ -261,7 +269,7 @@ export function createHud(world, cb) {
     if (S && S.threat && S.threat.region && mode === 'play') {
       const id = S.threat.region, frac = S.threat.eta / 21, dst = Sim.actionState(S, 'decoy');
       const dodge = dst === 'cooldown' ? '<span class="dodge off">' + ic('duck') + S.cd.decoy + 'd</span>' : '<button class="dodge" data-act="decoy"' + (dst === 'ready' ? '' : ' aria-disabled="true"') + '>' + ic('duck') + '<span class="w">Dodge</span>' + cy + Sim.actionCost(S, 'decoy') + '</button>';
-      const loss = S.threat.type === 'firewall' ? '<span class="loss">' + ic('crack') + '▼45%</span>' : S.threat.type === 'patch' ? '<span class="loss">' + ic('shield') + '▲12</span>' : '';
+      const loss = S.threat.type === 'firewall' ? '<span class="loss">−45% here</span>' : S.threat.type === 'patch' ? '<span class="loss">harder to spread</span>' : '';
       const html = '<span class="ring" style="background:conic-gradient(var(--human) ' + (frac * 100).toFixed(0) + '%, var(--human-soft) 0)"></span>' + ic(S.threat.type === 'patch' ? 'shield' : 'wall') + '<b><span class="w">' + TNAME[S.threat.type] + '</span>' + S.threat.eta + 'd</b>' + loss + dodge;
       const sc = world.regionScreen(id, 3.2);
       if (sc.facing) {

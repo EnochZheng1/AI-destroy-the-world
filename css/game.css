@@ -455,3 +455,53 @@ body[data-mode="over"] .helpy, body[data-mode="over"] .meters, body[data-mode="o
   .helpy .gear { display: grid; }
   .regions:not(.open), .rack:not(.open) { transform: translateY(calc(100% + 160px)); }
 }
+
+/* ------------------------------------------------------------------ player review round 2 */
+/* HELPY's lines are the joke: wrap, never cut */
+.helpy span#say, .helpy > div > span { white-space: normal; overflow: visible; text-overflow: clip; }
+.helpy span { white-space: normal; }
+.helpy .dots { display: none !important; }
+/* coins are the one big number; the day is quiet */
+.econ .day { display: flex; flex-direction: column; align-items: flex-start; font: 600 15px/1 var(--mono); color: var(--dim); margin-left: 6px; }
+.econ .day small { font: 700 9px var(--wide); letter-spacing: .14em; color: var(--faint); margin: 0 0 3px; }
+.spdc { display: none; }
+/* drawers */
+.t.owned { height: 34px; flex-direction: row; gap: 6px; }
+.t.owned > .ic { width: 16px; height: 16px; }
+.sheetbtn .next { display: flex; align-items: center; font: 600 13px var(--mono); color: var(--faint); }
+.sheetbtn.can { border-color: rgba(255, 42, 69, .6); }
+.sheetbtn.can .ic { color: var(--ai); }
+.sheetbtn .ph { display: none; }
+.card.info .again { margin-top: 8px; font: 800 12px var(--wide); font-stretch: 112%; text-transform: uppercase; letter-spacing: .06em; color: var(--ai); }
+.threat .loss { font: 600 12px var(--mono); }
+body:has(.rack.open) .news, body:has(.regions.open) .news { opacity: 0; }
+@media (max-width: 760px) {
+  .helpy { height: auto; min-height: 62px; }
+  .helpy span { font-size: 10px; line-height: 1.25; }
+  .econ .day { display: none; }
+  .spd, .mute { display: none; }
+  .spdc { display: grid; place-items: center; width: 100%; height: 22px; border: 1px solid var(--edge); font: 600 12px var(--mono); color: var(--text); }
+  .econ { flex-wrap: wrap; height: auto; min-height: 62px; }
+  .sheetbtn { flex-direction: column; gap: 2px; }
+  .sheetbtn .ph, .sheetbtn .w { display: block; font: 700 9px var(--wide); letter-spacing: .06em; color: var(--dim); }
+  .sheetbtn.up .w { display: block; }
+  .sheetbtn .next { font-size: 10px; }
+  .sheetbtn .next .cy { width: 10px; height: 10px; }
+  .news { white-space: normal; text-align: center; }
+  /* compact permission card: the joke and two buttons, not half the screen */
+  .ask { padding: 10px 12px; }
+  .ask .h .lbl { display: none; }
+  .ask .h { position: absolute; right: 10px; top: 8px; }
+  .ask b.title { margin: 0 34px 4px 0; font-size: 17px; }
+  .code { margin-bottom: 8px; font-size: 12px; }
+  .ask .o { padding: 7px 8px; gap: 5px; }
+  .ask .o b { font-size: 14px; }
+  /* end: bottom sheet, planet stays the hero */
+  .end .panel { gap: 8px; padding: 16px; }
+  .end canvas, .end p { display: none; }
+  .end h2 { font-size: 24px; }
+  .stats { grid-template-columns: repeat(4, 1fr); }
+  .stats span { padding: 5px 2px; }
+  .stats .ic { display: none; }
+}
+@media (max-width: 760px) { .sheetbtn { width: auto; flex: 1; min-width: 50px; } .sheetbtn .w, .sheetbtn .ph { letter-spacing: 0; } }

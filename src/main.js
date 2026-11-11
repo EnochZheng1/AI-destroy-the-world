@@ -50,7 +50,8 @@ function save() { if (S && !S.over && mode === 'play' && Sim.rand.state) S.rngSt
 function loadSave() { const raw = storage(ls => ls.getItem(SAVE_KEY)); if (!raw) return null; try { const s = JSON.parse(raw); return s && s.v === 1 ? s : null; } catch (e) { return null; } }
 function clearSave() { storage(ls => ls.removeItem(SAVE_KEY)); }
 
-function setSpeed(v) { if (v > 0) lastSpeed = v; speed = v; document.querySelectorAll('.spd [data-speed]').forEach(b => b.classList.toggle('on', +b.dataset.speed === speed)); }
+function setSpeed(v) { if (v > 0) lastSpeed = v; speed = v; document.querySelectorAll('.spd [data-speed]').forEach(b => b.classList.toggle('on', +b.dataset.speed === speed)); $('spdCycle').textContent = v ? v + '×' : '❚❚'; }
+$('spdCycle').addEventListener('click', () => setSpeed({ 1: 2, 2: 4, 4: 0, 0: 1 }[speed]));
 
 function select(id) {
   selected = id; world.select(id);

@@ -66,7 +66,7 @@ export function createCoach(opts = {}) {
     reset() { state = {}; write(state); current = null; },
     update(S, mode, dt) {
       // one thing at a time: never on top of a permission card or an open panel
-      const busy = !document.getElementById('ask').hidden || !document.getElementById('settings').hidden;
+      const busy = !document.getElementById('ask').hidden || !document.getElementById('settings').hidden || !!document.querySelector('.card.info:not([hidden])');
       if (!S || mode !== 'play' || S.over || busy) { el.hidden = true; return; }
       if (current && current.done && current.done(S)) finish(current.id);
       if (current && current.timeout && (shownFor += dt) > current.timeout) finish(current.id, 'timeout');

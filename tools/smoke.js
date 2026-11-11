@@ -177,6 +177,16 @@ async function main() {
       ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'no horizontal scroll at ' + (q || 'title'));
       await shot(p, 'smoke-phone' + q.replace(/\W+/g, '-')); await p.close();
     }
+    {
+      const p = await open(ctx, '?play=G&day=220&pause=1', errs);
+      await p.evaluate(() => { window.__helpy.state.cycles += 300; window.__helpy.state.cd.overclock = 0; }); await p.waitForTimeout(400);
+      const oc = () => p.evaluate(() => window.__helpy.state.cd.overclock || 0);
+      await p.tap('[data-act="overclock"]'); await p.waitForTimeout(250);
+      ok(await oc() === 0 && /Tap again/.test(await p.$eval('#tip', e => e.hidden ? '' : e.textContent)), 'first tap on an action explains it without using it');
+      await p.tap('[data-act="overclock"]'); await p.waitForTimeout(250);
+      ok(await oc() > 0, 'second tap uses it');
+      await p.close();
+    }
     ok(errs.length === 0, 'no page errors' + (errs.length ? ': ' + errs.slice(0, 3).join(' | ') : ''));
     await ctx.close();
   }
