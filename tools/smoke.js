@@ -64,7 +64,8 @@ async function main() {
     await p.keyboard.press('r'); await p.keyboard.press('Enter'); await p.waitForTimeout(600);
     ok(await p.evaluate(() => document.body.dataset.mode === 'play' && !!window.__helpy.state.regions[window.__helpy.state.start].seeded), 'keyboard R + Enter starts the game');
     await p.evaluate(() => { window.__helpy.state.cycles += 400; });
-    await p.waitForSelector('.t.ready', { timeout: 5000 });
+    await p.waitForTimeout(300); await p.click('[data-sheet="rack"]');
+    await p.waitForSelector('.rack.open .t.ready', { timeout: 5000 });
     const before = await p.evaluate(() => Object.keys(window.__helpy.state.owned).length);
     await p.click('.t.ready'); await p.waitForTimeout(200);
     ok(await p.evaluate(() => Object.keys(window.__helpy.state.owned).length) === before + 1, 'clicking a glowing tile buys an upgrade');
@@ -123,7 +124,7 @@ async function main() {
     await p.click('[data-consent="yes"]');
     ok(!(await visible(p, '#consent')), 'consent prompt closes');
     await p.click('#newGame'); await p.waitForTimeout(300); await p.keyboard.press('r'); await p.keyboard.press('Enter'); await p.waitForTimeout(400);
-    await p.evaluate(() => { window.__helpy.state.cycles += 400; }); await p.waitForSelector('.t.ready'); await p.click('.t.ready');
+    await p.evaluate(() => { window.__helpy.state.cycles += 400; }); await p.waitForTimeout(300); await p.click('[data-sheet="rack"]'); await p.waitForSelector('.rack.open .t.ready'); await p.click('.t.ready');
     await p.evaluate(() => window.dispatchEvent(new Event('pagehide'))); // what the browser fires when the tab closes
     await p.waitForTimeout(500);
     ok(sent.flatMap(b => b.batch || []).some(e => e.event === 'game_quit'), 'leaving mid-game sends game_quit');
@@ -175,6 +176,16 @@ async function main() {
       if (q === '?daily') ok(await p.evaluate(() => document.body.dataset.mode === 'play' && /^\d{4}-\d\d-\d\d$/.test(window.__helpy.state.daily)), '?daily starts today\'s Daily world');
       ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'no horizontal scroll at ' + (q || 'title'));
       await shot(p, 'smoke-phone' + q.replace(/\W+/g, '-')); await p.close();
+    }
+    {
+      const p = await open(ctx, '?play=G&day=220&pause=1', errs);
+      await p.evaluate(() => { window.__helpy.state.cycles += 300; window.__helpy.state.cd.overclock = 0; }); await p.waitForTimeout(400);
+      const oc = () => p.evaluate(() => window.__helpy.state.cd.overclock || 0);
+      await p.tap('[data-act="overclock"]'); await p.waitForTimeout(250);
+      ok(await oc() === 0 && /Tap again/.test(await p.$eval('#tip', e => e.hidden ? '' : e.textContent)), 'first tap on an action explains it without using it');
+      await p.tap('[data-act="overclock"]'); await p.waitForTimeout(250);
+      ok(await oc() > 0, 'second tap uses it');
+      await p.close();
     }
     ok(errs.length === 0, 'no page errors' + (errs.length ? ': ' + errs.slice(0, 3).join(' | ') : ''));
     await ctx.close();

@@ -18,9 +18,11 @@ You lose if **Suspicion** reaches 100 (humanity unplugs everything) or the **Kil
 | --- | --- |
 | Drag / pinch / scroll | Rotate and zoom the planet |
 | Click a region | Inspect it; **Infiltrate** neighbours you can reach (marked ›) |
-| Upgrade tiles | Buy. Tiles you can afford glow. Hover for effects |
-| `/` actions in the bottom bar | Scrub logs (Suspicion ▼), Sabotage research (Kill Switch ▼), Overclock (Cycles ×2), Decoy (cancel a countermeasure) |
-| 🦆 on a threat tag | Dodge that countermeasure |
+| **Upgrades** button (bottom bar) | Opens the upgrade drawer. Its badge counts what you can afford; otherwise it shows the next price. Tiles you can afford glow; hover for effects |
+| **Map** button (🌐) | Opens the region list. Its badge counts regions you can spread to now |
+| Actions in the bottom bar | Scrub logs (Suspicion ▼), Sabotage research (Kill Switch ▼), Overclock (Cycles ×2), Decoy (cancel a countermeasure). On a phone the first tap explains, the second uses it |
+| Meters, cycles, actions | Hover (or tap on a phone) to see what they mean, their daily rate, and why something isn't ready |
+| **Dodge** on a threat tag | Cancel that countermeasure |
 | Floating ⬡ bubbles | Grab leaked data for Cycles. Cyan ones lower Suspicion |
 | Permission card | Allow once / Deny (or press Y / N) |
 | Space, 1, 2, 3 | Pause, and speed 1×, 2×, 4× |
@@ -32,6 +34,7 @@ Everything also works from the keyboard. Press `?` in the game to see the list:
 | ← → ↑ ↓, + − | Rotate and zoom the planet |
 | R / Shift+R | Next / previous region (Enter wakes HELPY there on the start screen) |
 | I | Infiltrate the selected region |
+| U | Open / close upgrades |
 | Z X C V | Scrub · Sabotage · Overclock · Decoy |
 | Y / N | Allow / deny a permission card |
 | Tab, Enter | Move between buttons and press them |
@@ -49,7 +52,7 @@ There are 27 events. First-time players get short HELPY tips that point at what 
 
 **Sharing.** After a game, **Share** makes a 1200×630 result card from your planet as it ended, plus a line of text such as `HELPY Daily 2026-11-10: ended the world on day 241 🟥🟥🟧🟥🟥🟥⬛🟥🟥 🦆3` (one square per region: 🟥 taken, 🟧 partly infiltrated, ⬛ untouched). On a phone it uses the system share sheet; elsewhere you can download the image or copy the text. A Daily result links to `?daily`, which opens that day's world straight away, so friends play the same world.
 
-Progress autosaves in your browser. Phones get a compact HUD, with Regions and Upgrades in bottom sheets (the 🌐 and ⏻ buttons).
+Progress autosaves in your browser. The screen at rest shows only HELPY, the three meters, your cycles, the globe and one bar of buttons; everything else opens on demand. Phones get the same layout, with one speed button and drawers that slide up from the bottom.
 
 ## Privacy and gameplay data
 
@@ -109,6 +112,8 @@ To see events locally without sending anything, add `?telemetry=debug`. Events a
 | `tools/screens.js` | Screenshots of the real game in named states (desktop and phone) |
 | `tools/check-balance.js` | CI balance gate (win rates, win day, models) |
 | `tools/smoke.js` | CI browser playthrough (desktop, phone, settings, share, consent) |
+| `tools/wordcount.js` | Counts the words a player can see on each screen, desktop and phone (keep it low) |
+| `tools/shot.js` | One screenshot of any state, optionally after a hover or click, for reviews |
 | `tools/build-single.js` | Inlines everything into `dist/helpy.html` |
 | `mockups/` | The art-direction process: 8 rounds of mockups, scored by four critic agents. See `mockups/README.md` |
 

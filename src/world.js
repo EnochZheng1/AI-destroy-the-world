@@ -256,7 +256,7 @@ export function createWorld(canvas) {
     drones.instanceMatrix.needsUpdate = true;
     sats.children.forEach(s => { s.visible = !!(S && S.owned.n3); const u = s.userData, a = perf * u.sp + u.ph; s.position.set(Math.cos(a) * 15.5, Math.sin(a) * Math.sin(u.inc) * 15.5, Math.sin(a) * Math.cos(u.inc) * 15.5); s.lookAt(0, 0, 0); });
     // kill switch
-    const ksOn = !!(S && S.ksActive), ksk = S ? S.killSwitch / 100 : 0;
+    const ksOn = !!(S && S.ksActive && S.over !== 'win'), ksk = S ? S.killSwitch / 100 : 0;
     { const p = regionVec('R'), nrm = p.clone().normalize(), up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion), w = THREE.MathUtils.smoothstep(nrm.dot(camera.position.clone().normalize()), .2, .7);
       ks.position.copy(p.clone().setLength(R + .2)); ks.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), up.lerp(nrm, w).normalize());
       ksRing.position.copy(p.clone().setLength(R + .25)); ksRing.lookAt(0, 0, 0); }
@@ -270,7 +270,7 @@ export function createWorld(canvas) {
     // hologram
     // hologram lives in a fixed screen slot (off the globe): bottom-right on desktop, top-right on phone, left on the title
     const phone = canvas.clientWidth < 760;
-    const slot = poster ? [.86, -.66] : phone ? [.66, .5] : (S ? [.8, -.5] : [-.62, .12]);
+    const slot = poster ? [.86, -.66] : phone ? [.62, .5] : S && S.over ? [-.66, -.42] : (S ? [.78 - doom * .1, -.5] : [-.62, .12]);
     const ndc = new THREE.Vector3(slot[0], slot[1], .5).unproject(camera).sub(camera.position).normalize();
     holo.position.copy(camera.position.clone().add(ndc.multiplyScalar(30))); holo.quaternion.copy(camera.quaternion);
     holo.scale.setScalar((poster ? .34 : phone ? .3 : .62) * (1 + doom * .35));

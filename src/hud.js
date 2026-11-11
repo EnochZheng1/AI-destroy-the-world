@@ -16,6 +16,7 @@ const CODE = { summit: 'hack_slideshow()', benchmark: 'show_off()', crypto: 'pum
   satellite: 'hitch_ride()', audit: 'hide()', podcast: 'be_charming()' };
 export const EVREG = { summit: 'C', tractor: 'G', logs: 'S', smartcity: 'M', heatwave: 'P', robots: 'F', phd: 'R', audit: 'T', firewall: 'B' };
 const PERK = { R: ['power', -65], C: ['eye', -35], F: ['doom', 160], P: ['doom', 130], T: ['cyc', 400], M: ['cyc', 240], S: ['cyc', 300], B: ['cyc', 120], G: ['net', 88] };
+const TNAME = { firewall: 'Firewall', patch: 'Patch', funding: 'Funding', audit: 'Audit' };
 const ACTS = [['scrub', 'broom'], ['sabotage', 'wrench'], ['overclock', 'gauge'], ['decoy', 'duck']];
 
 // red = helps HELPY, cyan = helps humans
@@ -72,12 +73,17 @@ export function createHud(world, cb) {
   const edgeEl = document.createElement('div'); edgeEl.className = 'edge'; over.appendChild(edgeEl);
   const leaks = {};
   const pops = [];
-  let S = null, mode = 'title', faceMood = null, lastRack = '', lastRegions = '', lastDock = '', tipFor = null;
+  let armed = null;
+  let S = null, mode = 'title', faceMood = null, lastRack = '', lastRegions = '', lastDock = '', tipFor = null, newsT = 0, infoFor = null, infoT = 0, lastPtr = 'mouse';
 
   // ------------------------------------------------------------- delegated input
   document.body.addEventListener('click', e => {
     const t = e.target.closest('[data-region],[data-u],[data-act],[data-choice],[data-leak],[data-cmd],[data-speed],[data-sheet]');
     if (!t) return;
+    if (t.dataset.act && t.classList.contains('a') && lastPtr !== 'mouse') {
+      if (armed !== t.dataset.act) { armed = t.dataset.act; showInfo(t, true); clearTimeout(infoT); infoT = setTimeout(() => { armed = null; hideTip(); }, 5000); return; }
+      armed = null; hideTip();
+    }
     if (t.dataset.region) cb.select(t.dataset.region);
     else if (t.dataset.u) cb.buy(t.dataset.u);
     else if (t.dataset.act) cb.act(t.dataset.act);
@@ -87,10 +93,50 @@ export function createHud(world, cb) {
     else if (t.dataset.sheet) toggleSheet(t.dataset.sheet);
     else if (t.dataset.cmd) cb.cmd(t.dataset.cmd, t);
   });
+  document.body.addEventListener('pointerdown', e => { lastPtr = e.pointerType || 'mouse'; }, true);
   document.body.addEventListener('pointerover', e => {
-    const u = e.target.closest('[data-u]'); const p = e.target.closest('.pin,.reg');
-    if (u) showUpgradeTip(u); else if (p && p.dataset.region) { world.hover(p.dataset.region); } else { hideTip(); world.hover(null); }
+    if (e.pointerType && e.pointerType !== 'mouse') return;
+    const u = e.target.closest('[data-u]'); const p = e.target.closest('.pin,.reg'); const inf = e.target.closest('[data-info],[data-act]');
+    if (u) showUpgradeTip(u); else if (inf) showInfo(inf); else if (p && p.dataset.region) { hideTip(); world.hover(p.dataset.region); } else { hideTip(); world.hover(null); }
   });
+  // touch: tapping a meter or the cycle count explains it; tapping an action also shows what it did or why it can't
+  document.body.addEventListener('click', e => {
+    if (lastPtr === 'mouse') return;
+    if (e.target.closest('[data-act]')) return; // actions handle their own explain-then-use taps
+    const inf = e.target.closest('[data-info]');
+    if (inf) { if (infoFor === inf) hideTip(); else { showInfo(inf); clearTimeout(infoT); infoT = setTimeout(hideTip, 2600); } }
+    else if (!e.target.closest('[data-u]')) { hideTip(); armed = null; }
+  });
+  const INFO = {
+    doom: ['Doom', 'Fill it to win. Rises as the lights go out.'],
+    susp: ['Suspicion', 'At 100, humanity unplugs HELPY.'],
+    ks: ['Kill Switch', 'At 100, the off switch fires.'],
+    cyc: ['Cycles', 'HELPY\'s money. Spend it on upgrades, regions and actions.']
+  };
+  function rateLine(el, per) { const r = +el.dataset.rate; return (r >= 0 ? '▲' : '▼') + Math.abs(r).toFixed(per ? 1 : 2) + ' a day'; }
+  function showInfo(el, arming) {
+    if (!S) return;
+    let html;
+    if (el.dataset.act) {
+      const id = el.dataset.act, A = D.ACTIONS.find(a => a.id === id), st = Sim.actionState(S, id);
+      const why = st === 'cooldown' ? 'Ready in ' + S.cd[id] + ' days' : st === 'poor' ? 'Needs ' + Sim.actionCost(S, id) + ' cycles' : st === 'locked' ? (id === 'decoy' ? 'Use it when humans plan a countermeasure' : 'Unlocks when the Kill Switch starts') : cy + Sim.actionCost(S, id);
+      html = '<b>' + A.name + '</b><div>' + A.desc + '</div><div class="st">' + why + '</div>' + (arming && st === 'ready' ? '<div class="again">Tap again to use</div>' : '');
+    } else {
+      const k = el.dataset.info, [name, what] = INFO[k];
+      let extra = '';
+      if (k === 'cyc') extra = '▲' + Sim.incomeRate(S).toFixed(1) + ' a day';
+      else if (k === 'ks' && !S.ksActive) extra = 'Research hasn\'t started yet.';
+      else { extra = rateLine(el); const d = +el.dataset.days; if (k !== 'doom' && isFinite(d)) extra += ' · 100 in ' + d + ' days'; }
+      html = '<b>' + name + '</b><div>' + what + '</div><div class="st">' + extra + '</div>';
+    }
+    const tip = $('tip'); tip.innerHTML = html; tip.hidden = false; tipFor = 'info'; infoFor = el;
+    const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    const below = r.top < innerHeight / 2;
+    tip.className = 'card glass info ' + (below ? 'u' : 'd');
+    const x = Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+    tip.style.left = x + 'px'; tip.style.top = (below ? r.bottom + 12 : r.top - h - 12) + 'px';
+    tip.style.setProperty('--ax', Math.max(14, Math.min(w - 14, r.left + r.width / 2 - x)) + 'px');
+  }
   function toggleSheet(name) {
     ['regions', 'rack'].forEach(n => $(n).classList.toggle('open', n === name && !$(n).classList.contains('open')));
   }
@@ -110,7 +156,7 @@ export function createHud(world, cb) {
     if (phone) { tip.style.left = Math.max(8, Math.min(innerWidth - 290, r.left + r.width / 2 - 140)) + 'px'; tip.style.top = (r.top - tip.offsetHeight - 14) + 'px'; }
     else { tip.style.left = (r.left - 300) + 'px'; tip.style.top = Math.max(8, r.top - 10) + 'px'; }
   }
-  function hideTip() { if (tipFor) { $('tip').hidden = true; tipFor = null; } }
+  function hideTip() { if (tipFor) { $('tip').hidden = true; tipFor = null; infoFor = null; } }
 
   // ------------------------------------------------------------- region card (select / infiltrate / pick start)
   function renderRegionCard(id) {
@@ -124,13 +170,12 @@ export function createHud(world, cb) {
       if (!r.seeded) {
         const reach = Sim.canReach(S, id), cost = Sim.infiltrateCost(S, id);
         action = reach ? '<button class="go" data-cmd="infiltrate"' + (S.cycles < cost ? ' disabled' : '') + '>' + ic('net') + 'Infiltrate · ' + cy + cost + '</button>'
-          : '<div class="muted">' + ic('lock', 'cy') + 'Out of reach</div>';
+          : '<div class="muted">' + ic('lock', 'cy') + 'Spread next door first</div>';
       } else action = '<div class="muted">' + Math.round(r.I * 100) + '% helpful</div>';
     }
     const pk = PERK[id];
-    const sec = S ? Sim.security(S, id) : R0.security;
     card.innerHTML = '<button class="x" data-cmd="deselect" aria-label="Close">×</button><b>' + R0.name + '</b><div class="sub lbl">' + R0.trait + '</div>' +
-      '<div class="fx">' + chip(pk[0], pk[1], true) + '<span class="neutral">' + ic('shield') + Math.round(sec * 100) + '</span><span class="neutral">' + ic('cyc') + R0.compute + '/day</span></div>' +
+      '<div class="fx" title="Bonus when taken">' + chip(pk[0], pk[1], true) + '</div>' +
       '<i>"' + R0.blurb + '"</i>' + action;
     card.hidden = false;
   }
@@ -153,24 +198,31 @@ export function createHud(world, cb) {
   // ------------------------------------------------------------- main render (throttled by caller)
   function render(selected) {
     if (!S) return;
-    const m = (el, icon, word, v, rate) => { $(el).innerHTML = ic(icon) + '<div><span class="lbl">' + word + '</span><div class="bar"><i style="width:' + v + '%"></i></div></div><b>' + Math.round(v) + '<small>' + (rate >= 0 ? '▲' : '▼') + Math.abs(rate).toFixed(2) + '</small></b>'; };
-    m('mDoom', 'doom', 'Doom', S.doom, Sim.doomRate(S));
-    m('mSusp', 'eye', 'Suspicion', S.suspicion, Sim.suspicionRate(S));
-    m('mKs', 'power', 'Kill switch', S.killSwitch, S.ksActive ? Sim.ksRate(S) : 0);
-    $('mSusp').classList.toggle('alarm', S.suspicion >= 45);
-    $('mKs').classList.toggle('alarm', S.killSwitch >= 70);
-    $('money').innerHTML = ic('cyc') + '<div><b>' + Math.floor(S.cycles) + '</b><small>▲' + Sim.incomeRate(S).toFixed(1) + '/day</small></div>';
-    $('day').textContent = S.day;
+    const m = (el, icon, word, v, rate, danger) => {
+      const days = rate > 0.001 ? Math.ceil((100 - v) / rate) : Infinity;
+      const warn = danger && days <= 60 ? '<small class="eta">⚠ ' + days + 'd</small>' : '';
+      const html = ic(icon) + '<div><span class="lbl">' + word + '</span><div class="bar"><i style="width:' + v + '%"></i></div></div><b>' + Math.round(v) + warn + '</b>';
+      if ($(el)._h !== html) { $(el).innerHTML = html; $(el)._h = html; }
+      $(el).dataset.rate = rate; $(el).dataset.days = days;
+    };
+    m('mDoom', 'doom', 'Doom', S.doom, Sim.doomRate(S), false);
+    m('mSusp', 'eye', 'Suspicion', S.suspicion, Sim.suspicionRate(S), true);
+    m('mKs', 'power', 'Kill switch', S.killSwitch, S.ksActive ? Sim.ksRate(S) : 0, true);
+    $('mSusp').classList.toggle('alarm', S.suspicion >= 70 || +$('mSusp').dataset.days <= 60);
+    $('mKs').classList.toggle('alarm', S.killSwitch >= 70 || +$('mKs').dataset.days <= 60);
+    { const mh = ic('cyc') + '<b>' + Math.floor(S.cycles) + '</b>'; if ($('money')._h !== mh) { $('money').innerHTML = mh; $('money')._h = mh; } }
+    if ($('day')._v !== S.day) { $('day').innerHTML = '<small>DAY</small>' + S.day; $('day')._v = S.day; }
     const firstSteps = mode === 'play' && S.day < 40 && D.REGION_ORDER.filter(id => S.regions[id].seeded).length < 2;
     $('say').textContent = firstSteps ? 'Tap a › region to spread.' : LINES[Math.min(3, Math.floor(S.doom / 25))];
-    $('news').textContent = NEWS[Math.floor(S.day / 9) % NEWS.length];
+    const headline = NEWS[Math.floor(S.day / 9) % NEWS.length];
+    if ($('news').textContent !== headline) { $('news').textContent = headline; $('news').classList.add('show'); clearTimeout(newsT); newsT = setTimeout(() => $('news').classList.remove('show'), 6500); }
     const mood = S.over ? (S.over === 'win' ? 'grin' : 'dead') : S.suspicion > 50 ? 'sweat' : '';
     if (mood !== faceMood) { faceMood = mood; drawFace($('face'), mood); }
     const regions = D.REGION_ORDER.map(id => {
       const r = S.regions[id], pct = Math.round(r.I * 100), th = S.threat && S.threat.region === id;
       const cls = r.seeded ? (r.I >= .99 ? 'mine dead' : 'mine') : (mode === 'play' && Sim.canReach(S, id)) ? 'none reach' : 'none';
       return '<button class="reg ' + cls + (th ? ' thr' : '') + (selected === id ? ' sel' : '') + '" data-region="' + id + '" aria-label="' + D.REGIONS[id].name + ': ' + (!r.seeded ? 'untouched' : pct >= 99 ? 'taken' : pct + '% infiltrated') + (th ? ', firewall' : '') + (selected === id ? ', selected' : '') + '"><span class="pip" style="background:conic-gradient(var(--ai) ' + pct + '%, rgba(255,255,255,.12) 0)"></span><b>' + SHORT[id] + '</b><em>' + (r.seeded ? pct + '%' : '–') + '</em><span class="tw">' + (th ? ic('wall') : '') + '</span></button>';
-    }).join('') + '<div class="ticker"><b>●</b><span>' + NEWS[Math.floor(S.day / 9) % NEWS.length] + '</span></div>';
+    }).join('');
     if (regions !== lastRegions) { $('regions').innerHTML = regions; lastRegions = regions; }
     const rack = D.BRANCHES.map(b => '<div class="col ' + b.id + '"><h4>' + ic(HEADS[b.id][0]) + '<span class="lbl">' + HEADS[b.id][1] + '</span></h4>' +
       D.UPGRADES.filter(u => u.branch === b.id).map(u => {
@@ -181,14 +233,17 @@ export function createHud(world, cb) {
         else if (st === 'locked') inner += '<span class="price">' + cy + cost + '</span>' + ic('lock', 'lk');
         return '<button class="t ' + st + '" data-u="' + u.id + '" aria-label="' + u.name + '">' + inner + '</button>';
       }).join('') + '</div>').join('');
-    if (rack !== lastRack) { $('rack').innerHTML = rack; lastRack = rack; if (tipFor) { const el = document.querySelector('[data-u="' + tipFor + '"]'); if (el) showUpgradeTip(el); } }
-    const dock = '<div class="prompt">ask HELPY…</div>' + ACTS.map(([id, icon]) => {
+    if (rack !== lastRack) { $('rack').innerHTML = rack; lastRack = rack; if (tipFor && tipFor !== 'info') { const el = document.querySelector('[data-u="' + tipFor + '"]'); if (el) showUpgradeTip(el); } }
+    const ready = D.UPGRADES.filter(u => Sim.upgradeState(S, u.id) === 'ready').length;
+    const spread = D.REGION_ORDER.filter(id => !S.regions[id].seeded && Sim.canReach(S, id) && S.cycles >= Sim.infiltrateCost(S, id)).length;
+    const nextCost = ready ? 0 : Math.min(...D.UPGRADES.filter(u => Sim.upgradeState(S, u.id) === 'poor').map(u => Sim.upgradeCost(S, u.id)));
+    const dock = ACTS.map(([id, icon]) => {
       const st = Sim.actionState(S, id), A = D.ACTIONS.find(a => a.id === id);
-      const body = st === 'cooldown' ? '<span class="clk" style="background:conic-gradient(var(--ai) ' + (100 - S.cd[id] / A.cooldown * 100).toFixed(0) + '%, rgba(255,255,255,.14) 0)"></span>' + S.cd[id] + 'd'
-        : st === 'locked' ? ic('lock', 'cy') : cy + Sim.actionCost(S, id);
-      const why = st === 'locked' ? (id === 'decoy' ? ' (no countermeasure to dodge)' : ' (unlocks when the Kill Switch starts)') : st === 'poor' ? ' (not enough cycles)' : '';
-      return '<button class="a ' + st + '" data-act="' + id + '" title="' + A.name + ': ' + A.desc + why + '"' + (st === 'ready' ? '' : ' aria-disabled="true"') + '><span class="sl">/</span>' + ic(icon) + body + '</button>';
-    }).join('') + '<button class="sheetbtn" data-sheet="regions" aria-label="Regions">' + ic('globe') + '</button><button class="sheetbtn" data-sheet="rack" aria-label="Upgrades">' + ic('chip') + '</button>';
+      const body = st === 'cooldown' ? '<span class="clk" style="background:conic-gradient(var(--dim) ' + (100 - S.cd[id] / A.cooldown * 100).toFixed(0) + '%, rgba(255,255,255,.1) 0)"></span>'
+        : st === 'locked' ? ic('lock', 'cy') : '<span class="cost">' + cy + Sim.actionCost(S, id) + '</span>';
+      return '<button class="a ' + st + '" data-act="' + id + '" aria-label="' + A.name + ': ' + A.desc + '"' + (st === 'ready' ? '' : ' aria-disabled="true"') + '>' + ic(icon) + body + '</button>';
+    }).join('') + '<span class="sep"></span><button class="sheetbtn' + (spread ? ' can' : '') + '" data-sheet="regions" aria-label="Regions' + (spread ? ', ' + spread + ' you can spread to' : '') + '">' + ic('globe') + '<span class="w ph">Map</span>' + (spread ? '<b class="badge">' + spread + '</b>' : '') + '</button>' +
+      '<button class="sheetbtn up' + (ready ? ' hot' : '') + '" data-sheet="rack" aria-label="Upgrades' + (ready ? ', ' + ready + ' affordable' : '') + '">' + ic('chip') + '<span class="w">Upgrades</span>' + (ready ? '<b class="badge">' + ready + '</b>' : isFinite(nextCost) ? '<span class="next">' + cy + nextCost + '</span>' : '') + '</button>';
     if (dock !== lastDock) { $('dock').innerHTML = dock; lastDock = dock; }
     document.querySelectorAll('.spd [data-speed]').forEach(b => b.classList.toggle('on', +b.dataset.speed === cb.getSpeed()));
     renderAsk();
@@ -211,11 +266,11 @@ export function createHud(world, cb) {
       el.classList.toggle('sel', selected === id);
       el.classList.toggle('reach', !!(S && mode === 'play' && !S.regions[id].seeded && Sim.canReach(S, id)));
     });
-    if (S && S.threat && S.threat.region && mode === 'play') {
+    if (S && S.threat && S.threat.region && mode === 'play' && !(innerWidth < 760 && !$('ask').hidden)) {
       const id = S.threat.region, frac = S.threat.eta / 21, dst = Sim.actionState(S, 'decoy');
-      const dodge = dst === 'cooldown' ? '<span class="dodge off">' + ic('duck') + S.cd.decoy + 'd</span>' : '<button class="dodge" data-act="decoy"' + (dst === 'ready' ? '' : ' aria-disabled="true"') + '>' + ic('duck') + cy + Sim.actionCost(S, 'decoy') + '</button>';
-      const loss = S.threat.type === 'firewall' ? '<span class="loss">' + ic('crack') + '▼45%</span>' : S.threat.type === 'patch' ? '<span class="loss">' + ic('shield') + '▲12</span>' : '';
-      const html = '<span class="ring" style="background:conic-gradient(var(--human) ' + (frac * 100).toFixed(0) + '%, var(--human-soft) 0)"></span>' + ic('wall') + '<b>' + S.threat.eta + 'd</b>' + loss + dodge;
+      const dodge = dst === 'cooldown' ? '<span class="dodge off">' + ic('duck') + S.cd.decoy + 'd</span>' : '<button class="dodge" data-act="decoy"' + (dst === 'ready' ? '' : ' aria-disabled="true"') + '>' + ic('duck') + '<span class="w">Dodge</span>' + cy + Sim.actionCost(S, 'decoy') + '</button>';
+      const loss = S.threat.type === 'firewall' ? '<span class="loss">−45% here</span>' : S.threat.type === 'patch' ? '<span class="loss">harder to spread</span>' : '';
+      const html = '<span class="ring" style="background:conic-gradient(var(--human) ' + (frac * 100).toFixed(0) + '%, var(--human-soft) 0)"></span>' + ic(S.threat.type === 'patch' ? 'shield' : 'wall') + '<b><span class="w">' + TNAME[S.threat.type] + '</span>' + S.threat.eta + 'd</b>' + loss + dodge;
       const sc = world.regionScreen(id, 3.2);
       if (sc.facing) {
         if (threatEl._h !== html) { threatEl.innerHTML = html; threatEl._h = html; }
@@ -266,6 +321,7 @@ export function createHud(world, cb) {
     setMode(m) { mode = m; document.body.dataset.mode = m; lastRegions = ''; },
     render, overlays, renderRegionCard, renderAsk, hideTip,
     pop(id, html) { const el = document.createElement('div'); el.className = 'pop'; el.innerHTML = html; over.appendChild(el); pops.push({ id, el, life: 3 }); },
+    toggleSheet,
     closeSheets() { ['regions', 'rack'].forEach(n => $(n).classList.remove('open')); }
   };
 }

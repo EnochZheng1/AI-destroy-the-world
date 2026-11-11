@@ -28,14 +28,16 @@
 <!-- HUD -->
 <header class="helpy glass"><canvas id="face" width="108" height="94"></canvas><div><b>HELPY</b><span><span id="say">Optimizing humanity.</span><span class="dots"><i></i><i></i><i></i></span></span></div><button class="gear" data-open-settings aria-label="Settings and keyboard shortcuts">⚙</button></header>
 <aside class="regions glass" id="regions"></aside>
-<div class="meters"><div class="m doom glass" id="mDoom"></div><div class="m susp glass" id="mSusp"></div><div class="m ks glass" id="mKs"></div></div>
+<div class="meters"><div class="m doom glass" id="mDoom" data-info="doom"></div><div class="m susp glass" id="mSusp" data-info="susp"></div><div class="m ks glass" id="mKs" data-info="ks"></div></div>
 <div class="econ glass">
-  <div class="money" id="money"></div>
-  <div class="day"><b id="day">0</b><small>DAY</small></div>
+  <div class="money" id="money" data-info="cyc"></div>
+  <div class="day" id="day"></div>
+  <button class="spdc" id="spdCycle" aria-label="Change speed">1×</button>
   <div class="spd" role="group" aria-label="Game speed">
     <button data-speed="0" aria-label="Pause (Space)">❚❚</button><button data-speed="1" aria-label="Speed 1">1×</button><button data-speed="2" aria-label="Speed 2">2×</button><button data-speed="4" aria-label="Speed 3">4×</button>
   </div>
   <button id="mute" class="mute" aria-label="Toggle sound">♪</button>
+  <button class="gear egear" data-open-settings aria-label="Settings and keyboard shortcuts">⚙</button>
 </div>
 <aside class="rack glass" id="rack"></aside>
 <nav class="dock glass" id="dock"></nav>
@@ -63,6 +65,7 @@
       <dt><kbd>+</kbd><kbd>−</kbd></dt><dd>Zoom</dd>
       <dt><kbd>R</kbd> / <kbd>Shift</kbd>+<kbd>R</kbd></dt><dd>Next / previous region</dd>
       <dt><kbd>I</kbd></dt><dd>Infiltrate the selected region</dd>
+      <dt><kbd>U</kbd></dt><dd>Open / close upgrades</dd>
       <dt><kbd>Z</kbd><kbd>X</kbd><kbd>C</kbd><kbd>V</kbd></dt><dd>Scrub · Sabotage · Overclock · Decoy</dd>
       <dt><kbd>Y</kbd> / <kbd>N</kbd></dt><dd>Allow / deny HELPY's request</dd>
       <dt><kbd>Tab</kbd></dt><dd>Move between buttons; <kbd>Enter</kbd> to press</dd>
@@ -89,7 +92,6 @@
   <pre id="shareText"></pre>
   <div class="row"><button class="primary" id="shareNative">Share</button><button id="shareDownload">Download image</button><button id="shareCopy">Copy text</button></div>
 </section>
-<div class="keys" aria-hidden="true"><kbd>Space</kbd> pause <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> speed <kbd>drag</kbd> rotate</div>
 
 <div class="posterTitle" aria-hidden="true"><b>HELPY</b><span>ends the world</span><em>A 3D strategy game · play free in your browser</em></div>
 
